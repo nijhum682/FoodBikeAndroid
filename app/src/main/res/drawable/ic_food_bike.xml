@@ -1,0 +1,50 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="100dp"
+    android:height="100dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+    
+    <!-- Bike wheel back -->
+    <path
+        android:fillColor="#4ECDC4"
+        android:pathData="M25,70m-12,0a12,12 0,1 1,24 0a12,12 0,1 1,-24 0"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M25,70m-6,0a6,6 0,1 1,12 0a6,6 0,1 1,-12 0"/>
+    
+    <!-- Bike wheel front -->
+    <path
+        android:fillColor="#4ECDC4"
+        android:pathData="M75,70m-12,0a12,12 0,1 1,24 0a12,12 0,1 1,-24 0"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M75,70m-6,0a6,6 0,1 1,12 0a6,6 0,1 1,-12 0"/>
+    
+    <!-- Bike frame -->
+    <path
+        android:strokeColor="#FF6B35"
+        android:strokeWidth="4"
+        android:fillColor="#00000000"
+        android:pathData="M25,70 L45,50 L75,70 M45,50 L55,30 L65,50 M45,50 L45,30"/>
+    
+    <!-- Food box -->
+    <path
+        android:fillColor="#FF6B35"
+        android:pathData="M35,25 L55,25 L55,45 L35,45 Z"/>
+    
+    <!-- Food box details -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M40,30 L50,30 L50,35 L40,35 Z"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M42,37 L48,37 L48,40 L42,40 Z"/>
+    
+    <!-- Steam -->
+    <path
+        android:strokeColor="#FFE66D"
+        android:strokeWidth="2"
+        android:fillColor="#00000000"
+        android:pathData="M40,22 Q42,18 40,14 M45,22 Q47,18 45,14 M50,22 Q52,18 50,14"/>
+    
+</vector>

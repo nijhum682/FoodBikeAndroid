@@ -1,0 +1,93 @@
+<resources>
+    <string name="app_name">FoodBike</string>
+    <string name="app_logo">App Logo</string>
+    
+    <!-- Auth Screens -->
+    <string name="sign_in">Sign In</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="email">Email</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="user_type">User Type</string>
+    <string name="create_account">Create Account</string>
+    <string name="welcome_back">Welcome Back</string>
+    <string name="signup_subtitle">Create your account to get started</string>
+    <string name="signin_subtitle">Sign in to continue</string>
+    <string name="already_have_account">Already have an account?</string>
+    <string name="dont_have_account">Don\'t have an account?</string>
+    
+    <!-- Dashboard Common -->
+    <string name="logout">Logout</string>
+    <string name="profile">Profile</string>
+    <string name="quick_actions">Quick Actions</string>
+    <string name="quick_stats">Quick Stats</string>
+    <string name="go">Go</string>
+    <string name="today_stats">Today\'s Stats</string>
+    
+    <!-- Admin Dashboard -->
+    <string name="admin_dashboard">Admin Dashboard</string>
+    <string name="welcome_admin">Welcome back,</string>
+    <string name="admin_role">Administrator</string>
+    <string name="total_users">Total Users</string>
+    <string name="total_orders">Total Orders</string>
+    <string name="restaurants">Restaurants</string>
+    <string name="active_bikers">Active Bikers</string>
+    <string name="manage_users">Manage Users</string>
+    <string name="manage_users_desc">View and manage all users</string>
+    <string name="view_reports">View Reports</string>
+    <string name="view_reports_desc">Analytics and insights</string>
+    
+    <!-- User Dashboard -->
+    <string name="user_dashboard">Home</string>
+    <string name="hungry">Hungry?</string>
+    <string name="find_food">Find your favorite food</string>
+    <string name="search">Search</string>
+    <string name="search_restaurants">Search restaurants or food</string>
+    <string name="categories">Categories</string>
+    <string name="all">All</string>
+    <string name="pizza">Pizza</string>
+    <string name="burger">Burger</string>
+    <string name="sushi">Sushi</string>
+    <string name="dessert">Dessert</string>
+    <string name="popular_restaurants">Popular Restaurants</string>
+    <string name="see_all">See All</string>
+    <string name="no_restaurants">No restaurants yet</string>
+    <string name="no_restaurants_desc">Check back soon for new restaurants</string>
+    <string name="home">Home</string>
+    <string name="orders">Orders</string>
+    
+    <!-- Entrepreneur Dashboard -->
+    <string name="entrepreneur_dashboard">Restaurant Dashboard</string>
+    <string name="welcome_entrepreneur">Welcome back,</string>
+    <string name="manage_restaurant">Manage your restaurant</string>
+    <string name="orders_today">Orders Today</string>
+    <string name="revenue_today">Revenue Today</string>
+    <string name="manage_menu">Manage Menu</string>
+    <string name="manage_menu_desc">Add, edit, or remove items</string>
+    <string name="view_orders">View Orders</string>
+    <string name="view_orders_desc">Track and manage orders</string>
+    <string name="restaurant_profile">Restaurant Profile</string>
+    <string name="restaurant_profile_desc">Update restaurant info</string>
+    <string name="menu">Menu</string>
+    
+    <!-- Biker Dashboard -->
+    <string name="biker_dashboard">Delivery Dashboard</string>
+    <string name="welcome_biker">Ready to ride,</string>
+    <string name="ready_to_deliver">Accept deliveries to earn</string>
+    <string name="availability_status">Availability Status</string>
+    <string name="online">Online</string>
+    <string name="offline">Offline</string>
+    <string name="deliveries_today">Deliveries Today</string>
+    <string name="earnings_today">Earnings Today</string>
+    <string name="current_delivery">Current Delivery</string>
+    <string name="no_delivery">No Delivery</string>
+    <string name="no_active_delivery">No Active Delivery</string>
+    <string name="no_active_delivery_desc">Go online to start accepting deliveries</string>
+    <string name="delivery_history">Delivery History</string>
+    <string name="delivery_history_desc">View past deliveries</string>
+    <string name="earnings">Earnings</string>
+    <string name="earnings_desc">Track your earnings</string>
+    <string name="deliveries">Deliveries</string>
+</resources>
