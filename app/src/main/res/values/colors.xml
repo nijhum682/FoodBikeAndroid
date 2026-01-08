@@ -29,6 +29,7 @@
     <color name="background">#F8F9FA</color>
     <color name="surface">#FFFFFF</color>
     <color name="light_gray">#ECEFF1</color>
+    <color name="divider">#E0E0E0</color>
     
     <!-- Standard Colors -->
     <color name="white">#FFFFFF</color>

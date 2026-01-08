@@ -50,6 +50,26 @@
             android:parentActivityName=".ui.order.CartActivity" />
         <activity android:name=".ui.order.OrderSuccessActivity"
             android:exported="false" />
+        
+        <!-- Restaurant Application -->
+        <activity android:name=".ui.dashboard.RestaurantApplicationActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.dashboard.EntrepreneurDashboardActivity" />
+        
+        <!-- My Applications -->
+        <activity android:name=".ui.dashboard.MyApplicationsActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.dashboard.EntrepreneurDashboardActivity" />
+        
+        <!-- Manage Menu -->
+        <activity android:name=".ui.dashboard.ManageMenuActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.dashboard.EntrepreneurDashboardActivity" />
+        
+        <!-- Restaurant Orders -->
+        <activity android:name=".ui.dashboard.RestaurantOrdersActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.dashboard.EntrepreneurDashboardActivity" />
             
     </application>
 

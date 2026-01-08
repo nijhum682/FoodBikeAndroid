@@ -2,6 +2,7 @@ package com.example.foodbikeandroid.data.database;
 
 import androidx.room.TypeConverter;
 
+import com.example.foodbikeandroid.data.model.ApplicationStatus;
 import com.example.foodbikeandroid.data.model.CartItem;
 import com.example.foodbikeandroid.data.model.MenuItem;
 import com.example.foodbikeandroid.data.model.OrderStatus;
@@ -12,11 +13,35 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
 
 public class Converters {
+
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+
+    @TypeConverter
+    public static String fromLocalDateTime(LocalDateTime dateTime) {
+        return dateTime == null ? null : dateTime.format(formatter);
+    }
+
+    @TypeConverter
+    public static LocalDateTime toLocalDateTime(String value) {
+        return value == null ? null : LocalDateTime.parse(value, formatter);
+    }
+
+    @TypeConverter
+    public static String fromApplicationStatus(ApplicationStatus status) {
+        return status == null ? null : status.name();
+    }
+
+    @TypeConverter
+    public static ApplicationStatus toApplicationStatus(String value) {
+        return value == null ? null : ApplicationStatus.valueOf(value);
+    }
 
     @TypeConverter
     public static String fromUserType(UserType userType) {

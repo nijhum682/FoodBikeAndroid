@@ -139,4 +139,113 @@
     <string name="restaurant">Restaurant</string>
     <string name="item_unavailable">Item unavailable</string>
     <string name="view_cart">View Cart (%d)</string>
+    
+    <!-- Restaurant Application -->
+    <string name="restaurant_application">Restaurant Application</string>
+    <string name="apply_restaurant">Apply for Restaurant</string>
+    <string name="apply_restaurant_desc">Fill out the form below to submit your restaurant application for review</string>
+    <string name="apply_restaurant_desc_short">Submit a new restaurant application</string>
+    <string name="restaurant_details">Restaurant Details</string>
+    <string name="restaurant_name">Restaurant Name</string>
+    <string name="address">Address</string>
+    <string name="select_division">Select Division</string>
+    <string name="select_district">Select District</string>
+    <string name="submit_application">Submit Application</string>
+    <string name="application_submitted">Application Submitted!</string>
+    <string name="application_success_message">Your restaurant application has been submitted successfully.\n\nApplication ID: %s\n\nYour application is now pending review. You will be notified once it has been processed.</string>
+    <string name="application_review_info">Your application will be reviewed by our admin team. This process typically takes 1–3 business days.</string>
+    <string name="error_restaurant_name_required">Restaurant name is required</string>
+    <string name="error_restaurant_name_min_length">Restaurant name must be at least 3 characters</string>
+    <string name="error_division_required">Please select a division</string>
+    <string name="error_district_required">Please select a district</string>
+    <string name="error_address_required">Address is required</string>
+    <string name="validation_error">Validation Error</string>
+    <string name="ok">OK</string>
+    <string name="info">Info</string>
+    
+    <!-- My Applications Screen -->
+    <string name="my_applications">My Applications</string>
+    <string name="my_applications_desc">View your submitted applications</string>
+    <string name="no_applications">No applications submitted yet</string>
+    <string name="submit_new_application">Submit New Application</string>
+    <string name="applied_date">Applied Date</string>
+    <string name="applied_on">Applied:</string>
+    <string name="status_pending">Pending</string>
+    <string name="status_approved">Approved</string>
+    <string name="status_rejected">Rejected</string>
+    <string name="application_details">Application Details</string>
+    <string name="admin_message">Admin Message</string>
+    <string name="unread_message">Unread message</string>
+    <string name="close">Close</string>
+    
+    <!-- Menu Management -->
+    <string name="menu_items_section">Menu Items</string>
+    <string name="menu_item_count">%d item(s) added</string>
+    <string name="menu_ready">Ready</string>
+    <string name="menu_needs_items">Need %d more</string>
+    <string name="no_menu_items">No Menu Items</string>
+    <string name="no_menu_items_desc">Tap the button below to add your first menu item</string>
+    <string name="no_menu_items_added">No menu items added yet</string>
+    <string name="add_menu_item">Add Menu Item</string>
+    <string name="edit_menu_item">Edit Menu Item</string>
+    <string name="add_item">Add Item</string>
+    <string name="item_name">Item Name</string>
+    <string name="item_description">Description</string>
+    <string name="item_price">Price</string>
+    <string name="item_available">Available for Order</string>
+    <string name="available">Available</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+    <string name="delete_menu_item">Delete Menu Item</string>
+    <string name="delete_menu_item_confirm">Are you sure you want to delete \"%s\"? This action cannot be undone.</string>
+    <string name="menu_item_added">Menu item added</string>
+    <string name="menu_item_updated">Menu item updated</string>
+    <string name="menu_item_deleted">Menu item deleted</string>
+    <string name="error_item_name_required">Item name is required</string>
+    <string name="error_item_name_min_length">Item name must be at least 2 characters</string>
+    <string name="error_item_description_required">Description is required</string>
+    <string name="error_item_price_required">Price is required</string>
+    <string name="error_item_price_positive">Price must be greater than 0</string>
+    <string name="error_item_price_invalid">Invalid price format</string>
+    <string name="error_minimum_menu_items">Please add at least %d menu items before submitting</string>
+    <string name="error_not_logged_in">You need to be logged in</string>
+    <string name="no_restaurants_to_manage">No restaurants available to manage</string>
+    <string name="select_restaurant">Select Restaurant</string>
+    
+    <!-- Entrepreneur Dashboard -->
+    <string name="pending_applications">Pending Applications</string>
+    <string name="approved_restaurants">Approved Restaurants</string>
+    <string name="total_orders_received">Total Orders Received</string>
+    <string name="total_revenue">Total Revenue</string>
+    <string name="my_restaurants">My Restaurants</string>
+    <string name="no_restaurants_yet">No Restaurants Yet</string>
+    <string name="apply_to_start">Apply for a restaurant to start receiving orders</string>
+    <string name="apply_now">Apply Now</string>
+    <string name="view_incoming_orders">View Incoming Orders</string>
+    <string name="today">Today</string>
+    <string name="revenue">Revenue</string>
+    <string name="pending">Pending</string>
+    
+    <!-- Restaurant Orders -->
+    <string name="restaurant_orders">Restaurant Orders</string>
+    <string name="all_orders">All Orders</string>
+    <string name="confirmed">Confirmed</string>
+    <string name="preparing">Preparing</string>
+    <string name="ready">Ready</string>
+    <string name="no_orders_yet">No Orders Yet</string>
+    <string name="orders_will_appear_here">Orders from customers will appear here</string>
+    <string name="accept_order">Accept Order</string>
+    <string name="reject">Reject</string>
+    <string name="mark_ready">Mark Ready</string>
+    <string name="order_accepted">Order accepted</string>
+    <string name="order_rejected">Order rejected</string>
+    <string name="order_marked_ready">Order marked as ready</string>
+    <string name="customer">Customer</string>
+    <string name="delivery_to">Delivery to</string>
+    <string name="confirm_accept_order">Accept order %s? The customer will be notified that their order is being prepared.</string>
+    <string name="confirm_reject_order">Reject order %s? This action cannot be undone.</string>
+    <string name="delivered">Delivered</string>
+    <string name="cancelled">Cancelled</string>
 </resources>

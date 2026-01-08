@@ -40,6 +40,7 @@ dependencies {
     implementation(libs.activity)
     implementation(libs.constraintlayout)
     implementation(libs.cardview)
+    implementation(libs.swiperefreshlayout)
     
     // Room Database
     implementation(libs.room.runtime)
