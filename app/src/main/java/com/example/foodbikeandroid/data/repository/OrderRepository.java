@@ -1,0 +1,131 @@
+package com.example.foodbikeandroid.data.repository;
+
+import android.app.Application;
+import android.os.Handler;
+import android.os.Looper;
+
+import androidx.lifecycle.LiveData;
+
+import com.example.foodbikeandroid.data.database.FoodBikeDatabase;
+import com.example.foodbikeandroid.data.database.OrderDao;
+import com.example.foodbikeandroid.data.model.Order;
+import com.example.foodbikeandroid.data.model.OrderStatus;
+
+import java.util.Calendar;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+public class OrderRepository {
+
+    private final OrderDao orderDao;
+    private final ExecutorService executorService;
+    private final Handler mainHandler;
+    private static final long AUTO_CANCEL_CHECK_INTERVAL = 5 * 60 * 1000;
+    private static final long ONE_HOUR_MILLIS = 60 * 60 * 1000;
+
+    public OrderRepository(Application application) {
+        FoodBikeDatabase database = FoodBikeDatabase.getInstance(application);
+        orderDao = database.orderDao();
+        executorService = Executors.newFixedThreadPool(4);
+        mainHandler = new Handler(Looper.getMainLooper());
+        startAutoCancelChecker();
+    }
+
+    public void insertOrder(Order order, OrderCallback callback) {
+        executorService.execute(() -> {
+            orderDao.insertOrder(order);
+            mainHandler.post(() -> {
+                if (callback != null) {
+                    callback.onSuccess(order);
+                }
+            });
+        });
+    }
+
+    public void updateOrder(Order order) {
+        executorService.execute(() -> orderDao.updateOrder(order));
+    }
+
+    public void updateOrderStatus(String orderId, OrderStatus status) {
+        executorService.execute(() -> orderDao.updateOrderStatus(orderId, status));
+    }
+
+    public void assignBiker(String orderId, String bikerId) {
+        executorService.execute(() -> orderDao.assignBiker(orderId, bikerId));
+    }
+
+    public LiveData<Order> getOrderById(String orderId) {
+        return orderDao.getOrderById(orderId);
+    }
+
+    public LiveData<List<Order>> getOrdersByUserId(String userId) {
+        return orderDao.getOrdersByUserId(userId);
+    }
+
+    public LiveData<List<Order>> getOrdersByRestaurantId(String restaurantId) {
+        return orderDao.getOrdersByRestaurantId(restaurantId);
+    }
+
+    public LiveData<List<Order>> getOrdersByBikerId(String bikerId) {
+        return orderDao.getOrdersByBikerId(bikerId);
+    }
+
+    public LiveData<List<Order>> getOrdersByStatus(OrderStatus status) {
+        return orderDao.getOrdersByStatus(status);
+    }
+
+    public LiveData<List<Order>> getOrdersByDistrictAndStatus(String district, OrderStatus status) {
+        return orderDao.getOrdersByDistrictAndStatus(district, status);
+    }
+
+    public LiveData<List<Order>> getAllOrders() {
+        return orderDao.getAllOrders();
+    }
+
+    public LiveData<Integer> getTodayOrderCount(String restaurantId) {
+        return orderDao.getTodayOrderCountByRestaurant(restaurantId, getStartOfDay());
+    }
+
+    public LiveData<Double> getTodayRevenue(String restaurantId) {
+        return orderDao.getTodayRevenueByRestaurant(restaurantId, getStartOfDay());
+    }
+
+    public LiveData<Integer> getTodayDeliveryCount(String bikerId) {
+        return orderDao.getTodayDeliveryCountByBiker(bikerId, getStartOfDay());
+    }
+
+    private long getStartOfDay() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        return calendar.getTimeInMillis();
+    }
+
+    private void startAutoCancelChecker() {
+        mainHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                checkAndAutoCancelOrders();
+                mainHandler.postDelayed(this, AUTO_CANCEL_CHECK_INTERVAL);
+            }
+        }, AUTO_CANCEL_CHECK_INTERVAL);
+    }
+
+    private void checkAndAutoCancelOrders() {
+        executorService.execute(() -> {
+            long threshold = System.currentTimeMillis() - ONE_HOUR_MILLIS;
+            List<Order> pendingOrders = orderDao.getPendingOrdersOlderThan(threshold);
+            for (Order order : pendingOrders) {
+                orderDao.updateOrderStatus(order.getOrderId(), OrderStatus.AUTO_CANCELLED);
+            }
+        });
+    }
+
+    public interface OrderCallback {
+        void onSuccess(Order order);
+        void onError(String error);
+    }
+}

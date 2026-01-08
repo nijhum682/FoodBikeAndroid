@@ -53,10 +53,26 @@
     <string name="dessert">Dessert</string>
     <string name="popular_restaurants">Popular Restaurants</string>
     <string name="see_all">See All</string>
-    <string name="no_restaurants">No restaurants yet</string>
-    <string name="no_restaurants_desc">Check back soon for new restaurants</string>
+    <string name="no_restaurants">No restaurants found</string>
+    <string name="no_restaurants_desc">Try changing your filters or search query</string>
     <string name="home">Home</string>
     <string name="orders">Orders</string>
+    
+    <!-- Restaurant -->
+    <string name="division">Division</string>
+    <string name="district">District</string>
+    <string name="all_divisions">All Divisions</string>
+    <string name="all_districts">All Districts</string>
+    <string name="restaurant_image">Restaurant Image</string>
+    <string name="open_now">Open</string>
+    <string name="closed">Closed</string>
+    <string name="rating">Rating</string>
+    <string name="location">Location</string>
+    <string name="restaurant_count">%d restaurants</string>
+    <string name="restaurant_selected">Selected: %s</string>
+    <string name="opening_hours">Opening Hours</string>
+    <string name="add">Add</string>
+    <string name="item_added_to_cart">%s added to cart</string>
     
     <!-- Entrepreneur Dashboard -->
     <string name="entrepreneur_dashboard">Restaurant Dashboard</string>
@@ -90,4 +106,37 @@
     <string name="earnings">Earnings</string>
     <string name="earnings_desc">Track your earnings</string>
     <string name="deliveries">Deliveries</string>
+    
+    <!-- Cart & Order -->
+    <string name="cart">Cart</string>
+    <string name="empty_cart">Your cart is empty</string>
+    <string name="empty_cart_desc">Add items from a restaurant to get started</string>
+    <string name="subtotal">Subtotal</string>
+    <string name="delivery_fee">Delivery Fee</string>
+    <string name="total">Total</string>
+    <string name="proceed_to_checkout">Proceed to Checkout</string>
+    <string name="from_restaurant">From %s</string>
+    <string name="decrease_quantity">Decrease quantity</string>
+    <string name="increase_quantity">Increase quantity</string>
+    <string name="remove_item">Remove item</string>
+    <string name="confirm_order">Confirm Order</string>
+    <string name="delivery_details">Delivery Details</string>
+    <string name="order_items">Order Items</string>
+    <string name="payment_method">Payment Method</string>
+    <string name="cash_on_delivery">Cash on Delivery</string>
+    <string name="mobile_banking">Mobile Banking</string>
+    <string name="order_summary">Order Summary</string>
+    <string name="place_order">Place Order</string>
+    <string name="cart_empty">Your cart is empty</string>
+    <string name="order_placed_success">Order placed successfully! ID: %s</string>
+    <string name="order_failed">Failed to place order: %s</string>
+    <string name="order_success">Order Success</string>
+    <string name="order_placed">Order Placed!</string>
+    <string name="order_success_message">Your order has been placed successfully. You will receive updates on your order status.</string>
+    <string name="order_id">Order ID</string>
+    <string name="track_order">Track Order</string>
+    <string name="back_to_home">Back to Home</string>
+    <string name="restaurant">Restaurant</string>
+    <string name="item_unavailable">Item unavailable</string>
+    <string name="view_cart">View Cart (%d)</string>
 </resources>

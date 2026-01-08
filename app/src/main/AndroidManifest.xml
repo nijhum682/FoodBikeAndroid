@@ -37,6 +37,19 @@
             android:exported="false" />
         <activity android:name=".ui.dashboard.BikerDashboardActivity"
             android:exported="false" />
+        <activity android:name=".ui.dashboard.RestaurantDetailActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.dashboard.UserDashboardActivity" />
+        
+        <!-- Order Activities -->
+        <activity android:name=".ui.order.CartActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.dashboard.RestaurantDetailActivity" />
+        <activity android:name=".ui.order.OrderConfirmationActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.order.CartActivity" />
+        <activity android:name=".ui.order.OrderSuccessActivity"
+            android:exported="false" />
             
     </application>
 

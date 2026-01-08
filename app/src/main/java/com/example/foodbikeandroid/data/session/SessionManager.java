@@ -13,6 +13,7 @@ public class SessionManager {
     private static final String KEY_PHONE_NUMBER = "phoneNumber";
     private static final String KEY_USER_TYPE = "userType";
     private static final String KEY_LOGIN_TIME = "loginTime";
+    private static final String KEY_USER_DISTRICT = "userDistrict";
     private final SharedPreferences sharedPreferences;
     private final SharedPreferences.Editor editor;
     private static volatile SessionManager INSTANCE;
@@ -69,7 +70,7 @@ public class SessionManager {
     public long getLoginTime() {
         return sharedPreferences.getLong(KEY_LOGIN_TIME, 0);
     }
-    public void lo
+    public void logout() {
         editor.clear();
         editor.apply();
     }
@@ -81,5 +82,14 @@ public class SessionManager {
             editor.putString(KEY_PHONE_NUMBER, phoneNumber);
         }
         editor.apply();
+    }
+
+    public void setUserDistrict(String district) {
+        editor.putString(KEY_USER_DISTRICT, district);
+        editor.apply();
+    }
+
+    public String getUserDistrict() {
+        return sharedPreferences.getString(KEY_USER_DISTRICT, "Unknown");
     }
 }

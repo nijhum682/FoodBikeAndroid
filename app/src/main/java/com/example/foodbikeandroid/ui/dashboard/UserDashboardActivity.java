@@ -2,25 +2,33 @@ package com.example.foodbikeandroid.ui.dashboard;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.foodbikeandroid.R;
+import com.example.foodbikeandroid.data.model.Restaurant;
 import com.example.foodbikeandroid.databinding.ActivityUserDashboardBinding;
 import com.example.foodbikeandroid.ui.auth.AuthViewModel;
 import com.example.foodbikeandroid.ui.auth.SignInActivity;
 
-/**
- * Dashboard activity for Regular User.
- */
+import java.util.List;
+
 public class UserDashboardActivity extends AppCompatActivity {
 
     private ActivityUserDashboardBinding binding;
     private AuthViewModel authViewModel;
+    private RestaurantViewModel restaurantViewModel;
+    private RestaurantAdapter restaurantAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,10 +37,15 @@ public class UserDashboardActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         authViewModel = new ViewModelProvider(this).get(AuthViewModel.class);
+        restaurantViewModel = new ViewModelProvider(this).get(RestaurantViewModel.class);
 
         setupToolbar();
         displayUserInfo();
         setupBottomNavigation();
+        setupRecyclerView();
+        setupFilters();
+        setupSearch();
+        observeRestaurants();
     }
 
     private void setupToolbar() {
@@ -55,14 +68,97 @@ public class UserDashboardActivity extends AppCompatActivity {
         binding.tvUsername.setText(username != null ? username : "User");
     }
 
+    private void setupRecyclerView() {
+        restaurantAdapter = new RestaurantAdapter();
+        binding.rvRestaurants.setLayoutManager(new LinearLayoutManager(this));
+        binding.rvRestaurants.setAdapter(restaurantAdapter);
+        
+        restaurantAdapter.setOnRestaurantClickListener(restaurant -> {
+            Intent intent = new Intent(this, RestaurantDetailActivity.class);
+            intent.putExtra(RestaurantDetailActivity.EXTRA_RESTAURANT_ID, restaurant.getId());
+            startActivity(intent);
+        });
+    }
+
+    private void setupFilters() {
+        List<String> divisions = restaurantViewModel.getDivisions();
+        ArrayAdapter<String> divisionAdapter = new ArrayAdapter<>(
+                this, android.R.layout.simple_spinner_item, divisions);
+        divisionAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        binding.spinnerDivision.setAdapter(divisionAdapter);
+
+        binding.spinnerDivision.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selectedDivision = divisions.get(position);
+                restaurantViewModel.setSelectedDivision(selectedDivision);
+                updateDistrictSpinner();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+
+        updateDistrictSpinner();
+    }
+
+    private void updateDistrictSpinner() {
+        List<String> districts = restaurantViewModel.getDistrictsForCurrentDivision();
+        ArrayAdapter<String> districtAdapter = new ArrayAdapter<>(
+                this, android.R.layout.simple_spinner_item, districts);
+        districtAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        binding.spinnerDistrict.setAdapter(districtAdapter);
+
+        binding.spinnerDistrict.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selectedDistrict = districts.get(position);
+                restaurantViewModel.setSelectedDistrict(selectedDistrict);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+    }
+
+    private void setupSearch() {
+        binding.etSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                restaurantViewModel.setSearchQuery(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+    }
+
+    private void observeRestaurants() {
+        restaurantViewModel.getRestaurants().observe(this, restaurants -> {
+            if (restaurants != null && !restaurants.isEmpty()) {
+                restaurantAdapter.submitList(restaurants);
+                binding.rvRestaurants.setVisibility(View.VISIBLE);
+                binding.layoutEmptyState.setVisibility(View.GONE);
+                binding.tvRestaurantCount.setText(
+                    getString(R.string.restaurant_count, restaurants.size()));
+            } else {
+                binding.rvRestaurants.setVisibility(View.GONE);
+                binding.layoutEmptyState.setVisibility(View.VISIBLE);
+                binding.tvRestaurantCount.setText(getString(R.string.restaurant_count, 0));
+            }
+        });
+    }
+
     private void setupBottomNavigation() {
         binding.bottomNav.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.nav_home) {
-                // Already on home
                 return true;
             } else if (itemId == R.id.nav_search) {
-                Toast.makeText(this, "Search - Coming Soon", Toast.LENGTH_SHORT).show();
+                binding.etSearch.requestFocus();
                 return true;
             } else if (itemId == R.id.nav_orders) {
                 Toast.makeText(this, "Orders - Coming Soon", Toast.LENGTH_SHORT).show();

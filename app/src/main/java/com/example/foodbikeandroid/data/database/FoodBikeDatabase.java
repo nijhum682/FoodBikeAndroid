@@ -7,10 +7,11 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 
+import com.example.foodbikeandroid.data.model.Order;
 import com.example.foodbikeandroid.data.model.Restaurant;
 import com.example.foodbikeandroid.data.model.User;
 
-@Database(entities = {User.class, Restaurant.class}, version = 2, exportSchema = false)
+@Database(entities = {User.class, Restaurant.class, Order.class}, version = 3, exportSchema = false)
 @TypeConverters(Converters.class)
 public abstract class FoodBikeDatabase extends RoomDatabase {
 
@@ -20,6 +21,8 @@ public abstract class FoodBikeDatabase extends RoomDatabase {
     public abstract UserDao userDao();
 
     public abstract RestaurantDao restaurantDao();
+
+    public abstract OrderDao orderDao();
 
     public static FoodBikeDatabase getInstance(Context context) {
         if (INSTANCE == null) {
