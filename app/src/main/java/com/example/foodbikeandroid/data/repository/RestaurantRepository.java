@@ -46,9 +46,8 @@ public class RestaurantRepository {
     public void initializeSampleData() {
         executorService.execute(() -> {
             int currentCount = restaurantDao.getRestaurantCount();
-            // Reset and reinitialize if count doesn't match expected 256 restaurants (64 districts × 4)
-            if (currentCount != 256) {
-                restaurantDao.deleteAll();
+            // Only initialize sample data if database is completely empty
+            if (currentCount == 0) {
                 restaurantDao.insertAll(createSampleRestaurants());
             }
         });
@@ -111,16 +110,54 @@ public class RestaurantRepository {
         return restaurantDao.getRestaurantsByCuisine(cuisineType);
     }
 
+    public interface OperationCallback {
+        void onSuccess();
+        void onError(String message);
+    }
+
     public void insert(Restaurant restaurant) {
         executorService.execute(() -> restaurantDao.insert(restaurant));
+    }
+
+    public void insert(Restaurant restaurant, OperationCallback callback) {
+        executorService.execute(() -> {
+            try {
+                restaurantDao.insert(restaurant);
+                if (callback != null) callback.onSuccess();
+            } catch (Exception e) {
+                if (callback != null) callback.onError(e.getMessage());
+            }
+        });
     }
 
     public void update(Restaurant restaurant) {
         executorService.execute(() -> restaurantDao.update(restaurant));
     }
 
+    public void update(Restaurant restaurant, OperationCallback callback) {
+        executorService.execute(() -> {
+            try {
+                restaurantDao.update(restaurant);
+                if (callback != null) callback.onSuccess();
+            } catch (Exception e) {
+                if (callback != null) callback.onError(e.getMessage());
+            }
+        });
+    }
+
     public void delete(Restaurant restaurant) {
         executorService.execute(() -> restaurantDao.delete(restaurant));
+    }
+
+    public void delete(Restaurant restaurant, OperationCallback callback) {
+        executorService.execute(() -> {
+            try {
+                restaurantDao.delete(restaurant);
+                if (callback != null) callback.onSuccess();
+            } catch (Exception e) {
+                if (callback != null) callback.onError(e.getMessage());
+            }
+        });
     }
 
     private List<Restaurant> createSampleRestaurants() {

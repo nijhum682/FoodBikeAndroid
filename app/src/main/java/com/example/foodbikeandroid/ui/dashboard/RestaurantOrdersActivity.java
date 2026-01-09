@@ -205,8 +205,20 @@ public class RestaurantOrdersActivity extends AppCompatActivity {
                 .setTitle(R.string.accept_order)
                 .setMessage(getString(R.string.confirm_accept_order, order.getOrderId()))
                 .setPositiveButton(R.string.accept_order, (dialog, which) -> {
-                    orderRepository.updateOrderStatus(order.getOrderId(), OrderStatus.CONFIRMED);
-                    Toast.makeText(this, R.string.order_accepted, Toast.LENGTH_SHORT).show();
+                    orderRepository.updateOrderStatus(order.getOrderId(), OrderStatus.CONFIRMED, 
+                        new OrderRepository.StatusUpdateCallback() {
+                            @Override
+                            public void onSuccess() {
+                                Toast.makeText(RestaurantOrdersActivity.this, 
+                                    R.string.order_accepted, Toast.LENGTH_SHORT).show();
+                            }
+
+                            @Override
+                            public void onError(String message) {
+                                Toast.makeText(RestaurantOrdersActivity.this, 
+                                    "Error: " + message, Toast.LENGTH_SHORT).show();
+                            }
+                        });
                 })
                 .setNegativeButton(R.string.cancel, null)
                 .show();
@@ -217,15 +229,39 @@ public class RestaurantOrdersActivity extends AppCompatActivity {
                 .setTitle(R.string.reject)
                 .setMessage(getString(R.string.confirm_reject_order, order.getOrderId()))
                 .setPositiveButton(R.string.reject, (dialog, which) -> {
-                    orderRepository.updateOrderStatus(order.getOrderId(), OrderStatus.CANCELLED);
-                    Toast.makeText(this, R.string.order_rejected, Toast.LENGTH_SHORT).show();
+                    orderRepository.updateOrderStatus(order.getOrderId(), OrderStatus.CANCELLED,
+                        new OrderRepository.StatusUpdateCallback() {
+                            @Override
+                            public void onSuccess() {
+                                Toast.makeText(RestaurantOrdersActivity.this, 
+                                    R.string.order_rejected, Toast.LENGTH_SHORT).show();
+                            }
+
+                            @Override
+                            public void onError(String message) {
+                                Toast.makeText(RestaurantOrdersActivity.this, 
+                                    "Error: " + message, Toast.LENGTH_SHORT).show();
+                            }
+                        });
                 })
                 .setNegativeButton(R.string.cancel, null)
                 .show();
     }
 
     private void markOrderReady(Order order) {
-        orderRepository.updateOrderStatus(order.getOrderId(), OrderStatus.READY);
-        Toast.makeText(this, R.string.order_marked_ready, Toast.LENGTH_SHORT).show();
+        orderRepository.updateOrderStatus(order.getOrderId(), OrderStatus.READY,
+            new OrderRepository.StatusUpdateCallback() {
+                @Override
+                public void onSuccess() {
+                    Toast.makeText(RestaurantOrdersActivity.this, 
+                        R.string.order_marked_ready, Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onError(String message) {
+                    Toast.makeText(RestaurantOrdersActivity.this, 
+                        "Error: " + message, Toast.LENGTH_SHORT).show();
+                }
+            });
     }
 }

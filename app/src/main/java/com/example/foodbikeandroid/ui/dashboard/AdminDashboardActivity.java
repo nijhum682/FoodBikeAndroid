@@ -113,10 +113,12 @@ public class AdminDashboardActivity extends AppCompatActivity {
 
     private void displayUserInfo() {
         String username = authViewModel.getCurrentUsername();
-        binding.tvUsername.setText(username != null ? username : "Admin");
+        binding.tvUsername.setText(username != null ? username + " (Admin)" : "Admin");
     }
 
     private void setupClickListeners() {
+        binding.btnLogout.setOnClickListener(v -> logout());
+        
         binding.cardViewApplications.setOnClickListener(v -> {
             openReviewApplications();
         });

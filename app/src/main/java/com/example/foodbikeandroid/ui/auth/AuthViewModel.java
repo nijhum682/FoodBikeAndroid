@@ -62,6 +62,13 @@ public class AuthViewModel extends AndroidViewModel {
      * Attempt to login with username and password.
      */
     public void login(String username, String password) {
+        login(username, password, false);
+    }
+    
+    /**
+     * Attempt to login with username, password, and remember me option.
+     */
+    public void login(String username, String password, boolean rememberMe) {
         // Validate inputs
         if (username == null || username.trim().isEmpty()) {
             errorMessage.setValue("Username is required");
@@ -73,7 +80,7 @@ public class AuthViewModel extends AndroidViewModel {
         }
 
         isLoading.setValue(true);
-        userRepository.loginUser(username.trim(), password, new UserRepository.AuthCallback() {
+        userRepository.loginUser(username.trim(), password, rememberMe, new UserRepository.AuthCallback() {
             @Override
             public void onSuccess(User user) {
                 isLoading.postValue(false);

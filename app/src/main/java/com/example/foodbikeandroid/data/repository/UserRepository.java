@@ -67,7 +67,12 @@ public class UserRepository {
             }
         });
     }
+    
     public void loginUser(String username, String password, AuthCallback callback) {
+        loginUser(username, password, false, callback);
+    }
+    
+    public void loginUser(String username, String password, boolean rememberMe, AuthCallback callback) {
         executorService.execute(() -> {
             try {
                 User user = userDao.authenticateUser(username, password);
@@ -76,7 +81,8 @@ public class UserRepository {
                             user.getUsername(),
                             user.getEmail(),
                             user.getPhoneNumber(),
-                            user.getUserType()
+                            user.getUserType(),
+                            rememberMe
                     );
                     callback.onSuccess(user);
                 } else {
@@ -118,6 +124,15 @@ public class UserRepository {
 
     public LiveData<User> getUserByUsername(String username) {
         return userDao.getUserByUsernameLive(username);
+    }
+
+    public String getUsernameSync(String userId) {
+        try {
+            User user = userDao.getUserByUsername(userId);
+            return user != null ? user.getUsername() : null;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public LiveData<List<User>> getAllUsers() {

@@ -14,6 +14,11 @@ public class SessionManager {
     private static final String KEY_USER_TYPE = "userType";
     private static final String KEY_LOGIN_TIME = "loginTime";
     private static final String KEY_USER_DISTRICT = "userDistrict";
+    private static final String KEY_LAST_ACTIVITY = "lastActivity";
+    private static final String KEY_REMEMBER_ME = "rememberMe";
+    
+    private static final long INACTIVITY_TIMEOUT = 30 * 60 * 1000; // 30 minutes
+    
     private final SharedPreferences sharedPreferences;
     private final SharedPreferences.Editor editor;
     private static volatile SessionManager INSTANCE;
@@ -40,11 +45,42 @@ public class SessionManager {
         editor.putString(KEY_EMAIL, email);
         editor.putString(KEY_PHONE_NUMBER, phoneNumber);
         editor.putString(KEY_USER_TYPE, userType.name());
-        editor.putLong(KEY_LOGIN_TIME, System.currentTimeMillis());
+        long currentTime = System.currentTimeMillis();
+        editor.putLong(KEY_LOGIN_TIME, currentTime);
+        editor.putLong(KEY_LAST_ACTIVITY, currentTime);
         editor.apply();
     }
+    
+    public void createLoginSession(String username, String email, 
+                                   String phoneNumber, UserType userType, boolean rememberMe) {
+        createLoginSession(username, email, phoneNumber, userType);
+        editor.putBoolean(KEY_REMEMBER_ME, rememberMe);
+        editor.apply();
+    }
+    
     public boolean isLoggedIn() {
-        return sharedPreferences.getBoolean(KEY_IS_LOGGED_IN, false);
+        boolean loggedIn = sharedPreferences.getBoolean(KEY_IS_LOGGED_IN, false);
+        if (!loggedIn) return false;
+        
+        boolean rememberMe = sharedPreferences.getBoolean(KEY_REMEMBER_ME, false);
+        if (rememberMe) return true;
+        
+        return !isSessionExpired();
+    }
+    
+    public boolean isSessionExpired() {
+        long lastActivity = sharedPreferences.getLong(KEY_LAST_ACTIVITY, 0);
+        long currentTime = System.currentTimeMillis();
+        return (currentTime - lastActivity) > INACTIVITY_TIMEOUT;
+    }
+    
+    public void updateLastActivity() {
+        editor.putLong(KEY_LAST_ACTIVITY, System.currentTimeMillis());
+        editor.apply();
+    }
+    
+    public boolean getRememberMe() {
+        return sharedPreferences.getBoolean(KEY_REMEMBER_ME, false);
     }
 
     public String getUsername() {

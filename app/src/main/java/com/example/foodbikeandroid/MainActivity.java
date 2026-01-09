@@ -11,6 +11,7 @@ import com.example.foodbikeandroid.data.model.UserType;
 import com.example.foodbikeandroid.data.repository.UserRepository;
 import com.example.foodbikeandroid.ui.auth.NavigationHelper;
 import com.example.foodbikeandroid.ui.auth.SignInActivity;
+import com.example.foodbikeandroid.work.WorkManagerInitializer;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -20,6 +21,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        WorkManagerInitializer.initialize(this);
 
         new Handler(Looper.getMainLooper()).postDelayed(this::checkAuthAndNavigate, SPLASH_DELAY);
     }

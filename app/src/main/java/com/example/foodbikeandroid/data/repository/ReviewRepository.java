@@ -92,6 +92,30 @@ public class ReviewRepository {
         });
     }
 
+    public List<Review> getByRestaurantNewestSync(String restaurantId) {
+        return reviewDao.getByRestaurantNewest(restaurantId);
+    }
+
+    public List<Review> getByRestaurantHighestRatedSync(String restaurantId) {
+        return reviewDao.getByRestaurantHighestRated(restaurantId);
+    }
+
+    public List<Review> getByRestaurantLowestRatedSync(String restaurantId) {
+        return reviewDao.getByRestaurantLowestRated(restaurantId);
+    }
+
+    public LiveData<List<Review>> getByRestaurantNewestLiveData(String restaurantId) {
+        return reviewDao.getByRestaurantNewestLiveData(restaurantId);
+    }
+
+    public LiveData<List<Review>> getByRestaurantHighestRatedLiveData(String restaurantId) {
+        return reviewDao.getByRestaurantHighestRatedLiveData(restaurantId);
+    }
+
+    public LiveData<List<Review>> getByRestaurantLowestRatedLiveData(String restaurantId) {
+        return reviewDao.getByRestaurantLowestRatedLiveData(restaurantId);
+    }
+
     public interface ReviewInsertCallback {
         void onSuccess();
         void onError(String message);

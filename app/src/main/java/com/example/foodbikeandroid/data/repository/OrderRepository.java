@@ -51,6 +51,17 @@ public class OrderRepository {
         executorService.execute(() -> orderDao.updateOrderStatus(orderId, status));
     }
 
+    public void updateOrderStatus(String orderId, OrderStatus status, StatusUpdateCallback callback) {
+        executorService.execute(() -> {
+            try {
+                orderDao.updateOrderStatus(orderId, status);
+                mainHandler.post(callback::onSuccess);
+            } catch (Exception e) {
+                mainHandler.post(() -> callback.onError(e.getMessage()));
+            }
+        });
+    }
+
     public void assignBiker(String orderId, String bikerId) {
         executorService.execute(() -> orderDao.assignBiker(orderId, bikerId));
     }

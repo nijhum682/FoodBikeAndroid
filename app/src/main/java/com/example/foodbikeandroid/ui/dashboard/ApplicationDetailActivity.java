@@ -23,6 +23,7 @@ import com.example.foodbikeandroid.data.model.ApplicationStatus;
 import com.example.foodbikeandroid.data.model.MenuItem;
 import com.example.foodbikeandroid.data.model.Restaurant;
 import com.example.foodbikeandroid.data.model.RestaurantApplication;
+import com.example.foodbikeandroid.data.repository.RestaurantRepository;
 import com.example.foodbikeandroid.databinding.ActivityApplicationDetailBinding;
 import com.example.foodbikeandroid.ui.auth.AuthViewModel;
 import com.google.android.material.button.MaterialButton;
@@ -43,6 +44,7 @@ public class ApplicationDetailActivity extends AppCompatActivity {
     private AdminActionDao adminActionDao;
     private RestaurantApplicationDao applicationDao;
     private RestaurantDao restaurantDao;
+    private RestaurantRepository restaurantRepository;
     private AuthViewModel authViewModel;
     
     private RestaurantApplication currentApplication;
@@ -61,6 +63,7 @@ public class ApplicationDetailActivity extends AppCompatActivity {
         adminActionDao = database.adminActionDao();
         applicationDao = database.restaurantApplicationDao();
         restaurantDao = database.restaurantDao();
+        restaurantRepository = RestaurantRepository.getInstance(getApplication());
         
         authViewModel = new ViewModelProvider(this).get(AuthViewModel.class);
 
@@ -264,6 +267,9 @@ public class ApplicationDetailActivity extends AppCompatActivity {
                     currentApplication.getAddress()
             );
             restaurant.setRating(currentApplication.getRating());
+            restaurant.setCuisineType("Mixed");
+            restaurant.setOpen(true);
+            restaurant.setOpeningHours("9:00 AM - 10:00 PM");
             
             // Copy menu items
             List<MenuItem> menuItems = currentApplication.getMenuItems();
@@ -282,21 +288,38 @@ public class ApplicationDetailActivity extends AppCompatActivity {
                 }
                 restaurant.setMenuItems(copiedMenuItems);
             }
-            
-            restaurantDao.insert(restaurant);
+            // Insert restaurant using repository with callback
+            restaurantRepository.insert(restaurant, new RestaurantRepository.OperationCallback() {
+                @Override
+                public void onSuccess() {
+                    // Log admin action after successful restaurant creation
+                    Executors.newSingleThreadExecutor().execute(() -> {
+                        String adminUsername = authViewModel.getCurrentUsername();
+                        if (adminUsername == null) adminUsername = "Admin";
+                        AdminAction action = new AdminAction(adminUsername, ActionType.APPROVED_APPLICATION,
+                                currentApplication.getRestaurantName(), 
+                                "Approved and created restaurant with ID: " + restaurantId);
+                        adminActionDao.insert(action);
+                    });
 
-            // Log admin action
-            String adminUsername = authViewModel.getCurrentUsername();
-            if (adminUsername == null) adminUsername = "Admin";
-            AdminAction action = new AdminAction(adminUsername, ActionType.APPROVED_APPLICATION,
-                    currentApplication.getRestaurantName(), 
-                    "Approved and created restaurant with ID: " + restaurantId);
-            adminActionDao.insert(action);
+                    runOnUiThread(() -> {
+                        Toast.makeText(ApplicationDetailActivity.this, 
+                            getString(R.string.application_approved) + " - " + currentApplication.getRestaurantName() + " is now visible to users", 
+                            Toast.LENGTH_LONG).show();
+                        setResult(RESULT_OK);
+                        finish();
+                    });
+                }
 
-            runOnUiThread(() -> {
-                Toast.makeText(this, R.string.application_approved, Toast.LENGTH_SHORT).show();
-                setResult(RESULT_OK);
-                finish();
+                @Override
+                public void onError(String message) {
+                    runOnUiThread(() -> {
+                        Toast.makeText(ApplicationDetailActivity.this, 
+                            "Error creating restaurant: " + message, Toast.LENGTH_LONG).show();
+                        binding.btnApprove.setEnabled(true);
+                        binding.btnReject.setEnabled(true);
+                    });
+                }
             });
         });
     }

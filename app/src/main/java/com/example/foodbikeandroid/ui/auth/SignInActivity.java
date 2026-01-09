@@ -45,8 +45,9 @@ public class SignInActivity extends AppCompatActivity {
     private void attemptSignIn() {
         String username = binding.etUsername.getText().toString();
         String password = binding.etPassword.getText().toString();
+        boolean rememberMe = binding.cbRememberMe.isChecked();
 
-        authViewModel.login(username, password);
+        authViewModel.login(username, password, rememberMe);
     }
 
     private void observeViewModel() {

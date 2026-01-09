@@ -102,4 +102,7 @@ public interface OrderDao {
 
     @Query("SELECT * FROM orders WHERE bikerId = :bikerId AND status = 'DELIVERED' ORDER BY deliveredAt DESC")
     List<Order> getCompletedOrdersByBikerSync(String bikerId);
+    
+    @Query("SELECT * FROM orders WHERE status = :status")
+    List<Order> getOrdersByStatusSync(OrderStatus status);
 }

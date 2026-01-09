@@ -211,20 +211,34 @@ public class AdminManageRestaurantsActivity extends AppCompatActivity
     private void deleteRestaurant(Restaurant restaurant) {
         String adminUsername = authViewModel.getCurrentUsername();
         
-        restaurantRepository.delete(restaurant);
+        restaurantRepository.delete(restaurant, new RestaurantRepository.OperationCallback() {
+            @Override
+            public void onSuccess() {
+                Executors.newSingleThreadExecutor().execute(() -> {
+                    AdminAction action = new AdminAction(
+                            adminUsername,
+                            ActionType.DELETED_RESTAURANT,
+                            restaurant.getName(),
+                            "Deleted restaurant: " + restaurant.getName() + " (ID: " + restaurant.getId() + ")"
+                    );
+                    adminActionDao.insert(action);
+                });
 
-        Executors.newSingleThreadExecutor().execute(() -> {
-            AdminAction action = new AdminAction(
-                    adminUsername,
-                    ActionType.DELETED_RESTAURANT,
-                    restaurant.getName(),
-                    "Deleted restaurant: " + restaurant.getName() + " (ID: " + restaurant.getId() + ")"
-            );
-            adminActionDao.insert(action);
+                runOnUiThread(() -> 
+                    Toast.makeText(AdminManageRestaurantsActivity.this, 
+                        getString(R.string.restaurant_deleted, restaurant.getName()), 
+                        Toast.LENGTH_SHORT).show()
+                );
+            }
+
+            @Override
+            public void onError(String message) {
+                runOnUiThread(() -> 
+                    Toast.makeText(AdminManageRestaurantsActivity.this, 
+                        "Error deleting: " + message, Toast.LENGTH_SHORT).show()
+                );
+            }
         });
-
-        Toast.makeText(this, getString(R.string.restaurant_deleted, restaurant.getName()), 
-                Toast.LENGTH_SHORT).show();
     }
 
     private void showAddRestaurantDialog() {

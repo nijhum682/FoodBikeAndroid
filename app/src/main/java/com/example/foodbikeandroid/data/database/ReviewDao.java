@@ -33,4 +33,22 @@ public interface ReviewDao {
 
     @Query("SELECT COUNT(*) FROM reviews WHERE restaurantId = :restaurantId")
     int getReviewCount(String restaurantId);
+
+    @Query("SELECT * FROM reviews WHERE restaurantId = :restaurantId ORDER BY createdAt DESC")
+    List<Review> getByRestaurantNewest(String restaurantId);
+
+    @Query("SELECT * FROM reviews WHERE restaurantId = :restaurantId ORDER BY rating DESC, createdAt DESC")
+    List<Review> getByRestaurantHighestRated(String restaurantId);
+
+    @Query("SELECT * FROM reviews WHERE restaurantId = :restaurantId ORDER BY rating ASC, createdAt DESC")
+    List<Review> getByRestaurantLowestRated(String restaurantId);
+
+    @Query("SELECT * FROM reviews WHERE restaurantId = :restaurantId ORDER BY createdAt DESC")
+    LiveData<List<Review>> getByRestaurantNewestLiveData(String restaurantId);
+
+    @Query("SELECT * FROM reviews WHERE restaurantId = :restaurantId ORDER BY rating DESC, createdAt DESC")
+    LiveData<List<Review>> getByRestaurantHighestRatedLiveData(String restaurantId);
+
+    @Query("SELECT * FROM reviews WHERE restaurantId = :restaurantId ORDER BY rating ASC, createdAt DESC")
+    LiveData<List<Review>> getByRestaurantLowestRatedLiveData(String restaurantId);
 }

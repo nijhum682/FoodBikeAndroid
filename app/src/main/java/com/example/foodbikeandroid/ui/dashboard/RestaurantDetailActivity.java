@@ -18,8 +18,10 @@ import com.example.foodbikeandroid.data.model.UserType;
 import com.example.foodbikeandroid.databinding.ActivityRestaurantDetailBinding;
 import com.example.foodbikeandroid.ui.auth.AuthViewModel;
 import com.example.foodbikeandroid.ui.order.CartActivity;
+import com.example.foodbikeandroid.data.repository.ReviewRepository;
 
 import java.util.List;
+import java.util.Locale;
 
 public class RestaurantDetailActivity extends AppCompatActivity implements CartManager.CartUpdateListener {
 
@@ -28,6 +30,7 @@ public class RestaurantDetailActivity extends AppCompatActivity implements CartM
     private ActivityRestaurantDetailBinding binding;
     private RestaurantViewModel viewModel;
     private AuthViewModel authViewModel;
+    private ReviewRepository reviewRepository;
     private MenuItemAdapter menuAdapter;
     private CartManager cartManager;
     private String currentRestaurantId;
@@ -41,6 +44,7 @@ public class RestaurantDetailActivity extends AppCompatActivity implements CartM
         setContentView(binding.getRoot());
 
         viewModel = new ViewModelProvider(this).get(RestaurantViewModel.class);
+        reviewRepository = ReviewRepository.getInstance(this);
         authViewModel = new ViewModelProvider(this).get(AuthViewModel.class);
         cartManager = CartManager.getInstance();
         cartManager.setCartUpdateListener(this);
@@ -52,6 +56,7 @@ public class RestaurantDetailActivity extends AppCompatActivity implements CartM
         setupToolbar();
         setupRecyclerView();
         setupCartButton();
+        setupReviewsSection();
         setupAdminEditMenu();
         
         String restaurantId = getIntent().getStringExtra(EXTRA_RESTAURANT_ID);
@@ -112,7 +117,44 @@ public class RestaurantDetailActivity extends AppCompatActivity implements CartM
             if (restaurant != null) {
                 currentRestaurantName = restaurant.getName();
                 displayRestaurantDetails(restaurant);
+                loadReviewsData(restaurantId);
             }
+        });
+    }
+
+    private void setupReviewsSection() {
+        binding.btnViewReviews.setOnClickListener(v -> {
+            if (currentRestaurantId != null) {
+                Intent intent = new Intent(this, ReviewsListActivity.class);
+                intent.putExtra(ReviewsListActivity.EXTRA_RESTAURANT_ID, currentRestaurantId);
+                intent.putExtra(ReviewsListActivity.EXTRA_RESTAURANT_NAME, currentRestaurantName);
+                startActivity(intent);
+            }
+        });
+    }
+
+    private void loadReviewsData(String restaurantId) {
+        reviewRepository.getAverageRating(restaurantId, (averageRating, count) -> {
+            runOnUiThread(() -> {
+                // Update average rating display
+                binding.tvAverageRating.setText(String.format(Locale.getDefault(), "%.1f", averageRating));
+                binding.rbAverageRating.setRating((float) averageRating);
+
+                // Update review count
+                String reviewCountText;
+                if (count == 1) {
+                    reviewCountText = getString(R.string.review_count, count);
+                } else {
+                    reviewCountText = getString(R.string.review_count_plural, count);
+                }
+                binding.tvReviewsCount.setText(reviewCountText);
+
+                // Show or hide reviews section based on count
+                if (count == 0) {
+                    binding.tvAverageRating.setText("0.0");
+                    binding.rbAverageRating.setRating(0);
+                }
+            });
         });
     }
 
@@ -163,6 +205,10 @@ public class RestaurantDetailActivity extends AppCompatActivity implements CartM
     protected void onResume() {
         super.onResume();
         updateCartUI();
+        // Reload reviews data in case a new review was added
+        if (currentRestaurantId != null) {
+            loadReviewsData(currentRestaurantId);
+        }
     }
 
     @Override

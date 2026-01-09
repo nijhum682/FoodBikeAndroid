@@ -52,21 +52,52 @@
                         android:padding="20dp"
                         android:background="@drawable/gradient_secondary">
 
-                        <TextView
-                            android:layout_width="wrap_content"
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@string/welcome_entrepreneur"
-                            android:textSize="14sp"
-                            android:textColor="@color/white" />
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
 
-                        <TextView
-                            android:id="@+id/tvUsername"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textSize="24sp"
-                            android:textStyle="bold"
-                            android:textColor="@color/white"
-                            android:layout_marginTop="4dp" />
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="FoodBike"
+                                    android:textSize="28sp"
+                                    android:textStyle="bold"
+                                    android:textColor="@color/white" />
+
+                                <TextView
+                                    android:id="@+id/tvUsername"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:textSize="18sp"
+                                    android:textColor="@color/white"
+                                    android:layout_marginTop="4dp" />
+
+                            </LinearLayout>
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnLogout"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/logout"
+                                android:textColor="@color/secondary"
+                                app:backgroundTint="@color/white"
+                                app:cornerRadius="20dp"
+                                android:textSize="12sp"
+                                android:paddingHorizontal="16dp"
+                                android:paddingVertical="8dp"
+                                app:icon="@drawable/ic_logout"
+                                app:iconTint="@color/secondary"
+                                app:iconSize="16dp" />
+
+                        </LinearLayout>
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -75,6 +106,58 @@
                             android:textSize="12sp"
                             android:textColor="@color/white_70"
                             android:layout_marginTop="8dp" />
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Restaurant Status Toggle -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardRestaurantStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="4dp"
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="16dp"
+                        android:gravity="center_vertical">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Restaurant Status"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/text_primary" />
+
+                            <TextView
+                                android:id="@+id/tvRestaurantStatus"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Open"
+                                android:textSize="14sp"
+                                android:textColor="@color/success"
+                                android:layout_marginTop="4dp" />
+
+                        </LinearLayout>
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/switchRestaurantStatus"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checked="true" />
 
                     </LinearLayout>
 

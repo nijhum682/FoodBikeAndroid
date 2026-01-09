@@ -54,10 +54,12 @@ public class BikerDashboardActivity extends AppCompatActivity {
 
     private void displayUserInfo() {
         String username = authViewModel.getCurrentUsername();
-        binding.tvUsername.setText(username != null ? username : "Biker");
+        binding.tvUsername.setText(username != null ? username + " (Biker)" : "Biker");
     }
 
     private void setupClickListeners() {
+        binding.btnLogout.setOnClickListener(v -> logout());
+        
         binding.switchAvailability.setOnCheckedChangeListener((buttonView, isChecked) -> {
             isOnline = isChecked;
             if (isChecked) {

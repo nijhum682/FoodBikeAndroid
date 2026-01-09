@@ -126,6 +126,11 @@
             android:exported="false"
             android:parentActivityName=".ui.dashboard.UserOrderHistoryActivity" />
         
+        <!-- Reviews List -->
+        <activity android:name=".ui.dashboard.ReviewsListActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.dashboard.RestaurantDetailActivity" />
+        
         <!-- File Provider for export -->
         <provider
             android:name="androidx.core.content.FileProvider"

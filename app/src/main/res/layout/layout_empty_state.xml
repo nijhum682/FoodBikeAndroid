@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/emptyStateContainer"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="32dp"
+    android:visibility="gone">
+
+    <ImageView
+        android:id="@+id/emptyStateImage"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:src="@drawable/ic_empty_state"
+        android:contentDescription="@string/empty_state"
+        android:alpha="0.6" />
+
+    <TextView
+        android:id="@+id/emptyStateTitle"
+        style="@style/TextAppearance.App.EmptyState.Title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="@string/no_data_found" />
+
+    <TextView
+        android:id="@+id/emptyStateMessage"
+        style="@style/TextAppearance.App.EmptyState.Message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/empty_state_message" />
+
+    <Button
+        android:id="@+id/emptyStateAction"
+        style="@style/Widget.App.Button.Secondary"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="@string/refresh"
+        android:visibility="gone" />
+
+</LinearLayout>

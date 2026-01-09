@@ -47,21 +47,52 @@
                     android:padding="20dp"
                     android:background="@drawable/gradient_primary">
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/hungry"
-                        android:textSize="14sp"
-                        android:textColor="@color/white" />
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
 
-                    <TextView
-                        android:id="@+id/tvUsername"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="24sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/white"
-                        android:layout_marginTop="4dp" />
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="FoodBike"
+                                android:textSize="28sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/white" />
+
+                            <TextView
+                                android:id="@+id/tvUsername"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textSize="18sp"
+                                android:textColor="@color/white"
+                                android:layout_marginTop="4dp" />
+
+                        </LinearLayout>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnLogout"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/logout"
+                            android:textColor="@color/primary"
+                            app:backgroundTint="@color/white"
+                            app:cornerRadius="20dp"
+                            android:textSize="12sp"
+                            android:paddingHorizontal="16dp"
+                            android:paddingVertical="8dp"
+                            app:icon="@drawable/ic_logout"
+                            app:iconTint="@color/primary"
+                            app:iconSize="16dp" />
+
+                    </LinearLayout>
 
                     <TextView
                         android:layout_width="wrap_content"

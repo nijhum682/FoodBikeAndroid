@@ -15,9 +15,11 @@ import com.example.foodbikeandroid.R;
 import com.example.foodbikeandroid.data.model.ApplicationStatus;
 import com.example.foodbikeandroid.data.model.Order;
 import com.example.foodbikeandroid.data.model.OrderStatus;
+import com.example.foodbikeandroid.data.model.Restaurant;
 import com.example.foodbikeandroid.data.model.RestaurantApplication;
 import com.example.foodbikeandroid.data.repository.OrderRepository;
 import com.example.foodbikeandroid.data.repository.RestaurantApplicationRepository;
+import com.example.foodbikeandroid.data.repository.RestaurantRepository;
 import com.example.foodbikeandroid.databinding.ActivityEntrepreneurDashboardBinding;
 import com.example.foodbikeandroid.ui.auth.AuthViewModel;
 import com.example.foodbikeandroid.ui.auth.SignInActivity;
@@ -32,11 +34,13 @@ public class EntrepreneurDashboardActivity extends AppCompatActivity {
     private ActivityEntrepreneurDashboardBinding binding;
     private AuthViewModel authViewModel;
     private RestaurantApplicationRepository applicationRepository;
+    private RestaurantRepository restaurantRepository;
     private OrderRepository orderRepository;
     private MyRestaurantAdapter restaurantAdapter;
     
     private List<RestaurantApplication> approvedApplications = new ArrayList<>();
     private List<RestaurantApplication> pendingApplications = new ArrayList<>();
+    private Restaurant currentRestaurant;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +50,7 @@ public class EntrepreneurDashboardActivity extends AppCompatActivity {
 
         authViewModel = new ViewModelProvider(this).get(AuthViewModel.class);
         applicationRepository = RestaurantApplicationRepository.getInstance(this);
+        restaurantRepository = RestaurantRepository.getInstance(getApplication());
         orderRepository = new OrderRepository(getApplication());
 
         setupToolbar();
@@ -184,14 +189,38 @@ public class EntrepreneurDashboardActivity extends AppCompatActivity {
 
     private void updateRestaurantsList() {
         if (approvedApplications.isEmpty()) {
+            binding.cardRestaurantStatus.setVisibility(View.GONE);
             binding.cardNoRestaurants.setVisibility(View.VISIBLE);
             binding.rvMyRestaurants.setVisibility(View.GONE);
             binding.tvSeeAllRestaurants.setVisibility(View.GONE);
         } else {
+            binding.cardRestaurantStatus.setVisibility(View.VISIBLE);
             binding.cardNoRestaurants.setVisibility(View.GONE);
             binding.rvMyRestaurants.setVisibility(View.VISIBLE);
             binding.tvSeeAllRestaurants.setVisibility(View.VISIBLE);
             restaurantAdapter.setRestaurants(approvedApplications);
+            
+            String restaurantName = approvedApplications.get(0).getRestaurantName();
+            if (restaurantName != null) {
+                restaurantRepository.getAllRestaurants().observe(this, allRestaurants -> {
+                    if (allRestaurants != null) {
+                        for (Restaurant restaurant : allRestaurants) {
+                            if (restaurant.getName().equals(restaurantName)) {
+                                currentRestaurant = restaurant;
+                                binding.switchRestaurantStatus.setChecked(restaurant.isOpen());
+                                if (restaurant.isOpen()) {
+                                    binding.tvRestaurantStatus.setText("Open");
+                                    binding.tvRestaurantStatus.setTextColor(getColor(R.color.success));
+                                } else {
+                                    binding.tvRestaurantStatus.setText("Closed");
+                                    binding.tvRestaurantStatus.setTextColor(getColor(R.color.error));
+                                }
+                                break;
+                            }
+                        }
+                    }
+                });
+            }
         }
     }
 
@@ -291,10 +320,45 @@ public class EntrepreneurDashboardActivity extends AppCompatActivity {
 
     private void displayUserInfo() {
         String username = authViewModel.getCurrentUsername();
-        binding.tvUsername.setText(username != null ? username : "Restaurant Owner");
+        binding.tvUsername.setText(username != null ? username + " (Entrepreneur)" : "Entrepreneur");
     }
 
     private void setupClickListeners() {
+        binding.btnLogout.setOnClickListener(v -> logout());
+        
+        binding.switchRestaurantStatus.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (currentRestaurant != null) {
+                currentRestaurant.setOpen(isChecked);
+                restaurantRepository.update(currentRestaurant, new RestaurantRepository.OperationCallback() {
+                    @Override
+                    public void onSuccess() {
+                        runOnUiThread(() -> {
+                            if (isChecked) {
+                                binding.tvRestaurantStatus.setText("Open");
+                                binding.tvRestaurantStatus.setTextColor(getColor(R.color.success));
+                                Toast.makeText(EntrepreneurDashboardActivity.this, 
+                                    "Restaurant is now Open", Toast.LENGTH_SHORT).show();
+                            } else {
+                                binding.tvRestaurantStatus.setText("Closed");
+                                binding.tvRestaurantStatus.setTextColor(getColor(R.color.error));
+                                Toast.makeText(EntrepreneurDashboardActivity.this, 
+                                    "Restaurant is now Closed", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onError(String message) {
+                        runOnUiThread(() -> {
+                            buttonView.setChecked(!isChecked);
+                            Toast.makeText(EntrepreneurDashboardActivity.this, 
+                                "Error updating status: " + message, Toast.LENGTH_SHORT).show();
+                        });
+                    }
+                });
+            }
+        });
+        
         binding.cardManageMenu.setOnClickListener(v -> openManageMenu());
 
         binding.cardPendingApplications.setOnClickListener(v -> {

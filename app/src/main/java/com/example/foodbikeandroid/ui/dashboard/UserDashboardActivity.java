@@ -65,7 +65,7 @@ public class UserDashboardActivity extends AppCompatActivity {
 
     private void displayUserInfo() {
         String username = authViewModel.getCurrentUsername();
-        binding.tvUsername.setText(username != null ? username : "User");
+        binding.tvUsername.setText(username != null ? username + " (User)" : "User");
     }
 
     private void setupRecyclerView() {
@@ -153,6 +153,8 @@ public class UserDashboardActivity extends AppCompatActivity {
     }
 
     private void setupBottomNavigation() {
+        binding.btnLogout.setOnClickListener(v -> logout());
+        
         binding.bottomNav.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.nav_home) {

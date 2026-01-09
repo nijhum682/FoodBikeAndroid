@@ -284,15 +284,43 @@ public class AdminEditMenuActivity extends AppCompatActivity implements ManageMe
     private void saveMenuChanges() {
         if (currentRestaurant != null) {
             currentRestaurant.setMenuItems(new ArrayList<>(menuItems));
-            restaurantRepository.update(currentRestaurant);
+            restaurantRepository.update(currentRestaurant, new RestaurantRepository.OperationCallback() {
+                @Override
+                public void onSuccess() {
+                    // Update will trigger LiveData observers
+                }
+
+                @Override
+                public void onError(String message) {
+                    runOnUiThread(() -> 
+                        Toast.makeText(AdminEditMenuActivity.this, 
+                            "Error saving: " + message, Toast.LENGTH_SHORT).show()
+                    );
+                }
+            });
         }
     }
     
     private void saveAllChanges() {
         if (currentRestaurant != null) {
             currentRestaurant.setMenuItems(new ArrayList<>(menuItems));
-            restaurantRepository.update(currentRestaurant);
-            Toast.makeText(this, R.string.all_changes_saved, Toast.LENGTH_SHORT).show();
+            restaurantRepository.update(currentRestaurant, new RestaurantRepository.OperationCallback() {
+                @Override
+                public void onSuccess() {
+                    runOnUiThread(() -> 
+                        Toast.makeText(AdminEditMenuActivity.this, 
+                            R.string.all_changes_saved, Toast.LENGTH_SHORT).show()
+                    );
+                }
+
+                @Override
+                public void onError(String message) {
+                    runOnUiThread(() -> 
+                        Toast.makeText(AdminEditMenuActivity.this, 
+                            "Error: " + message, Toast.LENGTH_SHORT).show()
+                    );
+                }
+            });
         }
     }
     
