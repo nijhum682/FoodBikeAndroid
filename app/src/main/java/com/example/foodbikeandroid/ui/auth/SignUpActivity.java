@@ -38,7 +38,8 @@ public class SignUpActivity extends AppCompatActivity {
         String[] userTypes = new String[]{
                 UserType.REGULAR_USER.getDisplayName(),
                 UserType.ENTREPRENEUR.getDisplayName(),
-                UserType.DELIVERY_BIKER.getDisplayName()
+                UserType.DELIVERY_BIKER.getDisplayName(),
+                UserType.ADMIN.getDisplayName()
         };
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(

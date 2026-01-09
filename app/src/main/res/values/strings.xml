@@ -358,6 +358,73 @@
     <string name="error_accepting_order">Error accepting order: %s</string>
     <string name="error_order_not_found">Order not found</string>
     <string name="my_deliveries">My Deliveries</string>
+    <string name="my_deliveries_desc">Track your active and completed orders</string>
     <string name="no_active_deliveries">No Active Deliveries</string>
     <string name="no_active_deliveries_desc">Orders you accept will appear here</string>
+    <string name="no_completed_deliveries_desc">Your completed deliveries will appear here</string>
+    <string name="active">Active</string>
+    <string name="completed">Completed</string>
+    <string name="ready_for_pickup">Ready for Pickup</string>
+    <string name="mark_delivered">Mark Delivered</string>
+    <string name="confirm_delivery">Confirm Delivery</string>
+    <string name="confirm_delivery_message">Mark order #%1$s as delivered?\n\nRestaurant: %2$s\nDelivered to: %3$s\nTotal: ৳%.2f\n\nThis action cannot be undone.</string>
+    <string name="confirm">Confirm</string>
+    <string name="order_marked_ready_for_pickup">Order #%s is ready for pickup</string>
+    <string name="order_delivered_success">Order #%s marked as delivered</string>
+    <string name="error_updating_status">Error updating status: %s</string>
+    <string name="delivery_duration">Delivery Duration</string>
+    <string name="delivery_duration_label">Duration:</string>
+    
+    <plurals name="delivery_count">
+        <item quantity="one">%d delivery</item>
+        <item quantity="other">%d deliveries</item>
+    </plurals>
+    
+    <!-- Biker History -->
+    <string name="summary_stats">Summary Statistics</string>
+    <string name="total_deliveries">Total Deliveries</string>
+    <string name="this_week">This Week</string>
+    <string name="this_month">This Month</string>
+    <string name="all_time">All Time</string>
+    <string name="avg_time">Avg Time</string>
+    <string name="total_earnings">Total Earnings</string>
+    <string name="filter_by_date">Filter by Date</string>
+    <string name="period_earnings">Period Earnings</string>
+    <string name="no_deliveries_found">No Deliveries Found</string>
+    <string name="no_deliveries_in_period">No completed deliveries in the selected period</string>
+    <string name="export_history">Export History</string>
+    <string name="no_data_to_export">No data to export</string>
+    <string name="export_failed">Export failed: %s</string>
+    <string name="order_total">Order Total</string>
+    <string name="delivery_time">Delivery Time</string>
+    
+    <!-- User Order History -->
+    <string name="my_orders">My Orders</string>
+    <string name="search_orders_hint">Search by restaurant or order ID</string>
+    <string name="filter_all">All</string>
+    <string name="filter_active">Active</string>
+    <string name="filter_completed">Completed</string>
+    <string name="filter_cancelled">Cancelled</string>
+    <string name="order_count_default">0 orders</string>
+    <string name="no_orders_title">No Orders Yet</string>
+    <string name="no_orders_message">Your order history will appear here once you place an order</string>
+    <string name="no_orders_icon">No orders icon</string>
+    <string name="no_search_results">No Results Found</string>
+    <string name="no_search_results_message">Try a different search term</string>
+    <string name="no_active_orders">No Active Orders</string>
+    <string name="no_active_orders_message">You don\'t have any orders in progress</string>
+    <string name="no_completed_orders">No Completed Orders</string>
+    <string name="no_completed_orders_message">Your completed orders will appear here</string>
+    <string name="no_cancelled_orders">No Cancelled Orders</string>
+    <string name="no_cancelled_orders_message">You don\'t have any cancelled orders</string>
+    <string name="order_id_format">#%s</string>
+    <string name="order_date">Order date</string>
+    <string name="expand_details">Expand details</string>
+    <string name="delivery_location">Delivery location</string>
+    <string name="payment">Payment:</string>
+    
+    <plurals name="order_count_format">
+        <item quantity="one">%d order</item>
+        <item quantity="other">%d orders</item>
+    </plurals>
 </resources>

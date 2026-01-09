@@ -100,6 +100,32 @@
         <activity android:name=".ui.dashboard.BikerOrderDetailActivity"
             android:exported="false"
             android:parentActivityName=".ui.dashboard.BikerAvailableOrdersActivity" />
+        
+        <!-- Biker My Deliveries -->
+        <activity android:name=".ui.dashboard.BikerMyDeliveriesActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.dashboard.BikerDashboardActivity" />
+        
+        <!-- Biker History -->
+        <activity android:name=".ui.dashboard.BikerHistoryActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.dashboard.BikerDashboardActivity" />
+        
+        <!-- User Order History -->
+        <activity android:name=".ui.dashboard.UserOrderHistoryActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.dashboard.UserDashboardActivity" />
+        
+        <!-- File Provider for export -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
             
     </application>
 

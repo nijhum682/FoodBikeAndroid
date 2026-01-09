@@ -72,6 +72,7 @@ public class OrderRepository {
                 
                 order.setBikerId(bikerId);
                 order.setStatus(OrderStatus.PREPARING);
+                order.setAcceptedAt(System.currentTimeMillis());
                 orderDao.updateOrder(order);
                 
                 callback.onSuccess();
@@ -97,6 +98,36 @@ public class OrderRepository {
         return orderDao.getOrdersByBikerId(bikerId);
     }
 
+    public LiveData<List<Order>> getActiveOrdersByBiker(String bikerId) {
+        return orderDao.getActiveOrdersByBiker(bikerId);
+    }
+
+    public LiveData<List<Order>> getCompletedOrdersByBiker(String bikerId) {
+        return orderDao.getCompletedOrdersByBiker(bikerId);
+    }
+
+    public void updateOrderStatusToReady(String orderId, StatusUpdateCallback callback) {
+        executorService.execute(() -> {
+            try {
+                orderDao.updateOrderStatusToReady(orderId, OrderStatus.READY, System.currentTimeMillis());
+                mainHandler.post(callback::onSuccess);
+            } catch (Exception e) {
+                mainHandler.post(() -> callback.onError(e.getMessage()));
+            }
+        });
+    }
+
+    public void updateOrderStatusToDelivered(String orderId, StatusUpdateCallback callback) {
+        executorService.execute(() -> {
+            try {
+                orderDao.updateOrderStatusToDelivered(orderId, OrderStatus.DELIVERED, System.currentTimeMillis());
+                mainHandler.post(callback::onSuccess);
+            } catch (Exception e) {
+                mainHandler.post(() -> callback.onError(e.getMessage()));
+            }
+        });
+    }
+
     public LiveData<List<Order>> getOrdersByStatus(OrderStatus status) {
         return orderDao.getOrdersByStatus(status);
     }
@@ -119,6 +150,61 @@ public class OrderRepository {
 
     public LiveData<Integer> getTodayDeliveryCount(String bikerId) {
         return orderDao.getTodayDeliveryCountByBiker(bikerId, getStartOfDay());
+    }
+
+    public LiveData<List<Order>> getCompletedOrdersByBikerAfter(String bikerId, long startTime) {
+        return orderDao.getCompletedOrdersByBikerAfter(bikerId, startTime);
+    }
+
+    public LiveData<Integer> getTotalDeliveryCount(String bikerId) {
+        return orderDao.getTotalDeliveryCountByBiker(bikerId);
+    }
+
+    public LiveData<Integer> getDeliveryCountAfter(String bikerId, long startTime) {
+        return orderDao.getDeliveryCountByBikerAfter(bikerId, startTime);
+    }
+
+    public LiveData<Long> getAverageDeliveryTime(String bikerId) {
+        return orderDao.getAverageDeliveryTimeByBiker(bikerId);
+    }
+
+    public LiveData<Double> getTotalDeliveryValue(String bikerId) {
+        return orderDao.getTotalDeliveryValueByBiker(bikerId);
+    }
+
+    public LiveData<Double> getDeliveryValueAfter(String bikerId, long startTime) {
+        return orderDao.getDeliveryValueByBikerAfter(bikerId, startTime);
+    }
+
+    public void exportDeliveryHistory(String bikerId, ExportCallback callback) {
+        executorService.execute(() -> {
+            try {
+                List<Order> orders = orderDao.getCompletedOrdersByBikerSync(bikerId);
+                mainHandler.post(() -> callback.onSuccess(orders));
+            } catch (Exception e) {
+                mainHandler.post(() -> callback.onError(e.getMessage()));
+            }
+        });
+    }
+
+    public long getStartOfWeek() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.DAY_OF_WEEK, calendar.getFirstDayOfWeek());
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        return calendar.getTimeInMillis();
+    }
+
+    public long getStartOfMonth() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        return calendar.getTimeInMillis();
     }
 
     private long getStartOfDay() {
@@ -158,6 +244,16 @@ public class OrderRepository {
     public interface AcceptOrderCallback {
         void onSuccess();
         void onAlreadyTaken();
+        void onError(String error);
+    }
+
+    public interface StatusUpdateCallback {
+        void onSuccess();
+        void onError(String error);
+    }
+
+    public interface ExportCallback {
+        void onSuccess(List<Order> orders);
         void onError(String error);
     }
 }

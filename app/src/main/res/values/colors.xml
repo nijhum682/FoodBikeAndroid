@@ -21,6 +21,26 @@
     <color name="info">#3498DB</color>
     <color name="info_light">#E8F4FD</color>
     
+    <!-- Order Status Badge Colors -->
+    <!-- PENDING - Yellow -->
+    <color name="status_pending">#FFF9E6</color>
+    <color name="status_pending_text">#B8860B</color>
+    <!-- CONFIRMED - Blue -->
+    <color name="status_confirmed">#E3F2FD</color>
+    <color name="status_confirmed_text">#1565C0</color>
+    <!-- PREPARING - Orange -->
+    <color name="status_preparing">#FFF3E0</color>
+    <color name="status_preparing_text">#E65100</color>
+    <!-- READY - Purple -->
+    <color name="status_ready">#F3E5F5</color>
+    <color name="status_ready_text">#7B1FA2</color>
+    <!-- DELIVERED - Green -->
+    <color name="status_delivered">#E8F5E9</color>
+    <color name="status_delivered_text">#2E7D32</color>
+    <!-- CANCELLED - Red -->
+    <color name="status_cancelled">#FFEBEE</color>
+    <color name="status_cancelled_text">#C62828</color>
+    
     <!-- Text Colors -->
     <color name="text_primary">#2C3E50</color>
     <color name="text_secondary">#7F8C8D</color>

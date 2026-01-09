@@ -37,6 +37,12 @@ public class Order {
 
     private String bikerId;
 
+    private long acceptedAt;
+
+    private long readyAt;
+
+    private long deliveredAt;
+
     @NonNull
     private PaymentMethod paymentMethod;
 
@@ -128,6 +134,30 @@ public class Order {
 
     public void setBikerId(String bikerId) {
         this.bikerId = bikerId;
+    }
+
+    public long getAcceptedAt() {
+        return acceptedAt;
+    }
+
+    public void setAcceptedAt(long acceptedAt) {
+        this.acceptedAt = acceptedAt;
+    }
+
+    public long getReadyAt() {
+        return readyAt;
+    }
+
+    public void setReadyAt(long readyAt) {
+        this.readyAt = readyAt;
+    }
+
+    public long getDeliveredAt() {
+        return deliveredAt;
+    }
+
+    public void setDeliveredAt(long deliveredAt) {
+        this.deliveredAt = deliveredAt;
     }
 
     @NonNull

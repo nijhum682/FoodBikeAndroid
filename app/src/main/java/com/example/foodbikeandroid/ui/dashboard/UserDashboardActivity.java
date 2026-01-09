@@ -161,7 +161,8 @@ public class UserDashboardActivity extends AppCompatActivity {
                 binding.etSearch.requestFocus();
                 return true;
             } else if (itemId == R.id.nav_orders) {
-                Toast.makeText(this, "Orders - Coming Soon", Toast.LENGTH_SHORT).show();
+                Intent ordersIntent = new Intent(this, UserOrderHistoryActivity.class);
+                startActivity(ordersIntent);
                 return true;
             } else if (itemId == R.id.nav_profile) {
                 Toast.makeText(this, "Profile - Coming Soon", Toast.LENGTH_SHORT).show();
