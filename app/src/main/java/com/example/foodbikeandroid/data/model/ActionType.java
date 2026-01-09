@@ -1,0 +1,12 @@
+package com.example.foodbikeandroid.data.model;
+
+public enum ActionType {
+    APPROVED_APPLICATION,
+    REJECTED_APPLICATION,
+    ADDED_RESTAURANT,
+    DELETED_RESTAURANT,
+    EDITED_MENU,
+    ADDED_MENU_ITEM,
+    EDITED_MENU_ITEM,
+    DELETED_MENU_ITEM
+}

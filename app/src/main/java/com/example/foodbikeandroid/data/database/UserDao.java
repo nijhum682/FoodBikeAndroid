@@ -42,6 +42,9 @@ public interface UserDao {
     @Query("SELECT EXISTS(SELECT 1 FROM users WHERE email = :email)")
     boolean isEmailExists(String email);
 
+    @Query("SELECT COUNT(*) FROM users")
+    int getUserCount();
+
     @Query("DELETE FROM users")
     void deleteAllUsers();
 }

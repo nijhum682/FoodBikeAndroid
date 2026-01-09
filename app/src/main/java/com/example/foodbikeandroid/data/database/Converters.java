@@ -2,6 +2,7 @@ package com.example.foodbikeandroid.data.database;
 
 import androidx.room.TypeConverter;
 
+import com.example.foodbikeandroid.data.model.ActionType;
 import com.example.foodbikeandroid.data.model.ApplicationStatus;
 import com.example.foodbikeandroid.data.model.CartItem;
 import com.example.foodbikeandroid.data.model.MenuItem;
@@ -51,6 +52,16 @@ public class Converters {
     @TypeConverter
     public static UserType toUserType(String value) {
         return value == null ? null : UserType.valueOf(value);
+    }
+
+    @TypeConverter
+    public static String fromActionType(ActionType actionType) {
+        return actionType == null ? null : actionType.name();
+    }
+
+    @TypeConverter
+    public static ActionType toActionType(String value) {
+        return value == null ? null : ActionType.valueOf(value);
     }
 
     @TypeConverter

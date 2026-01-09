@@ -38,6 +38,20 @@
     <string name="manage_users_desc">View and manage all users</string>
     <string name="view_reports">View Reports</string>
     <string name="view_reports_desc">Analytics and insights</string>
+    <string name="total_restaurants">Total Restaurants</string>
+    <string name="todays_orders">Today\'s Orders</string>
+    <string name="view_applications">View Applications</string>
+    <string name="manage_restaurants">Manage Restaurants</string>
+    <string name="view_history">View History</string>
+    <string name="recent_activity">Recent Activity</string>
+    <string name="no_recent_activity">No Recent Activity</string>
+    <string name="no_recent_activity_desc">Admin actions will appear here</string>
+    <string name="action_icon">Action icon</string>
+    <string name="dashboard">Dashboard</string>
+    <string name="applications">Applications</string>
+    <string name="users">Users</string>
+    <string name="refreshing">Refreshing...</string>
+    <string name="stats_refreshed">Statistics refreshed</string>
     
     <!-- User Dashboard -->
     <string name="user_dashboard">Home</string>
@@ -248,4 +262,25 @@
     <string name="confirm_reject_order">Reject order %s? This action cannot be undone.</string>
     <string name="delivered">Delivered</string>
     <string name="cancelled">Cancelled</string>
+    
+    <!-- Admin Review Applications -->
+    <string name="review_applications">Review Applications</string>
+    <string name="application_status">Application Status</string>
+    <string name="entrepreneur">Entrepreneur</string>
+    <string name="view_details">View Details</string>
+    <string name="menu_items_label">menu items</string>
+    <string name="items">items</string>
+    <string name="no_pending_applications">No pending applications</string>
+    <string name="no_approved_applications">No approved applications</string>
+    <string name="no_rejected_applications">No rejected applications</string>
+    <string name="no_applications_in_category">No applications in this category</string>
+    <string name="error_application_not_found">Application not found</string>
+    <string name="approve">Approve</string>
+    <string name="approve_application">Approve Application</string>
+    <string name="reject_application">Reject Application</string>
+    <string name="confirm_approve_application">Are you sure you want to approve the restaurant \"%s\"? This will create a new restaurant listing.</string>
+    <string name="confirm_reject_application">Are you sure you want to reject the restaurant \"%s\"? The entrepreneur will be notified.</string>
+    <string name="application_approved">Application approved successfully</string>
+    <string name="application_rejected">Application rejected</string>
+    <string name="category_format">Category: %s</string>
 </resources>

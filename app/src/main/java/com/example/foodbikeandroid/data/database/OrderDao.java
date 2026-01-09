@@ -66,4 +66,7 @@ public interface OrderDao {
 
     @Query("SELECT COUNT(*) FROM orders WHERE bikerId = :bikerId AND createdAt >= :startOfDay AND status = 'DELIVERED'")
     LiveData<Integer> getTodayDeliveryCountByBiker(String bikerId, long startOfDay);
+
+    @Query("SELECT COUNT(*) FROM orders WHERE createdAt >= :timestamp")
+    int getOrderCountAfterTimestamp(long timestamp);
 }

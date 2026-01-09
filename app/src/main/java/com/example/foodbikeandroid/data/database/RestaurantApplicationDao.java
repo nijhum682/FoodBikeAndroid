@@ -21,6 +21,9 @@ public interface RestaurantApplicationDao {
     @Update
     void update(RestaurantApplication application);
 
+    @Query("SELECT * FROM restaurant_applications WHERE applicationId = :applicationId")
+    RestaurantApplication getById(String applicationId);
+
     @Query("SELECT * FROM restaurant_applications WHERE entrepreneurUsername = :username ORDER BY appliedDate DESC")
     LiveData<List<RestaurantApplication>> getByEntrepreneur(String username);
 

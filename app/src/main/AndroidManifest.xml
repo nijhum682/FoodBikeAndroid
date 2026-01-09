@@ -70,6 +70,16 @@
         <activity android:name=".ui.dashboard.RestaurantOrdersActivity"
             android:exported="false"
             android:parentActivityName=".ui.dashboard.EntrepreneurDashboardActivity" />
+        
+        <!-- Admin Review Applications -->
+        <activity android:name=".ui.dashboard.AdminReviewApplicationsActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.dashboard.AdminDashboardActivity" />
+        
+        <!-- Application Detail -->
+        <activity android:name=".ui.dashboard.ApplicationDetailActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.dashboard.AdminReviewApplicationsActivity" />
             
     </application>
 
