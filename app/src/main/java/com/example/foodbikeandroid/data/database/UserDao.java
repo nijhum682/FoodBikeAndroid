@@ -24,6 +24,9 @@ public interface UserDao {
     @Query("SELECT * FROM users WHERE username = :username LIMIT 1")
     User getUserByUsername(String username);
 
+    @Query("SELECT * FROM users WHERE username = :username LIMIT 1")
+    LiveData<User> getUserByUsernameLive(String username);
+
     @Query("SELECT * FROM users WHERE email = :email LIMIT 1")
     User getUserByEmail(String email);
 

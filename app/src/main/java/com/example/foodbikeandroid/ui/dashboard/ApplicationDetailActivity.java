@@ -2,7 +2,10 @@ package com.example.foodbikeandroid.ui.dashboard;
 
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
@@ -13,18 +16,20 @@ import com.example.foodbikeandroid.R;
 import com.example.foodbikeandroid.data.database.AdminActionDao;
 import com.example.foodbikeandroid.data.database.FoodBikeDatabase;
 import com.example.foodbikeandroid.data.database.RestaurantApplicationDao;
+import com.example.foodbikeandroid.data.database.RestaurantDao;
 import com.example.foodbikeandroid.data.model.ActionType;
 import com.example.foodbikeandroid.data.model.AdminAction;
 import com.example.foodbikeandroid.data.model.ApplicationStatus;
 import com.example.foodbikeandroid.data.model.MenuItem;
 import com.example.foodbikeandroid.data.model.Restaurant;
 import com.example.foodbikeandroid.data.model.RestaurantApplication;
-import com.example.foodbikeandroid.data.repository.RestaurantApplicationRepository;
-import com.example.foodbikeandroid.data.repository.RestaurantRepository;
 import com.example.foodbikeandroid.databinding.ActivityApplicationDetailBinding;
 import com.example.foodbikeandroid.ui.auth.AuthViewModel;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 
@@ -35,10 +40,9 @@ public class ApplicationDetailActivity extends AppCompatActivity {
     public static final String EXTRA_APPLICATION_ID = "extra_application_id";
 
     private ActivityApplicationDetailBinding binding;
-    private RestaurantApplicationRepository applicationRepository;
-    private RestaurantRepository restaurantRepository;
     private AdminActionDao adminActionDao;
     private RestaurantApplicationDao applicationDao;
+    private RestaurantDao restaurantDao;
     private AuthViewModel authViewModel;
     
     private RestaurantApplication currentApplication;
@@ -52,13 +56,11 @@ public class ApplicationDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityApplicationDetailBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
-        applicationRepository = RestaurantApplicationRepository.getInstance(this);
-        restaurantRepository = RestaurantRepository.getInstance(this);
         
         FoodBikeDatabase database = FoodBikeDatabase.getInstance(this);
         adminActionDao = database.adminActionDao();
         applicationDao = database.restaurantApplicationDao();
+        restaurantDao = database.restaurantDao();
         
         authViewModel = new ViewModelProvider(this).get(AuthViewModel.class);
 
@@ -171,72 +173,172 @@ public class ApplicationDetailActivity extends AppCompatActivity {
     }
 
     private void setupClickListeners() {
-        binding.btnApprove.setOnClickListener(v -> showApproveConfirmation());
-        binding.btnReject.setOnClickListener(v -> showRejectConfirmation());
+        binding.btnApprove.setOnClickListener(v -> showApproveDialog());
+        binding.btnReject.setOnClickListener(v -> showRejectDialog());
     }
 
-    private void showApproveConfirmation() {
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.approve_application)
-                .setMessage(getString(R.string.confirm_approve_application, 
-                        currentApplication.getRestaurantName()))
-                .setPositiveButton(R.string.approve, (dialog, which) -> approveApplication())
-                .setNegativeButton(R.string.cancel, null)
-                .show();
-    }
-
-    private void showRejectConfirmation() {
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.reject_application)
-                .setMessage(getString(R.string.confirm_reject_application,
-                        currentApplication.getRestaurantName()))
-                .setPositiveButton(R.string.reject, (dialog, which) -> rejectApplication())
-                .setNegativeButton(R.string.cancel, null)
-                .show();
-    }
-
-    private void approveApplication() {
-        currentApplication.setStatus(ApplicationStatus.APPROVED);
-        applicationRepository.update(currentApplication);
-
-        // Create restaurant from application
-        Restaurant restaurant = new Restaurant(
-                currentApplication.getApplicationId(),
-                currentApplication.getRestaurantName(),
-                currentApplication.getDivision(),
-                currentApplication.getDistrict(),
-                currentApplication.getAddress()
-        );
-        restaurant.setRating(currentApplication.getRating());
-        restaurant.setMenuItems(currentApplication.getMenuItems());
-        restaurantRepository.insert(restaurant);
-
-        // Log admin action
-        logAdminAction(ActionType.APPROVED_APPLICATION, currentApplication.getRestaurantName(),
-                "Approved restaurant application");
-
-        Toast.makeText(this, R.string.application_approved, Toast.LENGTH_SHORT).show();
-        finish();
-    }
-
-    private void rejectApplication() {
-        currentApplication.setStatus(ApplicationStatus.REJECTED);
-        applicationRepository.update(currentApplication);
-
-        // Log admin action
-        logAdminAction(ActionType.REJECTED_APPLICATION, currentApplication.getRestaurantName(),
-                "Rejected restaurant application");
-
-        Toast.makeText(this, R.string.application_rejected, Toast.LENGTH_SHORT).show();
-        finish();
-    }
-
-    private void logAdminAction(ActionType actionType, String targetName, String details) {
-        String adminUsername = authViewModel.getCurrentUsername();
-        if (adminUsername == null) adminUsername = "Admin";
+    private void showApproveDialog() {
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_approve_application, null);
         
-        AdminAction action = new AdminAction(adminUsername, actionType, targetName, details);
+        TextView tvMessage = dialogView.findViewById(R.id.tvApproveMessage);
+        EditText etMessage = dialogView.findViewById(R.id.etMessage);
+        MaterialButton btnCancel = dialogView.findViewById(R.id.btnCancel);
+        MaterialButton btnApprove = dialogView.findViewById(R.id.btnApprove);
+
+        tvMessage.setText(getString(R.string.confirm_approve_application, 
+                currentApplication.getRestaurantName()));
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setView(dialogView)
+                .setCancelable(true)
+                .create();
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
         
-        Executors.newSingleThreadExecutor().execute(() -> adminActionDao.insert(action));
+        btnApprove.setOnClickListener(v -> {
+            String message = etMessage.getText().toString().trim();
+            dialog.dismiss();
+            approveApplication(message.isEmpty() ? null : message);
+        });
+
+        dialog.show();
+    }
+
+    private void showRejectDialog() {
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_reject_application, null);
+        
+        TextView tvMessage = dialogView.findViewById(R.id.tvRejectMessage);
+        TextInputLayout tilReason = dialogView.findViewById(R.id.tilReason);
+        EditText etReason = dialogView.findViewById(R.id.etReason);
+        MaterialButton btnCancel = dialogView.findViewById(R.id.btnCancel);
+        MaterialButton btnReject = dialogView.findViewById(R.id.btnReject);
+
+        tvMessage.setText(getString(R.string.confirm_reject_application,
+                currentApplication.getRestaurantName()));
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setView(dialogView)
+                .setCancelable(true)
+                .create();
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+        
+        btnReject.setOnClickListener(v -> {
+            String reason = etReason.getText().toString().trim();
+            if (reason.isEmpty()) {
+                tilReason.setError(getString(R.string.error_rejection_reason_required));
+                return;
+            }
+            tilReason.setError(null);
+            dialog.dismiss();
+            rejectApplication(reason);
+        });
+
+        dialog.show();
+    }
+
+    private void approveApplication(String optionalMessage) {
+        binding.btnApprove.setEnabled(false);
+        binding.btnReject.setEnabled(false);
+
+        Executors.newSingleThreadExecutor().execute(() -> {
+            // Generate unique restaurant ID with division prefix
+            String divisionPrefix = getDivisionPrefix(currentApplication.getDivision());
+            int count = restaurantDao.getRestaurantCountByPrefix(divisionPrefix);
+            String restaurantId = divisionPrefix + String.format("%04d", count + 1);
+
+            // Update application status
+            currentApplication.setStatus(ApplicationStatus.APPROVED);
+            if (optionalMessage != null) {
+                currentApplication.setAdminMessage(optionalMessage);
+                currentApplication.setMessageViewed(false);
+            }
+            applicationDao.update(currentApplication);
+
+            // Create restaurant from application with unique ID
+            Restaurant restaurant = new Restaurant(
+                    restaurantId,
+                    currentApplication.getRestaurantName(),
+                    currentApplication.getDivision(),
+                    currentApplication.getDistrict(),
+                    currentApplication.getAddress()
+            );
+            restaurant.setRating(currentApplication.getRating());
+            
+            // Copy menu items
+            List<MenuItem> menuItems = currentApplication.getMenuItems();
+            if (menuItems != null) {
+                List<MenuItem> copiedMenuItems = new ArrayList<>();
+                for (MenuItem item : menuItems) {
+                    MenuItem copiedItem = new MenuItem(
+                            item.getId(),
+                            item.getName(),
+                            item.getDescription(),
+                            item.getPrice(),
+                            item.getCategory(),
+                            item.isAvailable()
+                    );
+                    copiedMenuItems.add(copiedItem);
+                }
+                restaurant.setMenuItems(copiedMenuItems);
+            }
+            
+            restaurantDao.insert(restaurant);
+
+            // Log admin action
+            String adminUsername = authViewModel.getCurrentUsername();
+            if (adminUsername == null) adminUsername = "Admin";
+            AdminAction action = new AdminAction(adminUsername, ActionType.APPROVED_APPLICATION,
+                    currentApplication.getRestaurantName(), 
+                    "Approved and created restaurant with ID: " + restaurantId);
+            adminActionDao.insert(action);
+
+            runOnUiThread(() -> {
+                Toast.makeText(this, R.string.application_approved, Toast.LENGTH_SHORT).show();
+                setResult(RESULT_OK);
+                finish();
+            });
+        });
+    }
+
+    private void rejectApplication(String reason) {
+        binding.btnApprove.setEnabled(false);
+        binding.btnReject.setEnabled(false);
+
+        Executors.newSingleThreadExecutor().execute(() -> {
+            // Update application status and set admin message
+            currentApplication.setStatus(ApplicationStatus.REJECTED);
+            currentApplication.setAdminMessage(reason);
+            currentApplication.setMessageViewed(false);
+            applicationDao.update(currentApplication);
+
+            // Log admin action
+            String adminUsername = authViewModel.getCurrentUsername();
+            if (adminUsername == null) adminUsername = "Admin";
+            AdminAction action = new AdminAction(adminUsername, ActionType.REJECTED_APPLICATION,
+                    currentApplication.getRestaurantName(),
+                    "Rejected: " + reason);
+            adminActionDao.insert(action);
+
+            runOnUiThread(() -> {
+                Toast.makeText(this, R.string.application_rejected, Toast.LENGTH_SHORT).show();
+                setResult(RESULT_OK);
+                finish();
+            });
+        });
+    }
+
+    private String getDivisionPrefix(String division) {
+        if (division == null || division.isEmpty()) {
+            return "REST";
+        }
+        // Create prefix from division name (first 3 letters uppercase)
+        String cleaned = division.replaceAll("[^a-zA-Z]", "").toUpperCase();
+        if (cleaned.length() >= 3) {
+            return cleaned.substring(0, 3);
+        } else if (!cleaned.isEmpty()) {
+            return cleaned;
+        }
+        return "REST";
     }
 }

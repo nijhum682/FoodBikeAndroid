@@ -2,6 +2,7 @@ package com.example.foodbikeandroid.ui.dashboard;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.View;
 import android.widget.Toast;
 
@@ -13,7 +14,9 @@ import com.example.foodbikeandroid.R;
 import com.example.foodbikeandroid.data.cart.CartManager;
 import com.example.foodbikeandroid.data.model.MenuItem;
 import com.example.foodbikeandroid.data.model.Restaurant;
+import com.example.foodbikeandroid.data.model.UserType;
 import com.example.foodbikeandroid.databinding.ActivityRestaurantDetailBinding;
+import com.example.foodbikeandroid.ui.auth.AuthViewModel;
 import com.example.foodbikeandroid.ui.order.CartActivity;
 
 import java.util.List;
@@ -24,10 +27,12 @@ public class RestaurantDetailActivity extends AppCompatActivity implements CartM
     
     private ActivityRestaurantDetailBinding binding;
     private RestaurantViewModel viewModel;
+    private AuthViewModel authViewModel;
     private MenuItemAdapter menuAdapter;
     private CartManager cartManager;
     private String currentRestaurantId;
     private String currentRestaurantName;
+    private boolean isAdmin = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,12 +41,18 @@ public class RestaurantDetailActivity extends AppCompatActivity implements CartM
         setContentView(binding.getRoot());
 
         viewModel = new ViewModelProvider(this).get(RestaurantViewModel.class);
+        authViewModel = new ViewModelProvider(this).get(AuthViewModel.class);
         cartManager = CartManager.getInstance();
         cartManager.setCartUpdateListener(this);
+        
+        // Check if current user is admin
+        UserType userType = authViewModel.getCurrentUserType();
+        isAdmin = (userType == UserType.ADMIN);
         
         setupToolbar();
         setupRecyclerView();
         setupCartButton();
+        setupAdminEditMenu();
         
         String restaurantId = getIntent().getStringExtra(EXTRA_RESTAURANT_ID);
         if (restaurantId != null) {
@@ -55,6 +66,21 @@ public class RestaurantDetailActivity extends AppCompatActivity implements CartM
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
+    }
+    
+    private void setupAdminEditMenu() {
+        if (isAdmin) {
+            binding.fabEditMenu.setVisibility(View.VISIBLE);
+            binding.fabEditMenu.setOnClickListener(v -> {
+                if (currentRestaurantId != null) {
+                    Intent intent = new Intent(this, AdminEditMenuActivity.class);
+                    intent.putExtra(AdminEditMenuActivity.EXTRA_RESTAURANT_ID, currentRestaurantId);
+                    startActivity(intent);
+                }
+            });
+        } else {
+            binding.fabEditMenu.setVisibility(View.GONE);
         }
     }
 

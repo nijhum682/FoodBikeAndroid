@@ -78,7 +78,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
                 openReviewApplications();
                 return true;
             } else if (itemId == R.id.nav_restaurants) {
-                Toast.makeText(this, "Restaurants - Coming Soon", Toast.LENGTH_SHORT).show();
+                openManageRestaurants();
                 return true;
             } else if (itemId == R.id.nav_users) {
                 Toast.makeText(this, "Users - Coming Soon", Toast.LENGTH_SHORT).show();
@@ -122,7 +122,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
         });
 
         binding.cardManageRestaurants.setOnClickListener(v -> {
-            Toast.makeText(this, "Manage Restaurants - Coming Soon", Toast.LENGTH_SHORT).show();
+            openManageRestaurants();
         });
 
         binding.cardViewHistory.setOnClickListener(v -> {
@@ -199,6 +199,11 @@ public class AdminDashboardActivity extends AppCompatActivity {
 
     private void openReviewApplications() {
         Intent intent = new Intent(this, AdminReviewApplicationsActivity.class);
+        startActivity(intent);
+    }
+
+    private void openManageRestaurants() {
+        Intent intent = new Intent(this, AdminManageRestaurantsActivity.class);
         startActivity(intent);
     }
 

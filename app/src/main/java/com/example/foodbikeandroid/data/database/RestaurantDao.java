@@ -66,6 +66,9 @@ public interface RestaurantDao {
     @Query("SELECT COUNT(*) FROM restaurants")
     int getRestaurantCount();
 
+    @Query("SELECT COUNT(*) FROM restaurants WHERE id LIKE :prefix || '%'")
+    int getRestaurantCountByPrefix(String prefix);
+
     @Query("DELETE FROM restaurants")
     void deleteAll();
 }

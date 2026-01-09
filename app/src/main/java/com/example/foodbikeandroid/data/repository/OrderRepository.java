@@ -55,6 +55,32 @@ public class OrderRepository {
         executorService.execute(() -> orderDao.assignBiker(orderId, bikerId));
     }
 
+    public void tryAcceptOrder(String orderId, String bikerId, AcceptOrderCallback callback) {
+        executorService.execute(() -> {
+            try {
+                Order order = orderDao.getOrderByIdSync(orderId);
+                
+                if (order == null) {
+                    callback.onError("Order not found");
+                    return;
+                }
+                
+                if (order.getStatus() != OrderStatus.CONFIRMED || order.getBikerId() != null) {
+                    callback.onAlreadyTaken();
+                    return;
+                }
+                
+                order.setBikerId(bikerId);
+                order.setStatus(OrderStatus.PREPARING);
+                orderDao.updateOrder(order);
+                
+                callback.onSuccess();
+            } catch (Exception e) {
+                callback.onError(e.getMessage());
+            }
+        });
+    }
+
     public LiveData<Order> getOrderById(String orderId) {
         return orderDao.getOrderById(orderId);
     }
@@ -126,6 +152,12 @@ public class OrderRepository {
 
     public interface OrderCallback {
         void onSuccess(Order order);
+        void onError(String error);
+    }
+
+    public interface AcceptOrderCallback {
+        void onSuccess();
+        void onAlreadyTaken();
         void onError(String error);
     }
 }

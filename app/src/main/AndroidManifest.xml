@@ -80,6 +80,26 @@
         <activity android:name=".ui.dashboard.ApplicationDetailActivity"
             android:exported="false"
             android:parentActivityName=".ui.dashboard.AdminReviewApplicationsActivity" />
+        
+        <!-- Admin Manage Restaurants -->
+        <activity android:name=".ui.dashboard.AdminManageRestaurantsActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.dashboard.AdminDashboardActivity" />
+        
+        <!-- Admin Edit Menu -->
+        <activity android:name=".ui.dashboard.AdminEditMenuActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.dashboard.AdminManageRestaurantsActivity" />
+        
+        <!-- Biker Available Orders -->
+        <activity android:name=".ui.dashboard.BikerAvailableOrdersActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.dashboard.BikerDashboardActivity" />
+        
+        <!-- Biker Order Detail -->
+        <activity android:name=".ui.dashboard.BikerOrderDetailActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.dashboard.BikerAvailableOrdersActivity" />
             
     </application>
 

@@ -87,6 +87,8 @@ public class AdminActionAdapter extends RecyclerView.Adapter<AdminActionAdapter.
                     return R.drawable.ic_add;
                 case DELETED_MENU_ITEM:
                     return R.drawable.ic_delete;
+                case TOGGLED_MENU_ITEM_AVAILABILITY:
+                    return R.drawable.ic_visibility;
                 default:
                     return R.drawable.ic_info;
             }
@@ -104,6 +106,7 @@ public class AdminActionAdapter extends RecyclerView.Adapter<AdminActionAdapter.
                     return R.color.error;
                 case EDITED_MENU:
                 case EDITED_MENU_ITEM:
+                case TOGGLED_MENU_ITEM_AVAILABILITY:
                     return R.color.info;
                 default:
                     return R.color.primary;

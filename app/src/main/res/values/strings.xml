@@ -278,9 +278,86 @@
     <string name="approve">Approve</string>
     <string name="approve_application">Approve Application</string>
     <string name="reject_application">Reject Application</string>
-    <string name="confirm_approve_application">Are you sure you want to approve the restaurant \"%s\"? This will create a new restaurant listing.</string>
-    <string name="confirm_reject_application">Are you sure you want to reject the restaurant \"%s\"? The entrepreneur will be notified.</string>
+    <string name="confirm_approve_application">You are about to approve \"%s\". A new restaurant will be created and the entrepreneur will be notified.</string>
+    <string name="confirm_reject_application">You are about to reject \"%s\". Please provide a reason so the entrepreneur knows why.</string>
     <string name="application_approved">Application approved successfully</string>
     <string name="application_rejected">Application rejected</string>
     <string name="category_format">Category: %s</string>
+    <string name="message_to_entrepreneur_optional">Message to Entrepreneur (Optional)</string>
+    <string name="message_optional_hint">Leave empty if you don\'t want to send a message</string>
+    <string name="rejection_reason">Rejection Reason</string>
+    <string name="rejection_reason_hint">Explain why the application was rejected</string>
+    <string name="error_rejection_reason_required">Please provide a rejection reason</string>
+    <string name="restaurant_created_with_id">Restaurant created with ID: %s</string>
+    
+    <!-- Admin Manage Restaurants -->
+    <string name="filter_by_division">Filter by Division</string>
+    <string name="swipe_to_delete">Swipe left to delete</string>
+    <string name="add_restaurant">Add Restaurant</string>
+    <string name="edit_restaurant">Edit Restaurant</string>
+    <string name="delete_restaurant">Delete Restaurant</string>
+    <string name="delete_restaurant_confirm">Are you sure you want to delete \"%s\"? This action cannot be undone.</string>
+    <string name="restaurant_added">Restaurant \"%s\" added successfully</string>
+    <string name="restaurant_updated">Restaurant \"%s\" updated successfully</string>
+    <string name="restaurant_deleted">Restaurant \"%s\" deleted</string>
+    <string name="initial_rating">Initial Rating</string>
+    <string name="rating_helper_text">Enter a value between 0.0 and 5.0</string>
+    <string name="error_rating_range">Rating must be between 0.0 and 5.0</string>
+    <string name="error_rating_invalid">Please enter a valid rating</string>
+    <string name="menu_item_count_short">%d items</string>
+    <string name="restaurant_id_label">ID: %s</string>
+    
+    <!-- Admin Edit Menu -->
+    <string name="admin_edit_menu">Edit Restaurant Menu</string>
+    <string name="edit_menu">Edit Menu</string>
+    <string name="admin_edit_menu_notice">All changes are logged and attributed to your admin account.</string>
+    <string name="no_menu_items_admin_desc">Tap the button below to add menu items for this restaurant</string>
+    <string name="save_all_changes">Save All Changes</string>
+    <string name="all_changes_saved">All changes saved successfully</string>
+    <string name="error_restaurant_not_found">Restaurant not found</string>
+    
+    <!-- Biker Available Orders -->
+    <string name="available_orders">Available Orders</string>
+    <string name="select_delivery_area">Select Delivery Area</string>
+    <string name="sort_by">Sort:</string>
+    <string name="newest">Newest</string>
+    <string name="highest_value">Highest ৳</string>
+    <string name="loading_orders">Loading orders…</string>
+    <string name="no_orders_available">No Orders Available</string>
+    <string name="no_orders_in_district">No confirmed orders in selected area. Pull down to refresh.</string>
+    <string name="no_orders_in_district_specific">No confirmed orders in %s. Try selecting a different area or pull down to refresh.</string>
+    <string name="no_orders_found">No orders found</string>
+    <string name="refresh">Refresh</string>
+    <string name="time_since_order">Time since order</string>
+    <string name="item_count">Item count</string>
+    <string name="accept_delivery">Accept Delivery</string>
+    <string name="accept_delivery_confirmation">Accept delivery for order #%1$s?\n\nRestaurant: %2$s\nItems: %3$d\nDeliver to: %4$s\nTotal: ৳%.2f</string>
+    <string name="delivery_accepted">Delivery accepted for order #%s</string>
+    <string name="accept">Accept</string>
+    <string name="find_deliveries">Find Deliveries</string>
+    <string name="find_deliveries_desc">Browse available orders</string>
+    
+    <plurals name="orders_available_count">
+        <item quantity="one">%d order available</item>
+        <item quantity="other">%d orders available</item>
+    </plurals>
+    
+    <plurals name="item_count_format">
+        <item quantity="one">%d item</item>
+        <item quantity="other">%d items</item>
+    </plurals>
+    
+    <!-- Biker Order Detail -->
+    <string name="order_details">Order Details</string>
+    <string name="pickup_from">Pickup From</string>
+    <string name="deliver_to">Deliver To</string>
+    <string name="unknown_restaurant">Unknown Restaurant</string>
+    <string name="special_instructions">Special Instructions</string>
+    <string name="payment_summary">Payment Summary</string>
+    <string name="order_already_taken">This order has already been taken by another biker</string>
+    <string name="error_accepting_order">Error accepting order: %s</string>
+    <string name="error_order_not_found">Order not found</string>
+    <string name="my_deliveries">My Deliveries</string>
+    <string name="no_active_deliveries">No Active Deliveries</string>
+    <string name="no_active_deliveries_desc">Orders you accept will appear here</string>
 </resources>

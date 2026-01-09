@@ -71,6 +71,11 @@ public class BikerDashboardActivity extends AppCompatActivity {
             }
         });
 
+        binding.cardFindDeliveries.setOnClickListener(v -> {
+            Intent intent = new Intent(this, BikerAvailableOrdersActivity.class);
+            startActivity(intent);
+        });
+
         binding.cardDeliveryHistory.setOnClickListener(v -> {
             Toast.makeText(this, "Delivery History - Coming Soon", Toast.LENGTH_SHORT).show();
         });
@@ -87,7 +92,8 @@ public class BikerDashboardActivity extends AppCompatActivity {
                 // Already on home
                 return true;
             } else if (itemId == R.id.nav_deliveries) {
-                Toast.makeText(this, "Deliveries - Coming Soon", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(this, BikerAvailableOrdersActivity.class);
+                startActivity(intent);
                 return true;
             } else if (itemId == R.id.nav_earnings) {
                 Toast.makeText(this, "Earnings - Coming Soon", Toast.LENGTH_SHORT).show();

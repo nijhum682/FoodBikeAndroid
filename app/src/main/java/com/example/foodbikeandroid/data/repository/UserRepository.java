@@ -115,6 +115,11 @@ public class UserRepository {
             }
         });
     }
+
+    public LiveData<User> getUserByUsername(String username) {
+        return userDao.getUserByUsernameLive(username);
+    }
+
     public LiveData<List<User>> getAllUsers() {
         return userDao.getAllUsers();
     }

@@ -117,6 +117,9 @@ public class AdminAction {
             case DELETED_MENU_ITEM:
                 actionText = "Deleted menu item from " + targetName;
                 break;
+            case TOGGLED_MENU_ITEM_AVAILABILITY:
+                actionText = "Toggled availability for " + targetName;
+                break;
             default:
                 actionText = "Updated " + targetName;
                 break;
