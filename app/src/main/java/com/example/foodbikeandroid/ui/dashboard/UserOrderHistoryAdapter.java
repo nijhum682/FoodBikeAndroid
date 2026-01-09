@@ -35,10 +35,21 @@ public class UserOrderHistoryAdapter extends ListAdapter<Order, UserOrderHistory
     private static final double DELIVERY_FEE = 50.0;
 
     private RestaurantNameProvider restaurantNameProvider;
+    private OrderClickListener orderClickListener;
+    private ReviewClickListener reviewClickListener;
     private final Set<String> expandedOrderIds = new HashSet<>();
+    private final Set<String> reviewedOrderIds = new HashSet<>();
 
     public interface RestaurantNameProvider {
         String getRestaurantName(String restaurantId);
+    }
+    
+    public interface OrderClickListener {
+        void onOrderClick(Order order);
+    }
+
+    public interface ReviewClickListener {
+        void onReviewClick(Order order);
     }
 
     public UserOrderHistoryAdapter() {
@@ -47,6 +58,22 @@ public class UserOrderHistoryAdapter extends ListAdapter<Order, UserOrderHistory
 
     public void setRestaurantNameProvider(RestaurantNameProvider provider) {
         this.restaurantNameProvider = provider;
+    }
+    
+    public void setOrderClickListener(OrderClickListener listener) {
+        this.orderClickListener = listener;
+    }
+
+    public void setReviewClickListener(ReviewClickListener listener) {
+        this.reviewClickListener = listener;
+    }
+
+    public void setReviewedOrderIds(Set<String> reviewedOrderIds) {
+        this.reviewedOrderIds.clear();
+        if (reviewedOrderIds != null) {
+            this.reviewedOrderIds.addAll(reviewedOrderIds);
+        }
+        notifyDataSetChanged();
     }
 
     private static final DiffUtil.ItemCallback<Order> ORDER_DIFF_CALLBACK = new DiffUtil.ItemCallback<Order>() {
@@ -126,6 +153,14 @@ public class UserOrderHistoryAdapter extends ListAdapter<Order, UserOrderHistory
                     expandedOrderIds.remove(order.getOrderId());
                 }
                 updateExpandedState(newExpanded, true);
+            });
+            
+            // Long click to view order details
+            binding.layoutMain.setOnLongClickListener(v -> {
+                if (orderClickListener != null) {
+                    orderClickListener.onOrderClick(order);
+                }
+                return true;
             });
 
             // Populate expanded details
@@ -255,6 +290,28 @@ public class UserOrderHistoryAdapter extends ListAdapter<Order, UserOrderHistory
             binding.tvSubtotal.setText(String.format(Locale.getDefault(), "৳%.2f", subtotal));
             binding.tvDeliveryFee.setText(String.format(Locale.getDefault(), "৳%.2f", DELIVERY_FEE));
             binding.tvTotalPriceDetail.setText(String.format(Locale.getDefault(), "৳%.2f", order.getTotalPrice()));
+            
+            // View Details button click listener
+            binding.btnViewDetails.setOnClickListener(v -> {
+                if (orderClickListener != null) {
+                    orderClickListener.onOrderClick(order);
+                }
+            });
+
+            // Leave Review button visibility and click listener
+            boolean isDelivered = order.getStatus() == OrderStatus.DELIVERED;
+            boolean hasReview = reviewedOrderIds.contains(order.getOrderId());
+            
+            if (isDelivered && !hasReview) {
+                binding.btnLeaveReview.setVisibility(View.VISIBLE);
+                binding.btnLeaveReview.setOnClickListener(v -> {
+                    if (reviewClickListener != null) {
+                        reviewClickListener.onReviewClick(order);
+                    }
+                });
+            } else {
+                binding.btnLeaveReview.setVisibility(View.GONE);
+            }
         }
 
         private int getTotalItemCount(List<CartItem> items) {

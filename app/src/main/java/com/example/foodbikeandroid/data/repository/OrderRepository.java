@@ -85,6 +85,21 @@ public class OrderRepository {
     public LiveData<Order> getOrderById(String orderId) {
         return orderDao.getOrderById(orderId);
     }
+    
+    public void getOrderById(String orderId, OrderCallback callback) {
+        executorService.execute(() -> {
+            try {
+                Order order = orderDao.getOrderByIdSync(orderId);
+                if (order != null) {
+                    mainHandler.post(() -> callback.onSuccess(order));
+                } else {
+                    mainHandler.post(() -> callback.onError("Order not found"));
+                }
+            } catch (Exception e) {
+                mainHandler.post(() -> callback.onError(e.getMessage()));
+            }
+        });
+    }
 
     public LiveData<List<Order>> getOrdersByUserId(String userId) {
         return orderDao.getOrdersByUserId(userId);

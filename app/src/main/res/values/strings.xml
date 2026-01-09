@@ -225,6 +225,7 @@
     <string name="error_item_price_invalid">Invalid price format</string>
     <string name="error_minimum_menu_items">Please add at least %d menu items before submitting</string>
     <string name="error_not_logged_in">You need to be logged in</string>
+    <string name="error_invalid_data">Invalid data provided</string>
     <string name="no_restaurants_to_manage">No restaurants available to manage</string>
     <string name="select_restaurant">Select Restaurant</string>
     
@@ -427,4 +428,43 @@
         <item quantity="one">%d order</item>
         <item quantity="other">%d orders</item>
     </plurals>
+    
+    <!-- Order Detail Screen -->
+    <string name="date">Date</string>
+    <string name="time">Time</string>
+    <string name="order_status_timeline">Order Timeline</string>
+    <string name="price_breakdown">Price Breakdown</string>
+    <string name="delivery_by">Delivery By</string>
+    <string name="biker_name">Delivery Person</string>
+    <string name="reorder">Reorder</string>
+    <string name="cancel_order">Cancel Order</string>
+    <string name="items_added_to_cart">Items added to cart</string>
+    <string name="order_cancelled">Order cancelled successfully</string>
+    <string name="items_unavailable_title">Items Unavailable</string>
+    <string name="no_items_to_reorder">No items to reorder</string>
+    
+    <!-- Review System -->
+    <string name="leave_review">Leave Review</string>
+    <string name="rate_your_experience">Rate Your Experience</string>
+    <string name="rating_required">Required</string>
+    <string name="one_star">1 star</string>
+    <string name="two_stars">2 stars</string>
+    <string name="three_stars">3 stars</string>
+    <string name="four_stars">4 stars</string>
+    <string name="five_stars">5 stars</string>
+    <string name="tap_to_rate">Tap to rate</string>
+    <string name="rating_poor">Poor</string>
+    <string name="rating_fair">Fair</string>
+    <string name="rating_good">Good</string>
+    <string name="rating_very_good">Very Good</string>
+    <string name="rating_excellent">Excellent</string>
+    <string name="share_your_thoughts">Share Your Thoughts</string>
+    <string name="optional">Optional</string>
+    <string name="write_comment">Tell us about your experience (optional)</string>
+    <string name="submit_review">Submit Review</string>
+    <string name="comment_too_long">Comment must be 500 characters or less</string>
+    <string name="review_already_exists">You have already reviewed this order</string>
+    <string name="please_select_rating">Please select a rating</string>
+    <string name="review_submitted">Review submitted successfully</string>
+    <string name="error_submitting_review">Failed to submit review</string>
 </resources>

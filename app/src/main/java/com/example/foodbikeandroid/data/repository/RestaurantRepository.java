@@ -1,6 +1,8 @@
 package com.example.foodbikeandroid.data.repository;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 
 import androidx.lifecycle.LiveData;
 
@@ -21,11 +23,13 @@ public class RestaurantRepository {
     private static volatile RestaurantRepository INSTANCE;
     private final RestaurantDao restaurantDao;
     private final ExecutorService executorService;
+    private final Handler mainHandler;
 
     private RestaurantRepository(Context context) {
         FoodBikeDatabase database = FoodBikeDatabase.getInstance(context);
         restaurantDao = database.restaurantDao();
         executorService = Executors.newFixedThreadPool(4);
+        mainHandler = new Handler(Looper.getMainLooper());
     }
 
     public static RestaurantRepository getInstance(Context context) {
@@ -41,7 +45,10 @@ public class RestaurantRepository {
 
     public void initializeSampleData() {
         executorService.execute(() -> {
-            if (restaurantDao.getRestaurantCount() == 0) {
+            int currentCount = restaurantDao.getRestaurantCount();
+            // Reset and reinitialize if count doesn't match expected 256 restaurants (64 districts × 4)
+            if (currentCount != 256) {
+                restaurantDao.deleteAll();
                 restaurantDao.insertAll(createSampleRestaurants());
             }
         });
@@ -53,6 +60,21 @@ public class RestaurantRepository {
 
     public LiveData<Restaurant> getRestaurantById(String id) {
         return restaurantDao.getRestaurantById(id);
+    }
+    
+    public void getRestaurantById(String id, RestaurantCallback callback) {
+        executorService.execute(() -> {
+            try {
+                Restaurant restaurant = restaurantDao.getRestaurantByIdSync(id);
+                if (restaurant != null) {
+                    mainHandler.post(() -> callback.onSuccess(restaurant));
+                } else {
+                    mainHandler.post(() -> callback.onError("Restaurant not found"));
+                }
+            } catch (Exception e) {
+                mainHandler.post(() -> callback.onError(e.getMessage()));
+            }
+        });
     }
 
     public LiveData<List<Restaurant>> getRestaurantsByDivision(String division) {
@@ -103,52 +125,119 @@ public class RestaurantRepository {
 
     private List<Restaurant> createSampleRestaurants() {
         List<Restaurant> restaurants = new ArrayList<>();
+        int id = 1;
 
-        restaurants.add(createRestaurant("DH001", "Kacchi Bhai", "Dhaka", "Dhaka", "Dhanmondi Road 27", 4.7, "Bangladeshi", createBangladeshiMenu()));
-        restaurants.add(createRestaurant("DH002", "Pizza Hut Dhaka", "Dhaka", "Dhaka", "Gulshan Avenue", 4.5, "Pizza", createPizzaMenu()));
-        restaurants.add(createRestaurant("DH003", "Sultan's Dine", "Dhaka", "Dhaka", "Uttara Sector 11", 4.8, "Bangladeshi", createBangladeshiMenu()));
-        restaurants.add(createRestaurant("DH004", "Chillox", "Dhaka", "Dhaka", "Banani Road 11", 4.3, "Fast Food", createFastFoodMenu()));
-        restaurants.add(createRestaurant("DH005", "Nando's Dhaka", "Dhaka", "Dhaka", "Dhanmondi Road 2", 4.6, "Grilled", createGrilledMenu()));
-        restaurants.add(createRestaurant("DH006", "Star Kabab", "Dhaka", "Gazipur", "Tongi Bazar", 4.4, "Bangladeshi", createBangladeshiMenu()));
-        restaurants.add(createRestaurant("DH007", "Burger King", "Dhaka", "Narayanganj", "Chashara", 4.2, "Burger", createBurgerMenu()));
-        restaurants.add(createRestaurant("DH008", "Cafe Mango", "Dhaka", "Tangail", "Tangail Sadar", 4.1, "Cafe", createCafeMenu()));
+        // Dhaka Division - 13 districts
+        restaurants.addAll(createDistrictRestaurants(id, "Dhaka", "Dhaka")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Dhaka", "Gazipur")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Dhaka", "Narayanganj")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Dhaka", "Tangail")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Dhaka", "Kishoreganj")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Dhaka", "Manikganj")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Dhaka", "Munshiganj")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Dhaka", "Narsingdi")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Dhaka", "Rajbari")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Dhaka", "Madaripur")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Dhaka", "Shariatpur")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Dhaka", "Faridpur")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Dhaka", "Gopalganj")); id += 4;
 
-        restaurants.add(createRestaurant("CH001", "Mezban Restaurant", "Chittagong", "Chittagong", "GEC Circle", 4.6, "Bangladeshi", createBangladeshiMenu()));
-        restaurants.add(createRestaurant("CH002", "Pizza Inn CTG", "Chittagong", "Chittagong", "Agrabad C/A", 4.4, "Pizza", createPizzaMenu()));
-        restaurants.add(createRestaurant("CH003", "Sea Pearl", "Chittagong", "Cox's Bazar", "Marine Drive", 4.8, "Seafood", createSeafoodMenu()));
-        restaurants.add(createRestaurant("CH004", "Beach Cafe", "Chittagong", "Cox's Bazar", "Laboni Beach", 4.5, "Cafe", createCafeMenu()));
-        restaurants.add(createRestaurant("CH005", "Comilla Sweets", "Chittagong", "Comilla", "Kandirpar", 4.3, "Dessert", createDessertMenu()));
-        restaurants.add(createRestaurant("CH006", "Hill View Restaurant", "Chittagong", "Rangamati", "Reserve Bazar", 4.2, "Bangladeshi", createBangladeshiMenu()));
+        // Chittagong Division - 11 districts
+        restaurants.addAll(createDistrictRestaurants(id, "Chittagong", "Chittagong")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Chittagong", "Cox's Bazar")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Chittagong", "Comilla")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Chittagong", "Rangamati")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Chittagong", "Bandarban")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Chittagong", "Khagrachari")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Chittagong", "Feni")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Chittagong", "Lakshmipur")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Chittagong", "Noakhali")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Chittagong", "Brahmanbaria")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Chittagong", "Chandpur")); id += 4;
 
-        restaurants.add(createRestaurant("SY001", "Panshi Restaurant", "Sylhet", "Sylhet", "Zindabazar", 4.7, "Bangladeshi", createBangladeshiMenu()));
-        restaurants.add(createRestaurant("SY002", "Seven Star", "Sylhet", "Sylhet", "Amberkhana", 4.5, "Bangladeshi", createBangladeshiMenu()));
-        restaurants.add(createRestaurant("SY003", "Tea Valley", "Sylhet", "Moulvibazar", "Srimangal", 4.6, "Cafe", createCafeMenu()));
-        restaurants.add(createRestaurant("SY004", "Habiganj Food Court", "Sylhet", "Habiganj", "Habiganj Sadar", 4.1, "Fast Food", createFastFoodMenu()));
+        // Sylhet Division - 4 districts
+        restaurants.addAll(createDistrictRestaurants(id, "Sylhet", "Sylhet")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Sylhet", "Moulvibazar")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Sylhet", "Habiganj")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Sylhet", "Sunamganj")); id += 4;
 
-        restaurants.add(createRestaurant("RJ001", "Rajshahi Kitchen", "Rajshahi", "Rajshahi", "Saheb Bazar", 4.5, "Bangladeshi", createBangladeshiMenu()));
-        restaurants.add(createRestaurant("RJ002", "Mango Garden", "Rajshahi", "Rajshahi", "Padma Garden", 4.4, "Cafe", createCafeMenu()));
-        restaurants.add(createRestaurant("RJ003", "Bogra Doi Ghor", "Rajshahi", "Bogra", "Satmatha", 4.8, "Dessert", createDessertMenu()));
-        restaurants.add(createRestaurant("RJ004", "Pabna Restaurant", "Rajshahi", "Pabna", "Pabna Sadar", 4.2, "Bangladeshi", createBangladeshiMenu()));
+        // Rajshahi Division - 8 districts
+        restaurants.addAll(createDistrictRestaurants(id, "Rajshahi", "Rajshahi")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Rajshahi", "Bogra")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Rajshahi", "Pabna")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Rajshahi", "Sirajganj")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Rajshahi", "Natore")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Rajshahi", "Naogaon")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Rajshahi", "Chapainawabganj")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Rajshahi", "Joypurhat")); id += 4;
 
-        restaurants.add(createRestaurant("KH001", "Khulna Food Plaza", "Khulna", "Khulna", "Shibbari More", 4.4, "Bangladeshi", createBangladeshiMenu()));
-        restaurants.add(createRestaurant("KH002", "Sundarbans Kitchen", "Khulna", "Khulna", "Khalishpur", 4.3, "Seafood", createSeafoodMenu()));
-        restaurants.add(createRestaurant("KH003", "Jessore Biryani House", "Khulna", "Jessore", "Monihar", 4.6, "Bangladeshi", createBangladeshiMenu()));
-        restaurants.add(createRestaurant("KH004", "Satkhira Sweets", "Khulna", "Satkhira", "Satkhira Sadar", 4.1, "Dessert", createDessertMenu()));
+        // Khulna Division - 10 districts
+        restaurants.addAll(createDistrictRestaurants(id, "Khulna", "Khulna")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Khulna", "Jessore")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Khulna", "Satkhira")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Khulna", "Bagerhat")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Khulna", "Narail")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Khulna", "Chuadanga")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Khulna", "Kushtia")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Khulna", "Meherpur")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Khulna", "Magura")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Khulna", "Jhenaidah")); id += 4;
 
-        restaurants.add(createRestaurant("BA001", "Barisal River View", "Barisal", "Barisal", "Sadar Road", 4.5, "Bangladeshi", createBangladeshiMenu()));
-        restaurants.add(createRestaurant("BA002", "Bhola Fish Corner", "Barisal", "Bhola", "Bhola Sadar", 4.6, "Seafood", createSeafoodMenu()));
-        restaurants.add(createRestaurant("BA003", "Patuakhali Kitchen", "Barisal", "Patuakhali", "Patuakhali Sadar", 4.2, "Bangladeshi", createBangladeshiMenu()));
+        // Barisal Division - 6 districts
+        restaurants.addAll(createDistrictRestaurants(id, "Barisal", "Barisal")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Barisal", "Bhola")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Barisal", "Patuakhali")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Barisal", "Pirojpur")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Barisal", "Jhalokathi")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Barisal", "Barguna")); id += 4;
 
-        restaurants.add(createRestaurant("RP001", "Rangpur Royal Dine", "Rangpur", "Rangpur", "Dhap", 4.5, "Bangladeshi", createBangladeshiMenu()));
-        restaurants.add(createRestaurant("RP002", "Dinajpur Delights", "Rangpur", "Dinajpur", "Munshipara", 4.4, "Bangladeshi", createBangladeshiMenu()));
-        restaurants.add(createRestaurant("RP003", "Northern Pizza", "Rangpur", "Rangpur", "Jahaj Company More", 4.3, "Pizza", createPizzaMenu()));
-        restaurants.add(createRestaurant("RP004", "Nilphamari Cafe", "Rangpur", "Nilphamari", "Nilphamari Sadar", 4.1, "Cafe", createCafeMenu()));
+        // Rangpur Division - 8 districts
+        restaurants.addAll(createDistrictRestaurants(id, "Rangpur", "Rangpur")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Rangpur", "Dinajpur")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Rangpur", "Nilphamari")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Rangpur", "Thakurgaon")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Rangpur", "Panchagarh")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Rangpur", "Lalmonirhat")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Rangpur", "Kurigram")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Rangpur", "Gaibandha")); id += 4;
 
-        restaurants.add(createRestaurant("MY001", "Mymensingh Food Hub", "Mymensingh", "Mymensingh", "Ganginar Par", 4.4, "Bangladeshi", createBangladeshiMenu()));
-        restaurants.add(createRestaurant("MY002", "BAU Cafeteria", "Mymensingh", "Mymensingh", "BAU Campus", 4.2, "Cafe", createCafeMenu()));
-        restaurants.add(createRestaurant("MY003", "Jamalpur Kitchen", "Mymensingh", "Jamalpur", "Jamalpur Sadar", 4.3, "Bangladeshi", createBangladeshiMenu()));
-        restaurants.add(createRestaurant("MY004", "Sherpur Sweets", "Mymensingh", "Sherpur", "Sherpur Sadar", 4.5, "Dessert", createDessertMenu()));
+        // Mymensingh Division - 4 districts
+        restaurants.addAll(createDistrictRestaurants(id, "Mymensingh", "Mymensingh")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Mymensingh", "Jamalpur")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Mymensingh", "Sherpur")); id += 4;
+        restaurants.addAll(createDistrictRestaurants(id, "Mymensingh", "Netrokona")); id += 4;
 
+        return restaurants;
+    }
+
+    private List<Restaurant> createDistrictRestaurants(int startId, String division, String district) {
+        List<Restaurant> restaurants = new ArrayList<>();
+        String prefix = division.substring(0, 2).toUpperCase();
+        
+        restaurants.add(createRestaurant(
+            String.format("%s%03d", prefix, startId),
+            district + " Kitchen",
+            division, district, district + " Sadar",
+            4.5, "Bangladeshi", createBangladeshiMenu()));
+        
+        restaurants.add(createRestaurant(
+            String.format("%s%03d", prefix, startId + 1),
+            district + " Pizza House",
+            division, district, district + " Center",
+            4.3, "Pizza", createPizzaMenu()));
+        
+        restaurants.add(createRestaurant(
+            String.format("%s%03d", prefix, startId + 2),
+            district + " Cafe",
+            division, district, district + " Plaza",
+            4.4, "Cafe", createCafeMenu()));
+        
+        restaurants.add(createRestaurant(
+            String.format("%s%03d", prefix, startId + 3),
+            district + " Grill & BBQ",
+            division, district, district + " Road",
+            4.6, "Grilled", createGrilledMenu()));
+        
         return restaurants;
     }
 
@@ -239,5 +328,10 @@ public class RestaurantRepository {
                 new MenuItem("Firni", "Rice pudding", 90.0, "Dessert"),
                 new MenuItem("Ice Cream", "Various flavors", 150.0, "Dessert")
         );
+    }
+    
+    public interface RestaurantCallback {
+        void onSuccess(Restaurant restaurant);
+        void onError(String error);
     }
 }

@@ -116,6 +116,16 @@
             android:exported="false"
             android:parentActivityName=".ui.dashboard.UserDashboardActivity" />
         
+        <!-- User Order Detail -->
+        <activity android:name=".ui.order.OrderDetailActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.dashboard.UserOrderHistoryActivity" />
+        
+        <!-- Review Submission -->
+        <activity android:name=".ui.review.ReviewSubmissionActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.dashboard.UserOrderHistoryActivity" />
+        
         <!-- File Provider for export -->
         <provider
             android:name="androidx.core.content.FileProvider"

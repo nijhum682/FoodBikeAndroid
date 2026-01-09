@@ -17,6 +17,7 @@ import com.example.foodbikeandroid.data.model.OrderStatus;
 import com.example.foodbikeandroid.data.model.Restaurant;
 import com.example.foodbikeandroid.data.repository.OrderRepository;
 import com.example.foodbikeandroid.data.repository.RestaurantRepository;
+import com.example.foodbikeandroid.data.repository.ReviewRepository;
 import com.example.foodbikeandroid.databinding.ActivityUserOrderHistoryBinding;
 import com.example.foodbikeandroid.ui.auth.AuthViewModel;
 
@@ -33,6 +34,7 @@ public class UserOrderHistoryActivity extends AppCompatActivity {
     private UserOrderHistoryAdapter adapter;
     private OrderRepository orderRepository;
     private RestaurantRepository restaurantRepository;
+    private ReviewRepository reviewRepository;
     private AuthViewModel authViewModel;
 
     private Map<String, String> restaurantNames = new HashMap<>();
@@ -55,6 +57,7 @@ public class UserOrderHistoryActivity extends AppCompatActivity {
 
         orderRepository = new OrderRepository(getApplication());
         restaurantRepository = RestaurantRepository.getInstance(this);
+        reviewRepository = ReviewRepository.getInstance(this);
         authViewModel = new ViewModelProvider(this).get(AuthViewModel.class);
 
         userId = authViewModel.getCurrentUsername();
@@ -80,9 +83,29 @@ public class UserOrderHistoryActivity extends AppCompatActivity {
     private void setupRecyclerView() {
         adapter = new UserOrderHistoryAdapter();
         adapter.setRestaurantNameProvider(restaurantId -> restaurantNames.get(restaurantId));
+        adapter.setOrderClickListener(order -> {
+            // Navigate to OrderDetailActivity
+            android.content.Intent intent = new android.content.Intent(this, 
+                com.example.foodbikeandroid.ui.order.OrderDetailActivity.class);
+            intent.putExtra("orderId", order.getOrderId());
+            startActivity(intent);
+        });
+        adapter.setReviewClickListener(order -> {
+            // Navigate to ReviewSubmissionActivity
+            android.content.Intent intent = new android.content.Intent(this,
+                com.example.foodbikeandroid.ui.review.ReviewSubmissionActivity.class);
+            intent.putExtra("ORDER_ID", order.getOrderId());
+            intent.putExtra("RESTAURANT_ID", order.getRestaurantId());
+            String restaurantName = restaurantNames.get(order.getRestaurantId());
+            intent.putExtra("RESTAURANT_NAME", restaurantName);
+            startActivityForResult(intent, 100);
+        });
 
         binding.rvOrders.setLayoutManager(new LinearLayoutManager(this));
         binding.rvOrders.setAdapter(adapter);
+        
+        // Load reviewed order IDs
+        loadReviewedOrders();
     }
 
     private void setupFilterChips() {
@@ -269,6 +292,27 @@ public class UserOrderHistoryActivity extends AppCompatActivity {
     private void updateOrderCount(int count) {
         binding.tvOrderCount.setText(getResources().getQuantityString(
                 R.plurals.order_count_format, count, count));
+    }
+
+    private void loadReviewedOrders() {
+        reviewRepository.getByUser(userId).observe(this, reviews -> {
+            if (reviews != null) {
+                java.util.Set<String> reviewedOrderIds = new java.util.HashSet<>();
+                for (com.example.foodbikeandroid.data.model.Review review : reviews) {
+                    reviewedOrderIds.add(review.getOrderId());
+                }
+                adapter.setReviewedOrderIds(reviewedOrderIds);
+            }
+        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, android.content.Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 100 && resultCode == RESULT_OK) {
+            // Review submitted, reload reviewed orders
+            loadReviewedOrders();
+        }
     }
 
     private void showLoading() {
