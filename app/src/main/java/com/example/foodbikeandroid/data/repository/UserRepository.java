@@ -46,7 +46,7 @@ public class UserRepository {
         void onError(String message);
     }
     public void registerUser(String username, String password, String email,
-                            String phoneNumber, UserType userType, AuthCallback callback) {
+                            String phoneNumber, UserType userType, String address, AuthCallback callback) {
         executorService.execute(() -> {
             try {
                 if (userDao.isUsernameExists(username)) {
@@ -57,7 +57,7 @@ public class UserRepository {
                     callback.onError("Email already registered");
                     return;
                 }
-                User user = new User(username, password, email, phoneNumber, userType);
+                User user = new User(username, password, email, phoneNumber, userType, address);
                 userDao.insertUser(user);
                 sessionManager.createLoginSession(username, email, phoneNumber, userType);
 

@@ -56,8 +56,8 @@ public class UserDashboardActivity extends AppCompatActivity {
         if (item.getItemId() == R.id.action_logout) {
             logout();
             return true;
-        } else if (item.getItemId() == R.id.action_profile) {
-            Toast.makeText(this, "Profile - Coming Soon", Toast.LENGTH_SHORT).show();
+        } else if (item.getItemId() == R.id.action_notifications) {
+            Toast.makeText(this, "Notifications - Coming Soon", Toast.LENGTH_SHORT).show();
             return true;
         }
         return false;

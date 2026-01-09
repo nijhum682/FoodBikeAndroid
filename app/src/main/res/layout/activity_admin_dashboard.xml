@@ -396,7 +396,7 @@
                     </com.google.android.material.card.MaterialCardView>
 
                     <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/cardViewHistory"
+                        android:id="@+id/cardRecentActivity"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_columnWeight="1"
@@ -418,12 +418,12 @@
                                 android:layout_height="40dp"
                                 android:src="@drawable/ic_history"
                                 app:tint="@color/accent"
-                                android:contentDescription="@string/view_history" />
+                                android:contentDescription="@string/recent_activity" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="@string/view_history"
+                                android:text="@string/recent_activity"
                                 android:textSize="14sp"
                                 android:textStyle="bold"
                                 android:textColor="@color/text_primary"
@@ -435,7 +435,7 @@
                     </com.google.android.material.card.MaterialCardView>
 
                     <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/cardManageUsers"
+                        android:id="@+id/cardEarnings"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_columnWeight="1"
@@ -455,14 +455,14 @@
                             <ImageView
                                 android:layout_width="40dp"
                                 android:layout_height="40dp"
-                                android:src="@drawable/ic_manage_accounts"
-                                app:tint="@color/info"
-                                android:contentDescription="@string/manage_users" />
+                                android:src="@drawable/ic_wallet"
+                                app:tint="@color/success"
+                                android:contentDescription="@string/earnings" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="@string/manage_users"
+                                android:text="@string/earnings"
                                 android:textSize="14sp"
                                 android:textStyle="bold"
                                 android:textColor="@color/text_primary"
@@ -503,47 +503,7 @@
 
                 </LinearLayout>
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rvRecentActivity"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="16dp"
-                    android:nestedScrollingEnabled="false" />
-
-                <LinearLayout
-                    android:id="@+id/layoutNoActivity"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:gravity="center"
-                    android:padding="32dp"
-                    android:visibility="gone">
-
-                    <ImageView
-                        android:layout_width="64dp"
-                        android:layout_height="64dp"
-                        android:src="@drawable/ic_history"
-                        app:tint="@color/text_hint"
-                        android:contentDescription="@string/no_recent_activity" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/no_recent_activity"
-                        android:textSize="16sp"
-                        android:textColor="@color/text_secondary"
-                        android:layout_marginTop="12dp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/no_recent_activity_desc"
-                        android:textSize="14sp"
-                        android:textColor="@color/text_hint"
-                        android:layout_marginTop="4dp"
-                        android:gravity="center" />
-
-                </LinearLayout>
+                <!-- Bottom recent activity removed as requested -->
 
             </LinearLayout>
 
@@ -551,15 +511,6 @@
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottomNavigation"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:background="@color/white"
-        app:menu="@menu/bottom_nav_admin"
-        app:itemIconTint="@color/primary"
-        app:itemTextColor="@color/primary"
-        app:labelVisibilityMode="labeled" />
+    <!-- BottomNavigationView removed as requested -->
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

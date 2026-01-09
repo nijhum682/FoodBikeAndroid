@@ -66,7 +66,6 @@ public class AdminManageRestaurantsActivity extends AppCompatActivity
         setupRecyclerView();
         setupSearch();
         setupDivisionFilter();
-        setupFab();
         observeRestaurants();
     }
 
@@ -115,9 +114,6 @@ public class AdminManageRestaurantsActivity extends AppCompatActivity
         });
     }
 
-    private void setupFab() {
-        binding.fabAddRestaurant.setOnClickListener(v -> showAddRestaurantDialog());
-    }
 
     private void observeRestaurants() {
         binding.progressBar.setVisibility(View.VISIBLE);
@@ -178,6 +174,13 @@ public class AdminManageRestaurantsActivity extends AppCompatActivity
     @Override
     public void onRestaurantClick(Restaurant restaurant) {
         showEditRestaurantDialog(restaurant);
+    }
+
+    @Override
+    public void onViewDetailsClick(Restaurant restaurant) {
+        Intent intent = new Intent(this, RestaurantDetailActivity.class);
+        intent.putExtra("restaurant_id", restaurant.getId());
+        startActivity(intent);
     }
 
     @Override

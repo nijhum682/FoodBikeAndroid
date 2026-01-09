@@ -162,6 +162,29 @@
 
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <!-- Address Field -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilAddress"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    app:startIconDrawable="@drawable/ic_location"
+                    app:boxCornerRadiusTopStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusBottomEnd="12dp">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etAddress"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/address"
+                        android:inputType="textPostalAddress"
+                        android:maxLines="2" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
                 <!-- Password Field -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/tilPassword"

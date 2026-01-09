@@ -80,8 +80,7 @@ public class BikerAvailableOrdersActivity extends AppCompatActivity {
     private void setupRecyclerView() {
         adapter = new AvailableOrderAdapter();
         adapter.setRestaurantNameProvider(restaurantId -> restaurantNames.get(restaurantId));
-        adapter.setOnOrderClickListener(this::showAcceptOrderDialog);
-        adapter.setOnOrderDetailClickListener(this::openOrderDetail);
+        adapter.setOnOrderClickListener(this::acceptOrder);
         
         binding.rvOrders.setLayoutManager(new LinearLayoutManager(this));
         binding.rvOrders.setAdapter(adapter);
@@ -174,9 +173,9 @@ public class BikerAvailableOrdersActivity extends AppCompatActivity {
         binding.swipeRefresh.setRefreshing(true);
 
         if (selectedDistrict.equals("All Districts")) {
-            currentOrdersLiveData = orderRepository.getOrdersByStatus(OrderStatus.CONFIRMED);
+            currentOrdersLiveData = orderRepository.getOrdersByStatus(OrderStatus.READY);
         } else {
-            currentOrdersLiveData = orderRepository.getOrdersByDistrictAndStatus(selectedDistrict, OrderStatus.CONFIRMED);
+            currentOrdersLiveData = orderRepository.getOrdersByDistrictAndStatus(selectedDistrict, OrderStatus.READY);
         }
 
         currentOrdersLiveData.observe(this, orders -> {
@@ -208,25 +207,6 @@ public class BikerAvailableOrdersActivity extends AppCompatActivity {
     private void refreshOrders() {
         binding.swipeRefresh.setRefreshing(true);
         loadOrders();
-    }
-
-    private void showAcceptOrderDialog(Order order) {
-        String restaurantName = restaurantNames.get(order.getRestaurantId());
-        if (restaurantName == null) restaurantName = "Unknown Restaurant";
-        
-        int itemCount = order.getItems() != null ? order.getItems().size() : 0;
-        
-        new AlertDialog.Builder(this)
-                .setTitle(getString(R.string.accept_delivery))
-                .setMessage(getString(R.string.accept_delivery_confirmation,
-                        order.getOrderId(),
-                        restaurantName,
-                        itemCount,
-                        order.getDistrict(),
-                        order.getTotalPrice()))
-                .setPositiveButton(R.string.accept, (dialog, which) -> acceptOrder(order))
-                .setNegativeButton(R.string.cancel, null)
-                .show();
     }
 
     private void acceptOrder(Order order) {

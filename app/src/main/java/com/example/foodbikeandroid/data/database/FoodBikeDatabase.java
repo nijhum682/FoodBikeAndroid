@@ -14,7 +14,7 @@ import com.example.foodbikeandroid.data.model.User;
 import com.example.foodbikeandroid.data.model.AdminAction;
 import com.example.foodbikeandroid.data.model.Review;
 
-@Database(entities = {User.class, Restaurant.class, Order.class, RestaurantApplication.class, AdminAction.class, Review.class}, version = 7, exportSchema = false)
+@Database(entities = {User.class, Restaurant.class, Order.class, RestaurantApplication.class, AdminAction.class, Review.class}, version = 9, exportSchema = false)
 @TypeConverters(Converters.class)
 public abstract class FoodBikeDatabase extends RoomDatabase {
 
@@ -40,6 +40,7 @@ public abstract class FoodBikeDatabase extends RoomDatabase {
                             FoodBikeDatabase.class,
                             DATABASE_NAME
                     )
+                    .addMigrations(MIGRATION_8_9)
                     .fallbackToDestructiveMigration()
                     .build();
                 }
@@ -47,4 +48,11 @@ public abstract class FoodBikeDatabase extends RoomDatabase {
         }
         return INSTANCE;
     }
+
+    public static final androidx.room.migration.Migration MIGRATION_8_9 = new androidx.room.migration.Migration(8, 9) {
+        @Override
+        public void migrate(androidx.sqlite.db.SupportSQLiteDatabase database) {
+            database.execSQL("ALTER TABLE users ADD COLUMN address TEXT NOT NULL DEFAULT ''");
+        }
+    };
 }

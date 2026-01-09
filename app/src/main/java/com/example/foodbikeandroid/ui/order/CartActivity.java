@@ -12,6 +12,7 @@ import com.example.foodbikeandroid.data.cart.CartManager;
 import com.example.foodbikeandroid.data.model.CartItem;
 import com.example.foodbikeandroid.databinding.ActivityCartBinding;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CartActivity extends AppCompatActivity implements CartAdapter.CartItemListener {
@@ -95,13 +96,15 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.CartI
     @Override
     public void onIncreaseQuantity(CartItem item) {
         cartManager.incrementItem(item.getMenuItem());
-        updateUI();
+        cartAdapter.submitList(new ArrayList<>(cartManager.getCartItems()));
+        updatePrices();
     }
 
     @Override
     public void onDecreaseQuantity(CartItem item) {
         cartManager.decrementItem(item.getMenuItem());
-        updateUI();
+        cartAdapter.submitList(new ArrayList<>(cartManager.getCartItems()));
+        updatePrices();
     }
 
     @Override

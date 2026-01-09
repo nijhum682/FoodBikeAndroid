@@ -102,7 +102,11 @@ public class CartManager {
     }
 
     public List<CartItem> getCartItems() {
-        return new ArrayList<>(cartItems);
+        List<CartItem> copies = new ArrayList<>();
+        for (CartItem item : cartItems) {
+            copies.add(new CartItem(item.getMenuItem(), item.getQuantity()));
+        }
+        return copies;
     }
 
     public int getItemCount() {

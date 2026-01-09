@@ -62,13 +62,8 @@ public class BikerMyDeliveriesActivity extends AppCompatActivity {
         adapter.setRestaurantNameProvider(restaurantId -> restaurantNames.get(restaurantId));
         adapter.setOnStatusUpdateListener(new MyDeliveryAdapter.OnStatusUpdateListener() {
             @Override
-            public void onReadyForPickup(Order order) {
-                updateOrderToReady(order);
-            }
-
-            @Override
             public void onMarkDelivered(Order order) {
-                showDeliveredConfirmationDialog(order);
+                markOrderDelivered(order);
             }
         });
 
@@ -153,43 +148,7 @@ public class BikerMyDeliveriesActivity extends AppCompatActivity {
         });
     }
 
-    private void updateOrderToReady(Order order) {
-        orderRepository.updateOrderStatusToReady(order.getOrderId(), new OrderRepository.StatusUpdateCallback() {
-            @Override
-            public void onSuccess() {
-                runOnUiThread(() -> {
-                    Toast.makeText(BikerMyDeliveriesActivity.this,
-                            getString(R.string.order_marked_ready_for_pickup, order.getOrderId()),
-                            Toast.LENGTH_SHORT).show();
-                });
-            }
-
-            @Override
-            public void onError(String error) {
-                runOnUiThread(() -> {
-                    Toast.makeText(BikerMyDeliveriesActivity.this,
-                            getString(R.string.error_updating_status, error),
-                            Toast.LENGTH_SHORT).show();
-                });
-            }
-        });
-    }
-
-    private void showDeliveredConfirmationDialog(Order order) {
-        String restaurantName = restaurantNames.get(order.getRestaurantId());
-        if (restaurantName == null) restaurantName = "Unknown Restaurant";
-
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.confirm_delivery)
-                .setMessage(getString(R.string.confirm_delivery_message,
-                        order.getOrderId(),
-                        restaurantName,
-                        order.getDistrict(),
-                        order.getTotalPrice()))
-                .setPositiveButton(R.string.confirm, (dialog, which) -> markOrderDelivered(order))
-                .setNegativeButton(R.string.cancel, null)
-                .show();
-    }
+        // Removed confirmation dialog for instant delivery confirmation
 
     private void markOrderDelivered(Order order) {
         orderRepository.updateOrderStatusToDelivered(order.getOrderId(), new OrderRepository.StatusUpdateCallback() {

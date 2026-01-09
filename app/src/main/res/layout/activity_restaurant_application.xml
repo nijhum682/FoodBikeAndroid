@@ -228,15 +228,32 @@
 
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <!-- Submit Button -->
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnSubmit"
+                    <!-- Rating -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilRating"
                         android:layout_width="match_parent"
-                        android:layout_height="56dp"
-                        android:text="@string/submit_application"
-                        android:textSize="16sp"
-                        app:cornerRadius="12dp"
-                        android:backgroundTint="@color/primary" />
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="24dp"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        app:startIconDrawable="@drawable/ic_star"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:errorEnabled="true"
+                        app:helperText="Rating between 0.0 and 5.0"
+                        app:helperTextEnabled="true">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etRating"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Initial Rating"
+                            android:inputType="numberDecimal"
+                            android:maxLines="1"
+                            android:text="4.5" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
 
                 </LinearLayout>
 
@@ -361,6 +378,18 @@
                 </LinearLayout>
 
             </com.google.android.material.card.MaterialCardView>
+
+            <!-- Submit Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSubmit"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="24dp"
+                android:text="@string/submit_application"
+                android:textSize="16sp"
+                app:cornerRadius="12dp"
+                android:backgroundTint="@color/primary" />
 
         </LinearLayout>
 

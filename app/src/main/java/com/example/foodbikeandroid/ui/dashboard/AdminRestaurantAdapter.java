@@ -29,6 +29,7 @@ public class AdminRestaurantAdapter extends ListAdapter<Restaurant, AdminRestaur
         void onRestaurantClick(Restaurant restaurant);
         void onRestaurantDelete(Restaurant restaurant, int position);
         void onEditMenuClick(Restaurant restaurant);
+        void onViewDetailsClick(Restaurant restaurant);
     }
 
     public AdminRestaurantAdapter() {
@@ -83,6 +84,7 @@ public class AdminRestaurantAdapter extends ListAdapter<Restaurant, AdminRestaur
         private final TextView tvMenuItemCount;
         private final ImageView ivEdit;
         private final ImageView ivEditMenu;
+        private final ImageView ivViewDetails;
 
         RestaurantViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -94,6 +96,7 @@ public class AdminRestaurantAdapter extends ListAdapter<Restaurant, AdminRestaur
             tvMenuItemCount = itemView.findViewById(R.id.tvMenuItemCount);
             ivEdit = itemView.findViewById(R.id.ivEdit);
             ivEditMenu = itemView.findViewById(R.id.ivEditMenu);
+            ivViewDetails = itemView.findViewById(R.id.ivViewDetails);
         }
 
         void bind(Restaurant restaurant) {
@@ -123,6 +126,12 @@ public class AdminRestaurantAdapter extends ListAdapter<Restaurant, AdminRestaur
             ivEditMenu.setOnClickListener(v -> {
                 if (listener != null) {
                     listener.onEditMenuClick(restaurant);
+                }
+            });
+
+            ivViewDetails.setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onViewDetailsClick(restaurant);
                 }
             });
         }

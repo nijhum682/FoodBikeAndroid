@@ -57,7 +57,6 @@ public class EntrepreneurDashboardActivity extends AppCompatActivity {
         displayUserInfo();
         setupRecyclerView();
         setupClickListeners();
-        setupBottomNavigation();
         setupSwipeRefresh();
     }
 
@@ -123,6 +122,7 @@ public class EntrepreneurDashboardActivity extends AppCompatActivity {
                 
                 updateDashboardStats();
                 updateRestaurantsList();
+                updateNotificationBadge();
             }
         });
     }
@@ -142,47 +142,74 @@ public class EntrepreneurDashboardActivity extends AppCompatActivity {
     private void loadTotalOrdersAndRevenue() {
         final int[] totalOrders = {0};
         final double[] totalRevenue = {0.0};
+        final int[] newOrdersCount = {0};
         final int[] completedRequests = {0};
         final int totalRequests = approvedApplications.size();
         
         for (RestaurantApplication app : approvedApplications) {
-            orderRepository.getOrdersByRestaurantId(app.getApplicationId()).observe(this, orders -> {
-                if (orders != null) {
-                    totalOrders[0] += orders.size();
-                    for (Order order : orders) {
-                        if (order.getStatus() != OrderStatus.CANCELLED && 
-                            order.getStatus() != OrderStatus.AUTO_CANCELLED) {
-                            totalRevenue[0] += order.getTotalPrice();
-                        }
+            restaurantRepository.getAllRestaurants().observe(this, allRestaurants -> {
+                if (allRestaurants == null) return;
+                
+                String restaurantId = null;
+                for (Restaurant restaurant : allRestaurants) {
+                    if (restaurant.getName().equals(app.getRestaurantName())) {
+                        restaurantId = restaurant.getId();
+                        break;
                     }
-                    
-                    int pendingCount = 0;
-                    int todayCount = 0;
-                    double todayRevenue = 0.0;
-                    long startOfDay = getStartOfDay();
-                    
-                    for (Order order : orders) {
-                        if (order.getStatus() == OrderStatus.PENDING) {
-                            pendingCount++;
-                        }
-                        if (order.getCreatedAt() >= startOfDay) {
-                            todayCount++;
-                            if (order.getStatus() != OrderStatus.CANCELLED && 
-                                order.getStatus() != OrderStatus.AUTO_CANCELLED) {
-                                todayRevenue += order.getTotalPrice();
-                            }
-                        }
-                    }
-                    
-                    restaurantAdapter.updateRestaurantStats(
-                            app.getApplicationId(), pendingCount, todayCount, todayRevenue);
                 }
                 
-                completedRequests[0]++;
-                if (completedRequests[0] >= totalRequests) {
-                    binding.tvTotalOrders.setText(String.valueOf(totalOrders[0]));
-                    binding.tvTotalRevenue.setText("৳" + (int) totalRevenue[0]);
+                if (restaurantId == null) {
+                    completedRequests[0]++;
+                    return;
                 }
+                
+                String finalRestaurantId = restaurantId;
+                orderRepository.getOrdersByRestaurantId(finalRestaurantId).observe(this, orders -> {
+                    if (orders != null) {
+                        totalOrders[0] += orders.size();
+                        for (Order order : orders) {
+                            if (order.getStatus() != OrderStatus.CANCELLED && 
+                                order.getStatus() != OrderStatus.AUTO_CANCELLED) {
+                                totalRevenue[0] += order.getTotalPrice();
+                            }
+                        }
+                        
+                        int pendingCount = 0;
+                        int todayCount = 0;
+                        double todayRevenue = 0.0;
+                        long startOfDay = getStartOfDay();
+                        
+                        for (Order order : orders) {
+                            if (order.getStatus() == OrderStatus.PENDING) {
+                                pendingCount++;
+                                newOrdersCount[0]++;
+                            }
+                            if (order.getCreatedAt() >= startOfDay) {
+                                todayCount++;
+                                if (order.getStatus() != OrderStatus.CANCELLED && 
+                                    order.getStatus() != OrderStatus.AUTO_CANCELLED) {
+                                    todayRevenue += order.getTotalPrice();
+                                }
+                            }
+                        }
+                        
+                        restaurantAdapter.updateRestaurantStats(
+                                app.getApplicationId(), pendingCount, todayCount, todayRevenue);
+                    }
+                    
+                    completedRequests[0]++;
+                    if (completedRequests[0] >= totalRequests) {
+                        binding.tvTotalOrders.setText(String.valueOf(totalOrders[0]));
+                        binding.tvTotalRevenue.setText("৳" + (int) totalRevenue[0]);
+                        
+                        if (newOrdersCount[0] > 0) {
+                            binding.newOrdersBadge.setText(String.valueOf(newOrdersCount[0]));
+                            binding.newOrdersBadge.setVisibility(View.VISIBLE);
+                        } else {
+                            binding.newOrdersBadge.setVisibility(View.GONE);
+                        }
+                    }
+                });
             });
         }
     }
@@ -234,12 +261,28 @@ public class EntrepreneurDashboardActivity extends AppCompatActivity {
     }
 
     private void openRestaurantOrders(RestaurantApplication restaurant) {
-        Intent intent = new Intent(this, RestaurantOrdersActivity.class);
-        intent.putExtra(RestaurantOrdersActivity.EXTRA_RESTAURANT_ID, restaurant.getApplicationId());
-        intent.putExtra(RestaurantOrdersActivity.EXTRA_RESTAURANT_NAME, restaurant.getRestaurantName());
-        intent.putExtra(RestaurantOrdersActivity.EXTRA_RESTAURANT_LOCATION, 
-                restaurant.getDistrict() + ", " + restaurant.getDivision());
-        startActivity(intent);
+        restaurantRepository.getAllRestaurants().observe(this, allRestaurants -> {
+            if (allRestaurants == null) return;
+            
+            String restaurantId = null;
+            for (Restaurant r : allRestaurants) {
+                if (r.getName().equals(restaurant.getRestaurantName())) {
+                    restaurantId = r.getId();
+                    break;
+                }
+            }
+            
+            if (restaurantId != null) {
+                Intent intent = new Intent(this, RestaurantOrdersActivity.class);
+                intent.putExtra(RestaurantOrdersActivity.EXTRA_RESTAURANT_ID, restaurantId);
+                intent.putExtra(RestaurantOrdersActivity.EXTRA_RESTAURANT_NAME, restaurant.getRestaurantName());
+                intent.putExtra(RestaurantOrdersActivity.EXTRA_RESTAURANT_LOCATION, 
+                        restaurant.getDistrict() + ", " + restaurant.getDivision());
+                startActivity(intent);
+            } else {
+                Toast.makeText(this, "Restaurant not found", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void openManageMenu() {
@@ -305,17 +348,43 @@ public class EntrepreneurDashboardActivity extends AppCompatActivity {
 
     private void setupToolbar() {
         binding.toolbar.setOnMenuItemClickListener(this::onMenuItemClick);
+        updateNotificationBadge();
+    }
+
+    private void updateNotificationBadge() {
+        MenuItem notificationItem = binding.toolbar.getMenu().findItem(R.id.action_notifications);
+        if (notificationItem != null) {
+            boolean hasUnread = false;
+            for (RestaurantApplication app : approvedApplications) {
+                if (app.getAdminMessage() != null && !app.getAdminMessage().isEmpty() && !app.isMessageViewed()) {
+                    hasUnread = true;
+                    break;
+                }
+            }
+            for (RestaurantApplication app : pendingApplications) {
+                if (app.getAdminMessage() != null && !app.getAdminMessage().isEmpty() && !app.isMessageViewed()) {
+                    hasUnread = true;
+                    break;
+                }
+            }
+            notificationItem.setIcon(hasUnread ? R.drawable.ic_badge : R.drawable.ic_info);
+        }
     }
 
     private boolean onMenuItemClick(MenuItem item) {
         if (item.getItemId() == R.id.action_logout) {
             logout();
             return true;
-        } else if (item.getItemId() == R.id.action_profile) {
-            Toast.makeText(this, "Profile - Coming Soon", Toast.LENGTH_SHORT).show();
+        } else if (item.getItemId() == R.id.action_notifications) {
+            openNotifications();
             return true;
         }
         return false;
+    }
+
+    private void openNotifications() {
+        Intent intent = new Intent(this, MyApplicationsActivity.class);
+        startActivity(intent);
     }
 
     private void displayUserInfo() {
@@ -421,31 +490,6 @@ public class EntrepreneurDashboardActivity extends AppCompatActivity {
                 })
                 .setNegativeButton(R.string.cancel, null)
                 .show();
-    }
-
-    private void setupBottomNavigation() {
-        binding.bottomNav.setOnItemSelectedListener(item -> {
-            int itemId = item.getItemId();
-            if (itemId == R.id.nav_home) {
-                return true;
-            } else if (itemId == R.id.nav_menu) {
-                openManageMenu();
-                return true;
-            } else if (itemId == R.id.nav_orders) {
-                if (approvedApplications.isEmpty()) {
-                    Toast.makeText(this, R.string.no_restaurants_yet, Toast.LENGTH_SHORT).show();
-                } else if (approvedApplications.size() == 1) {
-                    openRestaurantOrders(approvedApplications.get(0));
-                } else {
-                    showRestaurantSelectionForOrders();
-                }
-                return true;
-            } else if (itemId == R.id.nav_profile) {
-                Toast.makeText(this, "Profile - Coming Soon", Toast.LENGTH_SHORT).show();
-                return true;
-            }
-            return false;
-        });
     }
 
     private void logout() {

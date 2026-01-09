@@ -54,6 +54,9 @@ public interface OrderDao {
 
     @Query("UPDATE orders SET status = :status WHERE orderId = :orderId")
     void updateOrderStatus(String orderId, OrderStatus status);
+    
+    @Query("UPDATE orders SET status = 'READY', bikerId = NULL, acceptedAt = 0 WHERE orderId = :orderId")
+    void clearBikerAndSetReady(String orderId);
 
     @Query("UPDATE orders SET bikerId = :bikerId WHERE orderId = :orderId")
     void assignBiker(String orderId, String bikerId);
@@ -105,4 +108,7 @@ public interface OrderDao {
     
     @Query("SELECT * FROM orders WHERE status = :status")
     List<Order> getOrdersByStatusSync(OrderStatus status);
+    
+    @Query("UPDATE orders SET bikerId = :bikerId, status = :status, acceptedAt = :timestamp WHERE orderId = :orderId")
+    int tryAcceptOrderAtomic(String orderId, String bikerId, OrderStatus status, long timestamp);
 }

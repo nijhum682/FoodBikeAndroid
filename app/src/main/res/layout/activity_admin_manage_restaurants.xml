@@ -177,15 +177,5 @@
 
     </LinearLayout>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabAddRestaurant"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
-        android:src="@drawable/ic_add"
-        android:contentDescription="@string/add_restaurant"
-        app:tint="@color/white"
-        app:backgroundTint="@color/primary" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

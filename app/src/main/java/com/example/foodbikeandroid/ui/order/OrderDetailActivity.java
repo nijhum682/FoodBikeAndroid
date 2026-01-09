@@ -84,7 +84,6 @@ public class OrderDetailActivity extends AppCompatActivity {
     }
 
     private void setupButtons() {
-        binding.btnReorder.setOnClickListener(v -> handleReorder());
         binding.btnCancelOrder.setOnClickListener(v -> showCancelConfirmation());
     }
 
@@ -228,51 +227,64 @@ public class OrderDetailActivity extends AppCompatActivity {
     }
 
     private void displayStatusTimeline() {
-        // Clear existing timeline views (except the first one which is a divider)
-        while (binding.layoutTimeline.getChildCount() > 1) {
-            binding.layoutTimeline.removeViewAt(1);
-        }
-
-        List<StatusTimelineItem> timelineItems = new ArrayList<>();
+        OrderStatus status = currentOrder.getStatus();
         
-        // Order placed
-        timelineItems.add(new StatusTimelineItem("Order Placed", currentOrder.getCreatedAt(), true));
+        // Stage 1: Order Placed - Always completed
+        binding.iconStage1.setImageResource(R.drawable.ic_check_circle);
+        binding.iconStage1.setColorFilter(getColor(R.color.success));
+        binding.tvStage1.setTextColor(getColor(R.color.text_primary));
         
-        // Confirmed
-        if (currentOrder.getStatus().ordinal() >= OrderStatus.CONFIRMED.ordinal()) {
-            timelineItems.add(new StatusTimelineItem("Order Confirmed", currentOrder.getCreatedAt() + 60000, true));
-        }
-        
-        // Preparing
-        if (currentOrder.getStatus().ordinal() >= OrderStatus.PREPARING.ordinal() && currentOrder.getAcceptedAt() > 0) {
-            timelineItems.add(new StatusTimelineItem("Restaurant Preparing", currentOrder.getAcceptedAt(), true));
-        }
-        
-        // Ready for pickup
-        if (currentOrder.getStatus().ordinal() >= OrderStatus.READY.ordinal() && currentOrder.getReadyAt() > 0) {
-            timelineItems.add(new StatusTimelineItem("Ready for Pickup", currentOrder.getReadyAt(), true));
+        // Stage 2: Confirmed by Restaurant
+        if (status.ordinal() >= OrderStatus.CONFIRMED.ordinal()) {
+            binding.iconStage2.setImageResource(R.drawable.ic_check_circle);
+            binding.iconStage2.setColorFilter(getColor(R.color.success));
+            binding.tvStage2.setTextColor(getColor(R.color.text_primary));
+            binding.lineStage1.setBackgroundColor(getColor(R.color.success));
+        } else {
+            binding.iconStage2.setImageResource(R.drawable.ic_empty_state);
+            binding.iconStage2.setColorFilter(getColor(R.color.text_hint));
+            binding.tvStage2.setTextColor(getColor(R.color.text_secondary));
+            binding.lineStage1.setBackgroundColor(getColor(R.color.text_hint));
         }
         
-        // Delivered
-        if (currentOrder.getStatus() == OrderStatus.DELIVERED && currentOrder.getDeliveredAt() > 0) {
-            timelineItems.add(new StatusTimelineItem("Delivered", currentOrder.getDeliveredAt(), true));
+        // Stage 3: Food Ready
+        if (status.ordinal() >= OrderStatus.READY.ordinal()) {
+            binding.iconStage3.setImageResource(R.drawable.ic_check_circle);
+            binding.iconStage3.setColorFilter(getColor(R.color.success));
+            binding.tvStage3.setTextColor(getColor(R.color.text_primary));
+            binding.lineStage2.setBackgroundColor(getColor(R.color.success));
+        } else {
+            binding.iconStage3.setImageResource(R.drawable.ic_empty_state);
+            binding.iconStage3.setColorFilter(getColor(R.color.text_hint));
+            binding.tvStage3.setTextColor(getColor(R.color.text_secondary));
+            binding.lineStage2.setBackgroundColor(getColor(R.color.text_hint));
         }
-
-        for (int i = 0; i < timelineItems.size(); i++) {
-            StatusTimelineItem item = timelineItems.get(i);
-            addTimelineItemView(item, i == timelineItems.size() - 1);
+        
+        // Stage 4: Out for Delivery (when biker accepts - PREPARING status)
+        if (status.ordinal() >= OrderStatus.PREPARING.ordinal()) {
+            binding.iconStage4.setImageResource(R.drawable.ic_check_circle);
+            binding.iconStage4.setColorFilter(getColor(R.color.success));
+            binding.tvStage4.setTextColor(getColor(R.color.text_primary));
+            binding.lineStage3.setBackgroundColor(getColor(R.color.success));
+        } else {
+            binding.iconStage4.setImageResource(R.drawable.ic_empty_state);
+            binding.iconStage4.setColorFilter(getColor(R.color.text_hint));
+            binding.tvStage4.setTextColor(getColor(R.color.text_secondary));
+            binding.lineStage3.setBackgroundColor(getColor(R.color.text_hint));
         }
-    }
-
-    private void addTimelineItemView(StatusTimelineItem item, boolean isLast) {
-        View timelineView = getLayoutInflater().inflate(R.layout.item_status_timeline, binding.layoutTimeline, false);
-        TextView tvStatusLabel = timelineView.findViewById(R.id.tvStatusLabel);
-        tvStatusLabel.setText(item.label);
         
-        TextView tvStatusTime = timelineView.findViewById(R.id.tvStatusTime);
-        tvStatusTime.setText(formatTime(item.timestamp));
-        
-        binding.layoutTimeline.addView(timelineView);
+        // Stage 5: Delivered
+        if (status == OrderStatus.DELIVERED) {
+            binding.iconStage5.setImageResource(R.drawable.ic_check_circle);
+            binding.iconStage5.setColorFilter(getColor(R.color.success));
+            binding.tvStage5.setTextColor(getColor(R.color.text_primary));
+            binding.lineStage4.setBackgroundColor(getColor(R.color.success));
+        } else {
+            binding.iconStage5.setImageResource(R.drawable.ic_empty_state);
+            binding.iconStage5.setColorFilter(getColor(R.color.text_hint));
+            binding.tvStage5.setTextColor(getColor(R.color.text_secondary));
+            binding.lineStage4.setBackgroundColor(getColor(R.color.text_hint));
+        }
     }
 
     private void displayPriceBreakdown() {
@@ -286,15 +298,11 @@ public class OrderDetailActivity extends AppCompatActivity {
     }
 
     private void updateButtonVisibility() {
-        // Show cancel button only for PENDING status
         if (currentOrder.getStatus() == OrderStatus.PENDING) {
             binding.btnCancelOrder.setVisibility(View.VISIBLE);
         } else {
             binding.btnCancelOrder.setVisibility(View.GONE);
         }
-        
-        // Always show reorder button
-        binding.btnReorder.setVisibility(View.VISIBLE);
     }
 
     private void handleReorder() {

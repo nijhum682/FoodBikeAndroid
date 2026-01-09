@@ -28,4 +28,6 @@ public interface AdminActionDao {
 
     @Query("SELECT * FROM admin_actions WHERE actionType = :actionType ORDER BY timestamp DESC")
     LiveData<List<AdminAction>> getByActionType(ActionType actionType);
+        @Query("SELECT COUNT(*) FROM admin_actions")
+        LiveData<Integer> getActionCount();
 }

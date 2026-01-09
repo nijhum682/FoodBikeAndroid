@@ -26,18 +26,26 @@ public class User {
     @NonNull
     private UserType userType;
 
+    @NonNull
+    private String address;
+
     private long createdAt;
+
+    private double earnings;
 
     public User(@NonNull String username, @NonNull String password, 
                 @NonNull String email, @NonNull String phoneNumber, 
-                @NonNull UserType userType) {
+                @NonNull UserType userType, @NonNull String address) {
         this.username = username;
         this.password = password;
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.userType = userType;
+        this.address = address;
         this.createdAt = System.currentTimeMillis();
+        this.earnings = 0.0;
     }
+
     @NonNull
     public String getUsername() {
         return username;
@@ -63,9 +71,15 @@ public class User {
         return userType;
     }
 
+    @NonNull
+    public String getAddress() {
+        return address;
+    }
+
     public long getCreatedAt() {
         return createdAt;
     }
+
 
     public void setUsername(@NonNull String username) {
         this.username = username;
@@ -87,7 +101,19 @@ public class User {
         this.userType = userType;
     }
 
+    public void setAddress(@NonNull String address) {
+        this.address = address;
+    }
+
     public void setCreatedAt(long createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public double getEarnings() {
+        return earnings;
+    }
+
+    public void setEarnings(double earnings) {
+        this.earnings = earnings;
     }
 }

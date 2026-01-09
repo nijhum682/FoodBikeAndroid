@@ -64,10 +64,11 @@ public class SignUpActivity extends AppCompatActivity {
         String username = binding.etUsername.getText().toString();
         String email = binding.etEmail.getText().toString();
         String phone = binding.etPhone.getText().toString();
+        String address = binding.etAddress.getText().toString();
         String password = binding.etPassword.getText().toString();
         String confirmPassword = binding.etConfirmPassword.getText().toString();
 
-        authViewModel.register(username, password, confirmPassword, email, phone, selectedUserType);
+        authViewModel.register(username, password, confirmPassword, email, phone, selectedUserType, address);
     }
 
     private void observeViewModel() {

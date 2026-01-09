@@ -26,16 +26,11 @@ public class AvailableOrderAdapter extends RecyclerView.Adapter<AvailableOrderAd
     private List<Order> orders = new ArrayList<>();
     private List<Order> displayedOrders = new ArrayList<>();
     private OnOrderClickListener listener;
-    private OnOrderDetailClickListener detailListener;
     private RestaurantNameProvider restaurantNameProvider;
     private SortOrder currentSortOrder = SortOrder.NEWEST_FIRST;
 
     public interface OnOrderClickListener {
         void onAcceptOrder(Order order);
-    }
-
-    public interface OnOrderDetailClickListener {
-        void onOrderDetailClick(Order order);
     }
 
     public interface RestaurantNameProvider {
@@ -44,10 +39,6 @@ public class AvailableOrderAdapter extends RecyclerView.Adapter<AvailableOrderAd
 
     public void setOnOrderClickListener(OnOrderClickListener listener) {
         this.listener = listener;
-    }
-
-    public void setOnOrderDetailClickListener(OnOrderDetailClickListener listener) {
-        this.detailListener = listener;
     }
 
     public void setRestaurantNameProvider(RestaurantNameProvider provider) {
@@ -126,12 +117,6 @@ public class AvailableOrderAdapter extends RecyclerView.Adapter<AvailableOrderAd
             binding.btnAcceptOrder.setOnClickListener(v -> {
                 if (listener != null) {
                     listener.onAcceptOrder(order);
-                }
-            });
-
-            binding.getRoot().setOnClickListener(v -> {
-                if (detailListener != null) {
-                    detailListener.onOrderDetailClick(order);
                 }
             });
         }

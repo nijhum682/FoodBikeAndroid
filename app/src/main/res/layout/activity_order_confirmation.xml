@@ -174,11 +174,20 @@
                             android:checked="true" />
 
                         <RadioButton
-                            android:id="@+id/rbMobileBanking"
+                            android:id="@+id/rbBkash"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:text="@string/mobile_banking"
+                            android:text="Bkash"
+                            android:textSize="14sp"
+                            android:paddingStart="8dp" />
+
+                        <RadioButton
+                            android:id="@+id/rbNagad"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="Nagad"
                             android:textSize="14sp"
                             android:paddingStart="8dp" />
 

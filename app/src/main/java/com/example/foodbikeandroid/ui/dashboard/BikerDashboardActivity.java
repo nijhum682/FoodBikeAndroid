@@ -34,7 +34,6 @@ public class BikerDashboardActivity extends AppCompatActivity {
         setupToolbar();
         displayUserInfo();
         setupClickListeners();
-        setupBottomNavigation();
     }
 
     private void setupToolbar() {
@@ -45,8 +44,8 @@ public class BikerDashboardActivity extends AppCompatActivity {
         if (item.getItemId() == R.id.action_logout) {
             logout();
             return true;
-        } else if (item.getItemId() == R.id.action_profile) {
-            Toast.makeText(this, "Profile - Coming Soon", Toast.LENGTH_SHORT).show();
+        } else if (item.getItemId() == R.id.action_notifications) {
+            Toast.makeText(this, "Notifications - Coming Soon", Toast.LENGTH_SHORT).show();
             return true;
         }
         return false;
@@ -92,26 +91,9 @@ public class BikerDashboardActivity extends AppCompatActivity {
             Intent intent = new Intent(this, BikerHistoryActivity.class);
             startActivity(intent);
         });
-    }
-
-    private void setupBottomNavigation() {
-        binding.bottomNav.setOnItemSelectedListener(item -> {
-            int itemId = item.getItemId();
-            if (itemId == R.id.nav_home) {
-                // Already on home
-                return true;
-            } else if (itemId == R.id.nav_deliveries) {
-                Intent intent = new Intent(this, BikerMyDeliveriesActivity.class);
-                startActivity(intent);
-                return true;
-            } else if (itemId == R.id.nav_earnings) {
-                Toast.makeText(this, "Earnings - Coming Soon", Toast.LENGTH_SHORT).show();
-                return true;
-            } else if (itemId == R.id.nav_profile) {
-                Toast.makeText(this, "Profile - Coming Soon", Toast.LENGTH_SHORT).show();
-                return true;
-            }
-            return false;
+        binding.cardProfile.setOnClickListener(v -> {
+            Intent intent = new Intent(this, BikerProfileActivity.class);
+            startActivity(intent);
         });
     }
 
@@ -122,4 +104,6 @@ public class BikerDashboardActivity extends AppCompatActivity {
         startActivity(intent);
         finish();
     }
+
+    // Profile info is now shown in BikerProfileActivity. No inline profile info in dashboard.
 }

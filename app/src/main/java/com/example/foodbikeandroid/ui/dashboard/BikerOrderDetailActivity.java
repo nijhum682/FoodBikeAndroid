@@ -104,7 +104,7 @@ public class BikerOrderDetailActivity extends AppCompatActivity {
         
         binding.tvDeliveryDistrict.setText(order.getDistrict());
         
-        boolean canAccept = order.getStatus() == OrderStatus.CONFIRMED && order.getBikerId() == null;
+        boolean canAccept = order.getStatus() == OrderStatus.READY && order.getBikerId() == null;
         binding.btnAcceptDelivery.setVisibility(canAccept ? View.VISIBLE : View.GONE);
     }
 
@@ -132,13 +132,7 @@ public class BikerOrderDetailActivity extends AppCompatActivity {
 
     private void acceptDelivery() {
         String bikerId = authViewModel.getCurrentUsername();
-        if (bikerId == null) {
-            Toast.makeText(this, R.string.error_not_logged_in, Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (currentOrder == null) {
-            Toast.makeText(this, R.string.error_order_not_found, Toast.LENGTH_SHORT).show();
+        if (bikerId == null || currentOrder == null) {
             return;
         }
 
@@ -149,33 +143,19 @@ public class BikerOrderDetailActivity extends AppCompatActivity {
             public void onSuccess() {
                 runOnUiThread(() -> {
                     showLoading(false);
-                    Toast.makeText(BikerOrderDetailActivity.this, 
-                            getString(R.string.delivery_accepted, orderId), 
-                            Toast.LENGTH_SHORT).show();
                     setResult(RESULT_OK);
                     finish();
                 });
             }
 
             @Override
-            public void onAlreadyTaken() {
-                runOnUiThread(() -> {
-                    showLoading(false);
-                    Toast.makeText(BikerOrderDetailActivity.this, 
-                            R.string.order_already_taken, 
-                            Toast.LENGTH_LONG).show();
-                    finish();
-                });
+            public void onError(String error) {
+                // No action needed
             }
 
             @Override
-            public void onError(String error) {
-                runOnUiThread(() -> {
-                    showLoading(false);
-                    Toast.makeText(BikerOrderDetailActivity.this, 
-                            getString(R.string.error_accepting_order, error), 
-                            Toast.LENGTH_SHORT).show();
-                });
+            public void onAlreadyTaken() {
+                // No action needed
             }
         });
     }

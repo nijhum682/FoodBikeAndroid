@@ -8,6 +8,7 @@ import androidx.lifecycle.LiveData;
 
 import com.example.foodbikeandroid.data.database.FoodBikeDatabase;
 import com.example.foodbikeandroid.data.database.OrderDao;
+import com.example.foodbikeandroid.data.database.UserDao;
 import com.example.foodbikeandroid.data.model.Order;
 import com.example.foodbikeandroid.data.model.OrderStatus;
 
@@ -19,6 +20,7 @@ import java.util.concurrent.Executors;
 public class OrderRepository {
 
     private final OrderDao orderDao;
+    private final UserDao userDao;
     private final ExecutorService executorService;
     private final Handler mainHandler;
     private static final long AUTO_CANCEL_CHECK_INTERVAL = 5 * 60 * 1000;
@@ -27,6 +29,7 @@ public class OrderRepository {
     public OrderRepository(Application application) {
         FoodBikeDatabase database = FoodBikeDatabase.getInstance(application);
         orderDao = database.orderDao();
+        userDao = database.userDao();
         executorService = Executors.newFixedThreadPool(4);
         mainHandler = new Handler(Looper.getMainLooper());
         startAutoCancelChecker();
@@ -54,7 +57,11 @@ public class OrderRepository {
     public void updateOrderStatus(String orderId, OrderStatus status, StatusUpdateCallback callback) {
         executorService.execute(() -> {
             try {
-                orderDao.updateOrderStatus(orderId, status);
+                if (status == OrderStatus.READY) {
+                    orderDao.clearBikerAndSetReady(orderId);
+                } else {
+                    orderDao.updateOrderStatus(orderId, status);
+                }
                 mainHandler.post(callback::onSuccess);
             } catch (Exception e) {
                 mainHandler.post(() -> callback.onError(e.getMessage()));
@@ -69,24 +76,14 @@ public class OrderRepository {
     public void tryAcceptOrder(String orderId, String bikerId, AcceptOrderCallback callback) {
         executorService.execute(() -> {
             try {
-                Order order = orderDao.getOrderByIdSync(orderId);
+                long timestamp = System.currentTimeMillis();
+                int rowsUpdated = orderDao.tryAcceptOrderAtomic(orderId, bikerId, OrderStatus.PREPARING, timestamp);
                 
-                if (order == null) {
-                    callback.onError("Order not found");
-                    return;
-                }
-                
-                if (order.getStatus() != OrderStatus.CONFIRMED || order.getBikerId() != null) {
+                if (rowsUpdated > 0) {
+                    callback.onSuccess();
+                } else {
                     callback.onAlreadyTaken();
-                    return;
                 }
-                
-                order.setBikerId(bikerId);
-                order.setStatus(OrderStatus.PREPARING);
-                order.setAcceptedAt(System.currentTimeMillis());
-                orderDao.updateOrder(order);
-                
-                callback.onSuccess();
             } catch (Exception e) {
                 callback.onError(e.getMessage());
             }
@@ -135,7 +132,13 @@ public class OrderRepository {
     public void updateOrderStatusToReady(String orderId, StatusUpdateCallback callback) {
         executorService.execute(() -> {
             try {
-                orderDao.updateOrderStatusToReady(orderId, OrderStatus.READY, System.currentTimeMillis());
+                Order order = orderDao.getOrderByIdSync(orderId);
+                orderDao.updateOrderStatusToDelivered(orderId, OrderStatus.DELIVERED, System.currentTimeMillis());
+                
+                if (order != null && order.getBikerId() != null) {
+                    userDao.addEarnings(order.getBikerId(), 50.0);
+                }
+                
                 mainHandler.post(callback::onSuccess);
             } catch (Exception e) {
                 mainHandler.post(() -> callback.onError(e.getMessage()));
@@ -146,7 +149,13 @@ public class OrderRepository {
     public void updateOrderStatusToDelivered(String orderId, StatusUpdateCallback callback) {
         executorService.execute(() -> {
             try {
+                Order order = orderDao.getOrderByIdSync(orderId);
                 orderDao.updateOrderStatusToDelivered(orderId, OrderStatus.DELIVERED, System.currentTimeMillis());
+                
+                if (order != null && order.getBikerId() != null) {
+                    userDao.addEarnings(order.getBikerId(), 50.0);
+                }
+                
                 mainHandler.post(callback::onSuccess);
             } catch (Exception e) {
                 mainHandler.post(() -> callback.onError(e.getMessage()));

@@ -31,6 +31,8 @@
         <!-- Dashboard Activities -->
         <activity android:name=".ui.dashboard.AdminDashboardActivity"
             android:exported="false" />
+        <activity android:name=".ui.dashboard.AdminRecentActivity"
+            android:exported="false" />
         <activity android:name=".ui.dashboard.UserDashboardActivity"
             android:exported="false" />
         <activity android:name=".ui.dashboard.EntrepreneurDashboardActivity"
@@ -90,6 +92,10 @@
         <activity android:name=".ui.dashboard.AdminEditMenuActivity"
             android:exported="false"
             android:parentActivityName=".ui.dashboard.AdminManageRestaurantsActivity" />
+        <!-- Admin Earnings -->
+        <activity android:name=".ui.dashboard.AdminEarningsActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.dashboard.AdminDashboardActivity" />
         
         <!-- Biker Available Orders -->
         <activity android:name=".ui.dashboard.BikerAvailableOrdersActivity"
@@ -130,6 +136,11 @@
         <activity android:name=".ui.dashboard.ReviewsListActivity"
             android:exported="false"
             android:parentActivityName=".ui.dashboard.RestaurantDetailActivity" />
+        
+        <!-- Biker Profile Activity -->
+        <activity android:name=".ui.dashboard.BikerProfileActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.dashboard.BikerDashboardActivity" />
         
         <!-- File Provider for export -->
         <provider

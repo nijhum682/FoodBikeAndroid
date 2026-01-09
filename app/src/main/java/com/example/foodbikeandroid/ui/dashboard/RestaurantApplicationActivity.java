@@ -355,6 +355,25 @@ public class RestaurantApplicationActivity extends AppCompatActivity implements 
             binding.tilAddress.setError(null);
         }
 
+        String ratingStr = binding.etRating.getText().toString().trim();
+        if (ratingStr.isEmpty()) {
+            binding.tilRating.setError("Rating is required");
+            isValid = false;
+        } else {
+            try {
+                double rating = Double.parseDouble(ratingStr);
+                if (rating < 0.0 || rating > 5.0) {
+                    binding.tilRating.setError("Rating must be between 0.0 and 5.0");
+                    isValid = false;
+                } else {
+                    binding.tilRating.setError(null);
+                }
+            } catch (NumberFormatException e) {
+                binding.tilRating.setError("Invalid rating format");
+                isValid = false;
+            }
+        }
+
         if (menuItems.size() < MINIMUM_MENU_ITEMS) {
             showError(getString(R.string.error_minimum_menu_items, MINIMUM_MENU_ITEMS));
             isValid = false;
@@ -375,6 +394,7 @@ public class RestaurantApplicationActivity extends AppCompatActivity implements 
         String restaurantName = binding.etRestaurantName.getText().toString().trim();
         String address = binding.etAddress.getText().toString().trim();
         String username = authViewModel.getCurrentUsername();
+        double rating = Double.parseDouble(binding.etRating.getText().toString().trim());
 
         RestaurantApplication application = new RestaurantApplication(
                 username != null ? username : "entrepreneur",
@@ -384,6 +404,7 @@ public class RestaurantApplicationActivity extends AppCompatActivity implements 
                 address,
                 new ArrayList<>(menuItems)
         );
+        application.setRating(rating);
 
         applicationRepository.insert(application);
         showSuccessDialog(application.getApplicationId());

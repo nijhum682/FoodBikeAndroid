@@ -56,7 +56,6 @@ public class AdminDashboardActivity extends AppCompatActivity {
         adminActionDao = database.adminActionDao();
 
         setupToolbar();
-        setupBottomNavigation();
         setupRecyclerView();
         setupSwipeRefresh();
         displayUserInfo();
@@ -69,30 +68,8 @@ public class AdminDashboardActivity extends AppCompatActivity {
         binding.toolbar.setOnMenuItemClickListener(this::onMenuItemClick);
     }
 
-    private void setupBottomNavigation() {
-        binding.bottomNavigation.setOnItemSelectedListener(item -> {
-            int itemId = item.getItemId();
-            if (itemId == R.id.nav_dashboard) {
-                return true;
-            } else if (itemId == R.id.nav_applications) {
-                openReviewApplications();
-                return true;
-            } else if (itemId == R.id.nav_restaurants) {
-                openManageRestaurants();
-                return true;
-            } else if (itemId == R.id.nav_users) {
-                Toast.makeText(this, "Users - Coming Soon", Toast.LENGTH_SHORT).show();
-                return true;
-            }
-            return false;
-        });
-        binding.bottomNavigation.setSelectedItemId(R.id.nav_dashboard);
-    }
 
     private void setupRecyclerView() {
-        actionAdapter = new AdminActionAdapter();
-        binding.rvRecentActivity.setLayoutManager(new LinearLayoutManager(this));
-        binding.rvRecentActivity.setAdapter(actionAdapter);
     }
 
     private void setupSwipeRefresh() {
@@ -104,8 +81,8 @@ public class AdminDashboardActivity extends AppCompatActivity {
         if (item.getItemId() == R.id.action_logout) {
             logout();
             return true;
-        } else if (item.getItemId() == R.id.action_profile) {
-            Toast.makeText(this, "Profile - Coming Soon", Toast.LENGTH_SHORT).show();
+        } else if (item.getItemId() == R.id.action_notifications) {
+            Toast.makeText(this, "Notifications - Coming Soon", Toast.LENGTH_SHORT).show();
             return true;
         }
         return false;
@@ -127,12 +104,12 @@ public class AdminDashboardActivity extends AppCompatActivity {
             openManageRestaurants();
         });
 
-        binding.cardViewHistory.setOnClickListener(v -> {
-            Toast.makeText(this, "View History - Coming Soon", Toast.LENGTH_SHORT).show();
+        binding.cardRecentActivity.setOnClickListener(v -> {
+            startActivity(new android.content.Intent(this, AdminRecentActivity.class));
         });
 
-        binding.cardManageUsers.setOnClickListener(v -> {
-            Toast.makeText(this, "Manage Users - Coming Soon", Toast.LENGTH_SHORT).show();
+        binding.cardEarnings.setOnClickListener(v -> {
+            Toast.makeText(this, "Earnings - Coming Soon", Toast.LENGTH_SHORT).show();
         });
 
         binding.tvSeeAllActivity.setOnClickListener(v -> {
@@ -168,19 +145,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
     }
 
     private void observeRecentActions() {
-        adminActionDao.getAll().observe(this, actions -> {
-            if (actions != null && !actions.isEmpty()) {
-                List<AdminAction> recentActions = actions.size() > 5 
-                    ? actions.subList(0, 5) 
-                    : actions;
-                actionAdapter.setActions(recentActions);
-                binding.rvRecentActivity.setVisibility(View.VISIBLE);
-                binding.layoutNoActivity.setVisibility(View.GONE);
-            } else {
-                binding.rvRecentActivity.setVisibility(View.GONE);
-                binding.layoutNoActivity.setVisibility(View.VISIBLE);
-            }
-        });
+        // Recent activity RecyclerView removed from layout, so this logic is no longer needed
     }
 
     private void refreshAllData() {

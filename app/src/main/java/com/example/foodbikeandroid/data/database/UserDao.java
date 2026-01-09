@@ -48,6 +48,9 @@ public interface UserDao {
     @Query("SELECT COUNT(*) FROM users")
     int getUserCount();
 
+    @Query("UPDATE users SET earnings = earnings + :amount WHERE username = :username")
+    void addEarnings(String username, double amount);
+
     @Query("DELETE FROM users")
     void deleteAllUsers();
 }

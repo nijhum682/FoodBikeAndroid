@@ -25,7 +25,7 @@ public class MyDeliveryAdapter extends RecyclerView.Adapter<MyDeliveryAdapter.De
     private RestaurantNameProvider restaurantNameProvider;
 
     public interface OnStatusUpdateListener {
-        void onReadyForPickup(Order order);
+
         void onMarkDelivered(Order order);
     }
 
@@ -120,12 +120,12 @@ public class MyDeliveryAdapter extends RecyclerView.Adapter<MyDeliveryAdapter.De
             
             if (status == OrderStatus.PREPARING) {
                 binding.btnAction.setVisibility(View.VISIBLE);
-                binding.btnAction.setText(R.string.ready_for_pickup);
+                binding.btnAction.setText(R.string.confirm_delivery);
                 binding.btnAction.setBackgroundTintList(
-                        ContextCompat.getColorStateList(itemView.getContext(), R.color.info));
+                        ContextCompat.getColorStateList(itemView.getContext(), R.color.success));
                 binding.btnAction.setOnClickListener(v -> {
                     if (statusUpdateListener != null) {
-                        statusUpdateListener.onReadyForPickup(order);
+                        statusUpdateListener.onMarkDelivered(order);
                     }
                 });
             } else if (status == OrderStatus.READY) {

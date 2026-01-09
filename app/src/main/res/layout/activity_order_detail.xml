@@ -175,16 +175,168 @@
                         android:textColor="@color/text_primary" />
 
                     <LinearLayout
-                        android:id="@+id/layoutTimeline"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:layout_marginTop="16dp">
 
+                        <!-- Stage 1: Order Placed -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:id="@+id/iconStage1"
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@drawable/ic_check_circle"
+                                android:tint="@color/success" />
+
+                            <TextView
+                                android:id="@+id/tvStage1"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginStart="12dp"
+                                android:text="Your order is placed"
+                                android:textSize="14sp"
+                                android:textColor="@color/text_primary" />
+
+                        </LinearLayout>
+
                         <View
-                            android:layout_width="1dp"
-                            android:layout_height="8dp"
+                            android:id="@+id/lineStage1"
+                            android:layout_width="2dp"
+                            android:layout_height="40dp"
+                            android:layout_marginStart="11dp"
                             android:background="@color/text_hint" />
+
+                        <!-- Stage 2: Confirmed by Restaurant -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:id="@+id/iconStage2"
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@drawable/ic_empty_state"
+                                android:tint="@color/text_hint" />
+
+                            <TextView
+                                android:id="@+id/tvStage2"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginStart="12dp"
+                                android:text="Your order is confirmed by restaurant"
+                                android:textSize="14sp"
+                                android:textColor="@color/text_secondary" />
+
+                        </LinearLayout>
+
+                        <View
+                            android:id="@+id/lineStage2"
+                            android:layout_width="2dp"
+                            android:layout_height="40dp"
+                            android:layout_marginStart="11dp"
+                            android:background="@color/text_hint" />
+
+                        <!-- Stage 3: Food Ready -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:id="@+id/iconStage3"
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@drawable/ic_empty_state"
+                                android:tint="@color/text_hint" />
+
+                            <TextView
+                                android:id="@+id/tvStage3"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginStart="12dp"
+                                android:text="Your food is ready"
+                                android:textSize="14sp"
+                                android:textColor="@color/text_secondary" />
+
+                        </LinearLayout>
+
+                        <View
+                            android:id="@+id/lineStage3"
+                            android:layout_width="2dp"
+                            android:layout_height="40dp"
+                            android:layout_marginStart="11dp"
+                            android:background="@color/text_hint" />
+
+                        <!-- Stage 4: Out for Delivery -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:id="@+id/iconStage4"
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@drawable/ic_empty_state"
+                                android:tint="@color/text_hint" />
+
+                            <TextView
+                                android:id="@+id/tvStage4"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginStart="12dp"
+                                android:text="Biker is ready to deliver your order"
+                                android:textSize="14sp"
+                                android:textColor="@color/text_secondary" />
+
+                        </LinearLayout>
+
+                        <View
+                            android:id="@+id/lineStage4"
+                            android:layout_width="2dp"
+                            android:layout_height="40dp"
+                            android:layout_marginStart="11dp"
+                            android:background="@color/text_hint" />
+
+                        <!-- Stage 5: Delivered -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:id="@+id/iconStage5"
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@drawable/ic_empty_state"
+                                android:tint="@color/text_hint" />
+
+                            <TextView
+                                android:id="@+id/tvStage5"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginStart="12dp"
+                                android:text="Your delivery is completed"
+                                android:textSize="14sp"
+                                android:textColor="@color/text_secondary" />
+
+                        </LinearLayout>
 
                     </LinearLayout>
 
@@ -460,15 +612,6 @@
         android:padding="16dp"
         android:background="@color/white"
         android:layout_gravity="bottom">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnReorder"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:text="@string/reorder"
-            android:textSize="16sp"
-            android:layout_marginBottom="12dp"
-            app:backgroundTint="@color/secondary" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnCancelOrder"

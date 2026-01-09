@@ -85,12 +85,69 @@ public class OrderConfirmationActivity extends AppCompatActivity {
             return;
         }
 
+        PaymentMethod paymentMethod;
+        if (binding.rbCashOnDelivery.isChecked()) {
+            paymentMethod = PaymentMethod.CASH_ON_DELIVERY;
+            processOrder(paymentMethod);
+        } else if (binding.rbBkash.isChecked()) {
+            paymentMethod = PaymentMethod.BKASH;
+            showMobilePaymentDialog(paymentMethod);
+        } else {
+            paymentMethod = PaymentMethod.NAGAD;
+            showMobilePaymentDialog(paymentMethod);
+        }
+    }
+
+    private void showMobilePaymentDialog(PaymentMethod paymentMethod) {
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
+        builder.setTitle(paymentMethod == PaymentMethod.BKASH ? "Bkash Payment" : "Nagad Payment");
+        
+        final android.widget.EditText input = new android.widget.EditText(this);
+        input.setInputType(android.text.InputType.TYPE_CLASS_PHONE);
+        input.setHint("Enter mobile number");
+        input.setGravity(android.view.Gravity.CENTER);
+        builder.setView(input);
+
+        builder.setPositiveButton("Confirm", (dialog, which) -> {
+            String phoneNumber = input.getText().toString().trim();
+            if (phoneNumber.length() == 11) {
+                showOtpDialog(paymentMethod, phoneNumber);
+            } else {
+                Toast.makeText(this, "Please enter valid 11 digit number", Toast.LENGTH_SHORT).show();
+            }
+        });
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
+        builder.show();
+    }
+
+    private void showOtpDialog(PaymentMethod paymentMethod, String phoneNumber) {
+        String dummyOtp = "1234";
+        
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
+        builder.setTitle("OTP");
+        builder.setMessage("OTP sent to " + phoneNumber + "\nOTP: " + dummyOtp);
+        
+        final android.widget.EditText input = new android.widget.EditText(this);
+        input.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+        input.setHint("Enter OTP");
+        input.setGravity(android.view.Gravity.CENTER);
+        builder.setView(input);
+
+        builder.setPositiveButton("Submit", (dialog, which) -> {
+            String enteredOtp = input.getText().toString().trim();
+            if (enteredOtp.equals(dummyOtp)) {
+                processOrder(paymentMethod);
+            } else {
+                Toast.makeText(this, "Invalid OTP", Toast.LENGTH_SHORT).show();
+            }
+        });
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
+        builder.show();
+    }
+
+    private void processOrder(PaymentMethod paymentMethod) {
         binding.progressBar.setVisibility(View.VISIBLE);
         binding.btnPlaceOrder.setEnabled(false);
-
-        PaymentMethod paymentMethod = binding.rbCashOnDelivery.isChecked() 
-                ? PaymentMethod.CASH_ON_DELIVERY 
-                : PaymentMethod.MOBILE_BANKING;
 
         String userId = sessionManager.getUsername();
         String restaurantId = cartManager.getCurrentRestaurantId();

@@ -100,7 +100,7 @@ public class AuthViewModel extends AndroidViewModel {
      * Register a new user.
      */
     public void register(String username, String password, String confirmPassword,
-                        String email, String phoneNumber, UserType userType) {
+                        String email, String phoneNumber, UserType userType, String address) {
         // Validate inputs
         if (username == null || username.trim().isEmpty()) {
             errorMessage.setValue("Username is required");
@@ -142,6 +142,10 @@ public class AuthViewModel extends AndroidViewModel {
             errorMessage.setValue("Please select a user type");
             return;
         }
+        if (address == null || address.trim().isEmpty()) {
+            errorMessage.setValue("Address is required");
+            return;
+        }
 
         isLoading.setValue(true);
         userRepository.registerUser(
@@ -150,6 +154,7 @@ public class AuthViewModel extends AndroidViewModel {
                 email.trim(),
                 phoneNumber.trim(),
                 userType,
+                address.trim(),
                 new UserRepository.AuthCallback() {
                     @Override
                     public void onSuccess(User user) {
