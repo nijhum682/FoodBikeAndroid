@@ -14,7 +14,9 @@ import com.example.foodbikeandroid.data.model.User;
 import com.example.foodbikeandroid.data.model.AdminAction;
 import com.example.foodbikeandroid.data.model.Review;
 
-@Database(entities = {User.class, Restaurant.class, Order.class, RestaurantApplication.class, AdminAction.class, Review.class}, version = 12, exportSchema = false)
+import com.example.foodbikeandroid.data.model.Withdrawal;
+
+@Database(entities = {User.class, Restaurant.class, Order.class, RestaurantApplication.class, AdminAction.class, Review.class, Withdrawal.class}, version = 13, exportSchema = false)
 @TypeConverters(Converters.class)
 public abstract class FoodBikeDatabase extends RoomDatabase {
 
@@ -30,6 +32,7 @@ public abstract class FoodBikeDatabase extends RoomDatabase {
     public abstract RestaurantApplicationDao restaurantApplicationDao();
     public abstract AdminActionDao adminActionDao();
     public abstract ReviewDao reviewDao();
+    public abstract WithdrawalDao withdrawalDao();
 
     public static FoodBikeDatabase getInstance(Context context) {
         if (INSTANCE == null) {
@@ -40,7 +43,7 @@ public abstract class FoodBikeDatabase extends RoomDatabase {
                             FoodBikeDatabase.class,
                             DATABASE_NAME
                     )
-                    .addMigrations(MIGRATION_8_9)
+                    .addMigrations(MIGRATION_8_9, MIGRATION_12_13)
                     .fallbackToDestructiveMigration()
                     .build();
                 }
@@ -53,6 +56,13 @@ public abstract class FoodBikeDatabase extends RoomDatabase {
         @Override
         public void migrate(androidx.sqlite.db.SupportSQLiteDatabase database) {
             database.execSQL("ALTER TABLE users ADD COLUMN address TEXT NOT NULL DEFAULT ''");
+        }
+    };
+    
+    public static final androidx.room.migration.Migration MIGRATION_12_13 = new androidx.room.migration.Migration(12, 13) {
+        @Override
+        public void migrate(androidx.sqlite.db.SupportSQLiteDatabase database) {
+            database.execSQL("CREATE TABLE IF NOT EXISTS `withdrawals` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `adminUsername` TEXT NOT NULL, `amount` REAL NOT NULL, `method` TEXT NOT NULL, `accountNumber` TEXT NOT NULL, `timestamp` INTEGER NOT NULL)");
         }
     };
 }

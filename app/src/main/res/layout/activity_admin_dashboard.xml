@@ -475,33 +475,7 @@
 
                 </GridLayout>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginHorizontal="16dp"
-                    android:layout_marginBottom="12dp">
 
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/recent_activity"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/text_primary" />
-
-                    <TextView
-                        android:id="@+id/tvSeeAllActivity"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/see_all"
-                        android:textSize="14sp"
-                        android:textColor="@color/primary"
-                        android:padding="8dp" />
-
-                </LinearLayout>
 
                 <!-- Bottom recent activity removed as requested -->
 
