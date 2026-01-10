@@ -37,6 +37,7 @@ public class UserOrderHistoryAdapter extends ListAdapter<Order, UserOrderHistory
     private RestaurantNameProvider restaurantNameProvider;
     private OrderClickListener orderClickListener;
     private ReviewClickListener reviewClickListener;
+    private ViewReviewClickListener viewReviewClickListener;
     private final Set<String> expandedOrderIds = new HashSet<>();
     private final Set<String> reviewedOrderIds = new HashSet<>();
 
@@ -50,6 +51,10 @@ public class UserOrderHistoryAdapter extends ListAdapter<Order, UserOrderHistory
 
     public interface ReviewClickListener {
         void onReviewClick(Order order);
+    }
+
+    public interface ViewReviewClickListener {
+        void onViewReviewClick(Order order);
     }
 
     public UserOrderHistoryAdapter() {
@@ -66,6 +71,10 @@ public class UserOrderHistoryAdapter extends ListAdapter<Order, UserOrderHistory
 
     public void setReviewClickListener(ReviewClickListener listener) {
         this.reviewClickListener = listener;
+    }
+
+    public void setViewReviewClickListener(ViewReviewClickListener listener) {
+        this.viewReviewClickListener = listener;
     }
 
     public void setReviewedOrderIds(Set<String> reviewedOrderIds) {
@@ -298,19 +307,32 @@ public class UserOrderHistoryAdapter extends ListAdapter<Order, UserOrderHistory
                 }
             });
 
-            // Leave Review button visibility and click listener
+            // Leave Review / View Your Review button visibility and click listener
             boolean isDelivered = order.getStatus() == OrderStatus.DELIVERED;
             boolean hasReview = reviewedOrderIds.contains(order.getOrderId());
             
             if (isDelivered && !hasReview) {
+                // Show "Leave Review" button for delivered orders without review
                 binding.btnLeaveReview.setVisibility(View.VISIBLE);
+                binding.btnViewReview.setVisibility(View.GONE);
                 binding.btnLeaveReview.setOnClickListener(v -> {
                     if (reviewClickListener != null) {
                         reviewClickListener.onReviewClick(order);
                     }
                 });
-            } else {
+            } else if (isDelivered && hasReview) {
+                // Show "View Your Review" button for delivered orders with existing review
                 binding.btnLeaveReview.setVisibility(View.GONE);
+                binding.btnViewReview.setVisibility(View.VISIBLE);
+                binding.btnViewReview.setOnClickListener(v -> {
+                    if (viewReviewClickListener != null) {
+                        viewReviewClickListener.onViewReviewClick(order);
+                    }
+                });
+            } else {
+                // Hide both buttons for non-delivered orders
+                binding.btnLeaveReview.setVisibility(View.GONE);
+                binding.btnViewReview.setVisibility(View.GONE);
             }
         }
 

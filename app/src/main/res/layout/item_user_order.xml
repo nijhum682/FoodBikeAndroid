@@ -349,7 +349,7 @@
                 app:strokeColor="@color/primary"
                 android:textColor="@color/primary" />
 
-            <!-- Leave Review Button (Only for DELIVERED orders) -->
+            <!-- Leave Review Button (Only for DELIVERED orders without review) -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnLeaveReview"
                 android:layout_width="match_parent"
@@ -358,6 +358,21 @@
                 android:text="@string/leave_review"
                 android:visibility="gone"
                 app:icon="@drawable/ic_star"
+                app:cornerRadius="8dp" />
+
+            <!-- View Your Review Button (For DELIVERED orders with existing review) -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnViewReview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/view_your_review"
+                android:visibility="gone"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                app:icon="@drawable/ic_star"
+                app:iconTint="@color/primary"
+                app:strokeColor="@color/primary"
+                android:textColor="@color/primary"
                 app:cornerRadius="8dp" />
 
         </LinearLayout>

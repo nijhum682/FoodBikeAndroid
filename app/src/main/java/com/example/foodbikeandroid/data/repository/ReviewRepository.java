@@ -76,6 +76,10 @@ public class ReviewRepository {
         return reviewDao.getByUser(userId);
     }
 
+    public LiveData<Review> getByOrder(String orderId) {
+        return reviewDao.getByOrderIdLiveData(orderId);
+    }
+
     public void checkReviewExists(String orderId, ReviewExistsCallback callback) {
         executorService.execute(() -> {
             int count = reviewDao.checkReviewExists(orderId);

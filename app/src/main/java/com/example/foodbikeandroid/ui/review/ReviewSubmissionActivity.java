@@ -30,6 +30,7 @@ public class ReviewSubmissionActivity extends AppCompatActivity {
     private String userId;
     private int selectedRating = 0;
     private ImageView[] stars;
+    private boolean isViewOnly = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +52,7 @@ public class ReviewSubmissionActivity extends AppCompatActivity {
         orderId = getIntent().getStringExtra("ORDER_ID");
         restaurantId = getIntent().getStringExtra("RESTAURANT_ID");
         restaurantName = getIntent().getStringExtra("RESTAURANT_NAME");
+        isViewOnly = getIntent().getBooleanExtra("VIEW_ONLY", false);
 
         if (orderId == null || restaurantId == null) {
             Toast.makeText(this, R.string.error_invalid_data, Toast.LENGTH_SHORT).show();
@@ -61,8 +63,14 @@ public class ReviewSubmissionActivity extends AppCompatActivity {
         setupToolbar();
         setupViews();
         setupStarRating();
-        setupSubmitButton();
-        checkIfReviewExists();
+        
+        if (isViewOnly) {
+            // Load and display existing review in read-only mode
+            loadExistingReview();
+        } else {
+            setupSubmitButton();
+            checkIfReviewExists();
+        }
     }
 
     private void setupToolbar() {
@@ -142,6 +150,43 @@ public class ReviewSubmissionActivity extends AppCompatActivity {
         reviewRepository.checkReviewExists(orderId, exists -> {
             if (exists) {
                 Toast.makeText(this, R.string.review_already_exists, Toast.LENGTH_LONG).show();
+                finish();
+            }
+        });
+    }
+
+    private void loadExistingReview() {
+        // Update toolbar title to indicate view mode
+        binding.toolbar.setTitle(R.string.view_your_review);
+        
+        // Hide submit button in view-only mode
+        binding.btnSubmit.setVisibility(android.view.View.GONE);
+        
+        // Disable the comment field
+        binding.etComment.setEnabled(false);
+        binding.etComment.setFocusable(false);
+        
+        // Disable star rating clicks
+        for (ImageView star : stars) {
+            star.setClickable(false);
+        }
+        
+        // Fetch and display the existing review
+        reviewRepository.getByOrder(orderId).observe(this, review -> {
+            if (review != null) {
+                // Set the rating
+                selectedRating = review.getRating();
+                updateStarDisplay();
+                updateRatingText();
+                
+                // Set the comment
+                if (review.getComment() != null && !review.getComment().isEmpty()) {
+                    binding.etComment.setText(review.getComment());
+                } else {
+                    binding.tilComment.setVisibility(android.view.View.GONE);
+                }
+            } else {
+                Toast.makeText(this, R.string.error_loading_reviews, Toast.LENGTH_SHORT).show();
                 finish();
             }
         });

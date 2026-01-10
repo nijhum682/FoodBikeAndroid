@@ -101,6 +101,17 @@ public class UserOrderHistoryActivity extends AppCompatActivity {
             intent.putExtra("RESTAURANT_NAME", restaurantName);
             startActivityForResult(intent, 100);
         });
+        adapter.setViewReviewClickListener(order -> {
+            // Navigate to ReviewSubmissionActivity in view-only mode
+            android.content.Intent intent = new android.content.Intent(this,
+                com.example.foodbikeandroid.ui.review.ReviewSubmissionActivity.class);
+            intent.putExtra("ORDER_ID", order.getOrderId());
+            intent.putExtra("RESTAURANT_ID", order.getRestaurantId());
+            String restaurantName = restaurantNames.get(order.getRestaurantId());
+            intent.putExtra("RESTAURANT_NAME", restaurantName);
+            intent.putExtra("VIEW_ONLY", true);
+            startActivity(intent);
+        });
 
         binding.rvOrders.setLayoutManager(new LinearLayoutManager(this));
         binding.rvOrders.setAdapter(adapter);

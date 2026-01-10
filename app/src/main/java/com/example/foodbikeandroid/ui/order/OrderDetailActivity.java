@@ -228,62 +228,91 @@ public class OrderDetailActivity extends AppCompatActivity {
 
     private void displayStatusTimeline() {
         OrderStatus status = currentOrder.getStatus();
+        boolean isCancelled = status == OrderStatus.CANCELLED || status == OrderStatus.AUTO_CANCELLED;
         
-        // Stage 1: Order Placed - Always completed
+        // Stage 1: Order Placed - Always completed (the order was placed successfully)
         binding.iconStage1.setImageResource(R.drawable.ic_check_circle);
         binding.iconStage1.setColorFilter(getColor(R.color.success));
         binding.tvStage1.setTextColor(getColor(R.color.text_primary));
         
-        // Stage 2: Confirmed by Restaurant
-        if (status.ordinal() >= OrderStatus.CONFIRMED.ordinal()) {
-            binding.iconStage2.setImageResource(R.drawable.ic_check_circle);
-            binding.iconStage2.setColorFilter(getColor(R.color.success));
-            binding.tvStage2.setTextColor(getColor(R.color.text_primary));
-            binding.lineStage1.setBackgroundColor(getColor(R.color.success));
+        if (isCancelled) {
+            // For cancelled orders, show all remaining stages (2-5) with red X marks
+            // Stage 2
+            binding.iconStage2.setImageResource(R.drawable.ic_cancel_circle);
+            binding.iconStage2.setColorFilter(getColor(R.color.error));
+            binding.tvStage2.setTextColor(getColor(R.color.error));
+            binding.lineStage1.setBackgroundColor(getColor(R.color.error));
+            
+            // Stage 3
+            binding.iconStage3.setImageResource(R.drawable.ic_cancel_circle);
+            binding.iconStage3.setColorFilter(getColor(R.color.error));
+            binding.tvStage3.setTextColor(getColor(R.color.error));
+            binding.lineStage2.setBackgroundColor(getColor(R.color.error));
+            
+            // Stage 4
+            binding.iconStage4.setImageResource(R.drawable.ic_cancel_circle);
+            binding.iconStage4.setColorFilter(getColor(R.color.error));
+            binding.tvStage4.setTextColor(getColor(R.color.error));
+            binding.lineStage3.setBackgroundColor(getColor(R.color.error));
+            
+            // Stage 5
+            binding.iconStage5.setImageResource(R.drawable.ic_cancel_circle);
+            binding.iconStage5.setColorFilter(getColor(R.color.error));
+            binding.tvStage5.setTextColor(getColor(R.color.error));
+            binding.lineStage4.setBackgroundColor(getColor(R.color.error));
         } else {
-            binding.iconStage2.setImageResource(R.drawable.ic_empty_state);
-            binding.iconStage2.setColorFilter(getColor(R.color.text_hint));
-            binding.tvStage2.setTextColor(getColor(R.color.text_secondary));
-            binding.lineStage1.setBackgroundColor(getColor(R.color.text_hint));
-        }
-        
-        // Stage 3: Food Ready
-        if (status.ordinal() >= OrderStatus.READY.ordinal()) {
-            binding.iconStage3.setImageResource(R.drawable.ic_check_circle);
-            binding.iconStage3.setColorFilter(getColor(R.color.success));
-            binding.tvStage3.setTextColor(getColor(R.color.text_primary));
-            binding.lineStage2.setBackgroundColor(getColor(R.color.success));
-        } else {
-            binding.iconStage3.setImageResource(R.drawable.ic_empty_state);
-            binding.iconStage3.setColorFilter(getColor(R.color.text_hint));
-            binding.tvStage3.setTextColor(getColor(R.color.text_secondary));
-            binding.lineStage2.setBackgroundColor(getColor(R.color.text_hint));
-        }
-        
-        // Stage 4: Out for Delivery (when biker accepts - PREPARING status)
-        if (status.ordinal() >= OrderStatus.PREPARING.ordinal()) {
-            binding.iconStage4.setImageResource(R.drawable.ic_check_circle);
-            binding.iconStage4.setColorFilter(getColor(R.color.success));
-            binding.tvStage4.setTextColor(getColor(R.color.text_primary));
-            binding.lineStage3.setBackgroundColor(getColor(R.color.success));
-        } else {
-            binding.iconStage4.setImageResource(R.drawable.ic_empty_state);
-            binding.iconStage4.setColorFilter(getColor(R.color.text_hint));
-            binding.tvStage4.setTextColor(getColor(R.color.text_secondary));
-            binding.lineStage3.setBackgroundColor(getColor(R.color.text_hint));
-        }
-        
-        // Stage 5: Delivered
-        if (status == OrderStatus.DELIVERED) {
-            binding.iconStage5.setImageResource(R.drawable.ic_check_circle);
-            binding.iconStage5.setColorFilter(getColor(R.color.success));
-            binding.tvStage5.setTextColor(getColor(R.color.text_primary));
-            binding.lineStage4.setBackgroundColor(getColor(R.color.success));
-        } else {
-            binding.iconStage5.setImageResource(R.drawable.ic_empty_state);
-            binding.iconStage5.setColorFilter(getColor(R.color.text_hint));
-            binding.tvStage5.setTextColor(getColor(R.color.text_secondary));
-            binding.lineStage4.setBackgroundColor(getColor(R.color.text_hint));
+            // Normal order flow
+            // Stage 2: Confirmed by Restaurant
+            if (status.ordinal() >= OrderStatus.CONFIRMED.ordinal()) {
+                binding.iconStage2.setImageResource(R.drawable.ic_check_circle);
+                binding.iconStage2.setColorFilter(getColor(R.color.success));
+                binding.tvStage2.setTextColor(getColor(R.color.text_primary));
+                binding.lineStage1.setBackgroundColor(getColor(R.color.success));
+            } else {
+                binding.iconStage2.setImageResource(R.drawable.ic_empty_state);
+                binding.iconStage2.setColorFilter(getColor(R.color.text_hint));
+                binding.tvStage2.setTextColor(getColor(R.color.text_secondary));
+                binding.lineStage1.setBackgroundColor(getColor(R.color.text_hint));
+            }
+            
+            // Stage 3: Food Ready
+            if (status.ordinal() >= OrderStatus.READY.ordinal()) {
+                binding.iconStage3.setImageResource(R.drawable.ic_check_circle);
+                binding.iconStage3.setColorFilter(getColor(R.color.success));
+                binding.tvStage3.setTextColor(getColor(R.color.text_primary));
+                binding.lineStage2.setBackgroundColor(getColor(R.color.success));
+            } else {
+                binding.iconStage3.setImageResource(R.drawable.ic_empty_state);
+                binding.iconStage3.setColorFilter(getColor(R.color.text_hint));
+                binding.tvStage3.setTextColor(getColor(R.color.text_secondary));
+                binding.lineStage2.setBackgroundColor(getColor(R.color.text_hint));
+            }
+            
+            // Stage 4: Out for Delivery (when biker accepts - PREPARING status)
+            if (status.ordinal() >= OrderStatus.PREPARING.ordinal()) {
+                binding.iconStage4.setImageResource(R.drawable.ic_check_circle);
+                binding.iconStage4.setColorFilter(getColor(R.color.success));
+                binding.tvStage4.setTextColor(getColor(R.color.text_primary));
+                binding.lineStage3.setBackgroundColor(getColor(R.color.success));
+            } else {
+                binding.iconStage4.setImageResource(R.drawable.ic_empty_state);
+                binding.iconStage4.setColorFilter(getColor(R.color.text_hint));
+                binding.tvStage4.setTextColor(getColor(R.color.text_secondary));
+                binding.lineStage3.setBackgroundColor(getColor(R.color.text_hint));
+            }
+            
+            // Stage 5: Delivered
+            if (status == OrderStatus.DELIVERED) {
+                binding.iconStage5.setImageResource(R.drawable.ic_check_circle);
+                binding.iconStage5.setColorFilter(getColor(R.color.success));
+                binding.tvStage5.setTextColor(getColor(R.color.text_primary));
+                binding.lineStage4.setBackgroundColor(getColor(R.color.success));
+            } else {
+                binding.iconStage5.setImageResource(R.drawable.ic_empty_state);
+                binding.iconStage5.setColorFilter(getColor(R.color.text_hint));
+                binding.tvStage5.setTextColor(getColor(R.color.text_secondary));
+                binding.lineStage4.setBackgroundColor(getColor(R.color.text_hint));
+            }
         }
     }
 
@@ -397,6 +426,7 @@ public class OrderDetailActivity extends AppCompatActivity {
         
         // Update UI
         displayOrderStatus();
+        displayStatusTimeline(); // Update timeline to show red X marks
         updateButtonVisibility();
         
         binding.progressBar.setVisibility(View.GONE);

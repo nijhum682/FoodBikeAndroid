@@ -319,6 +319,59 @@ public class EntrepreneurDashboardActivity extends AppCompatActivity {
         });
     }
 
+    private void openViewRatings() {
+        if (approvedApplications.isEmpty()) {
+            Toast.makeText(this, R.string.no_restaurants_yet, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (approvedApplications.size() == 1) {
+            // Single restaurant - open reviews directly
+            RestaurantApplication app = approvedApplications.get(0);
+            openRatingsForRestaurant(app);
+        } else {
+            // Multiple restaurants - show selection dialog
+            showRestaurantSelectionForRatings();
+        }
+    }
+
+    private void showRestaurantSelectionForRatings() {
+        String[] restaurantNames = new String[approvedApplications.size()];
+        for (int i = 0; i < approvedApplications.size(); i++) {
+            restaurantNames[i] = approvedApplications.get(i).getRestaurantName();
+        }
+
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.select_restaurant)
+                .setItems(restaurantNames, (dialog, which) -> {
+                    openRatingsForRestaurant(approvedApplications.get(which));
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .show();
+    }
+
+    private void openRatingsForRestaurant(RestaurantApplication application) {
+        restaurantRepository.getAllRestaurants().observe(this, new androidx.lifecycle.Observer<List<Restaurant>>() {
+            @Override
+            public void onChanged(List<Restaurant> allRestaurants) {
+                restaurantRepository.getAllRestaurants().removeObserver(this);
+                
+                if (allRestaurants != null) {
+                    for (Restaurant restaurant : allRestaurants) {
+                        if (restaurant.getName().equals(application.getRestaurantName())) {
+                            Intent intent = new Intent(EntrepreneurDashboardActivity.this, ReviewsListActivity.class);
+                            intent.putExtra(ReviewsListActivity.EXTRA_RESTAURANT_ID, restaurant.getId());
+                            intent.putExtra(ReviewsListActivity.EXTRA_RESTAURANT_NAME, restaurant.getName());
+                            startActivity(intent);
+                            return;
+                        }
+                    }
+                }
+                Toast.makeText(EntrepreneurDashboardActivity.this, "Restaurant not found", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
     private void showRestaurantSelectionDialog(List<RestaurantApplication> applications) {
         String[] restaurantNames = new String[applications.size()];
         for (int i = 0; i < applications.size(); i++) {
@@ -444,6 +497,8 @@ public class EntrepreneurDashboardActivity extends AppCompatActivity {
         });
         
         binding.cardManageMenu.setOnClickListener(v -> openManageMenu());
+
+        binding.cardViewRatings.setOnClickListener(v -> openViewRatings());
 
         binding.cardPendingApplications.setOnClickListener(v -> {
             Intent intent = new Intent(this, MyApplicationsActivity.class);

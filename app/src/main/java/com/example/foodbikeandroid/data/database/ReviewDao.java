@@ -31,6 +31,9 @@ public interface ReviewDao {
     @Query("SELECT * FROM reviews WHERE orderId = :orderId LIMIT 1")
     Review getByOrderId(String orderId);
 
+    @Query("SELECT * FROM reviews WHERE orderId = :orderId LIMIT 1")
+    LiveData<Review> getByOrderIdLiveData(String orderId);
+
     @Query("SELECT COUNT(*) FROM reviews WHERE restaurantId = :restaurantId")
     int getReviewCount(String restaurantId);
 

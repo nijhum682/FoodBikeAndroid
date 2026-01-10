@@ -97,6 +97,8 @@
     <string name="revenue_today">Revenue Today</string>
     <string name="manage_menu">Manage Menu</string>
     <string name="manage_menu_desc">Add, edit, or remove items</string>
+    <string name="view_ratings">View Ratings</string>
+    <string name="view_ratings_desc">See customer reviews and ratings</string>
     <string name="view_orders">View Orders</string>
     <string name="view_orders_desc">Track and manage orders</string>
     <string name="restaurant_profile">Restaurant Profile</string>
@@ -469,6 +471,7 @@
     <string name="please_select_rating">Please select a rating</string>
     <string name="review_submitted">Review submitted successfully</string>
     <string name="error_submitting_review">Failed to submit review</string>
+    <string name="view_your_review">View Your Review</string>
 
     <!-- Restaurant Reviews List -->
     <string name="view_reviews">View Reviews</string>
