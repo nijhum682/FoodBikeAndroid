@@ -73,6 +73,7 @@ public class UserOrderHistoryActivity extends AppCompatActivity {
         setupSearch();
         setupSwipeRefresh();
         loadRestaurantNames();
+        loadOrders();
         showLoading();
     }
 
@@ -171,8 +172,6 @@ public class UserOrderHistoryActivity extends AppCompatActivity {
                 }
                 adapter.notifyDataSetChanged();
             }
-            // Load orders after restaurant names are loaded
-            loadOrders();
         });
     }
 

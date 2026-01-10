@@ -211,11 +211,16 @@ public class ManageMenuActivity extends AppCompatActivity implements ManageMenuI
                 boolean available = dialogBinding.switchItemAvailable.isChecked();
 
                 if (isEditing) {
-                    existingItem.setName(name);
-                    existingItem.setDescription(description);
-                    existingItem.setPrice(price);
-                    existingItem.setAvailable(available);
-                    menuItems.set(position, existingItem);
+                    // Create new item with updated values but same ID to ensure DiffUtil detects change
+                    MenuItem updatedItem = new MenuItem(
+                            existingItem.getId(),
+                            name,
+                            description,
+                            price,
+                            existingItem.getCategory(),
+                            available
+                    );
+                    menuItems.set(position, updatedItem);
                 } else {
                     MenuItem newItem = new MenuItem(name, description, price, "General");
                     newItem.setAvailable(available);

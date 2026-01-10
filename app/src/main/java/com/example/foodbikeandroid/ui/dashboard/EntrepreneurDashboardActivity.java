@@ -338,12 +338,27 @@ public class EntrepreneurDashboardActivity extends AppCompatActivity {
     }
 
     private void openMenuForApplication(RestaurantApplication application) {
-        Intent intent = new Intent(this, ManageMenuActivity.class);
-        intent.putExtra(ManageMenuActivity.EXTRA_APPLICATION_ID, application.getApplicationId());
         if (application.getStatus() == ApplicationStatus.APPROVED) {
-            intent.putExtra(ManageMenuActivity.EXTRA_RESTAURANT_ID, application.getApplicationId());
+            restaurantRepository.getAllRestaurants().observe(this, allRestaurants -> {
+                if (allRestaurants != null) {
+                    for (Restaurant r : allRestaurants) {
+                        if (r.getName().equals(application.getRestaurantName())) {
+                            Intent intent = new Intent(this, ManageMenuActivity.class);
+                            intent.putExtra(ManageMenuActivity.EXTRA_APPLICATION_ID, application.getApplicationId());
+                            intent.putExtra(ManageMenuActivity.EXTRA_RESTAURANT_ID, r.getId());
+                            startActivity(intent);
+                            return;
+                        }
+                    }
+                }
+                // Fallback if not found (shouldn't happen if approved)
+                Toast.makeText(this, "Error: Restaurant data not found", Toast.LENGTH_SHORT).show();
+            });
+        } else {
+            Intent intent = new Intent(this, ManageMenuActivity.class);
+            intent.putExtra(ManageMenuActivity.EXTRA_APPLICATION_ID, application.getApplicationId());
+            startActivity(intent);
         }
-        startActivity(intent);
     }
 
     private void setupToolbar() {

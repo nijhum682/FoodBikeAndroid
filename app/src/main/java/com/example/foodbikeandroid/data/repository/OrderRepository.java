@@ -37,12 +37,20 @@ public class OrderRepository {
 
     public void insertOrder(Order order, OrderCallback callback) {
         executorService.execute(() -> {
-            orderDao.insertOrder(order);
-            mainHandler.post(() -> {
-                if (callback != null) {
-                    callback.onSuccess(order);
-                }
-            });
+            try {
+                orderDao.insertOrder(order);
+                mainHandler.post(() -> {
+                    if (callback != null) {
+                        callback.onSuccess(order);
+                    }
+                });
+            } catch (Exception e) {
+                mainHandler.post(() -> {
+                    if (callback != null) {
+                        callback.onError("Failed to save order: " + e.getMessage());
+                    }
+                });
+            }
         });
     }
 

@@ -1,0 +1,46 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="64dp"
+    android:height="64dp"
+    android:viewportWidth="64"
+    android:viewportHeight="64">
+    <group>
+        <!-- Plate -->
+        <path
+            android:fillColor="#FFF3E0"
+            android:pathData="M32,56a24,24 0 1,0 0,-48a24,24 0 1,0 0,48z"/>
+        <!-- Burger -->
+        <path
+            android:fillColor="#FF6B35"
+            android:pathData="M16,36a16,8 0 1,0 32,0a16,8 0 1,0 -32,0z"/>
+        <path
+            android:fillColor="#FF8A5C"
+            android:pathData="M16,36a16,8 0 0,1 32,0z"/>
+        <!-- Pizza Slice -->
+        <path
+            android:fillColor="#FFE66D"
+            android:pathData="M44,20l8,20l-16,0z"/>
+        <!-- Pizza Pepperoni (as small ellipses) -->
+        <path
+            android:fillColor="#E74C3C"
+            android:pathData="M48,32a2,2 0 1,1 0.01,0z"/>
+        <path
+            android:fillColor="#E74C3C"
+            android:pathData="M46,38a1.5,1.5 0 1,1 0.01,0z"/>
+        <!-- Sushi Roll (outer) -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M20,24a6,6 0 1,1 0.01,0z"/>
+        <!-- Sushi Roll (inner) -->
+        <path
+            android:fillColor="#4ECDC4"
+            android:pathData="M20,24a3,3 0 1,1 0.01,0z"/>
+        <!-- Drumstick -->
+        <path
+            android:fillColor="#F39C12"
+            android:pathData="M36,48c2,4 8,4 10,0c2,-4 -2,-8 -5,-8c-3,0 -7,4 -5,8z"/>
+        <!-- Drumstick bone -->
+        <path
+            android:fillColor="#FFF3E0"
+            android:pathData="M44,48a2,2 0 1,1 0.01,0z"/>
+    </group>
+</vector>

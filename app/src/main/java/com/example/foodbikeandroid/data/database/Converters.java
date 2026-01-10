@@ -23,6 +23,21 @@ import java.util.List;
 public class Converters {
 
     private static final DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+        @TypeConverter
+        public static String fromIntegerList(List<Integer> list) {
+            if (list == null) return null;
+            return list.stream().map(String::valueOf).collect(java.util.stream.Collectors.joining(","));
+        }
+
+        @TypeConverter
+        public static List<Integer> toIntegerList(String value) {
+            if (value == null || value.isEmpty()) return new ArrayList<>();
+            List<Integer> result = new ArrayList<>();
+            for (String s : value.split(",")) {
+                result.add(Integer.parseInt(s));
+            }
+            return result;
+        }
 
     @TypeConverter
     public static String fromLocalDateTime(LocalDateTime dateTime) {

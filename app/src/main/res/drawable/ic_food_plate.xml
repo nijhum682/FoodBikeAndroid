@@ -1,0 +1,28 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="64dp"
+    android:height="64dp"
+    android:viewportWidth="64"
+    android:viewportHeight="64">
+    <group>
+        <!-- Plate -->
+        <path
+            android:fillColor="#FFF3E0"
+            android:pathData="M32,56a24,24 0 1,0 0,-48a24,24 0 1,0 0,48z"/>
+        <!-- Food (burger patty) -->
+        <path
+            android:fillColor="#FF6B35"
+            android:pathData="M16,36a16,8 0 1,0 32,0a16,8 0 1,0 -32,0z"/>
+        <!-- Lettuce -->
+        <path
+            android:fillColor="#4ECDC4"
+            android:pathData="M18,34a14,4 0 1,0 28,0a14,4 0 1,0 -28,0z"/>
+        <!-- Cheese -->
+        <path
+            android:fillColor="#FFE66D"
+            android:pathData="M20,38l24,0l-2,4l-20,0z"/>
+        <!-- Bun top -->
+        <path
+            android:fillColor="#FF8A5C"
+            android:pathData="M16,36a16,8 0 0,1 32,0z"/>
+    </group>
+</vector>

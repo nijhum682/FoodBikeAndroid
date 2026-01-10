@@ -85,6 +85,17 @@ public class OrderConfirmationActivity extends AppCompatActivity {
             return;
         }
 
+        // Validate Session and Cart Data
+        if (sessionManager.getUsername() == null) {
+            Toast.makeText(this, "Session expired. Please login again.", Toast.LENGTH_LONG).show();
+            // Optional: Redirect to login
+            return;
+        }
+        if (cartManager.getCurrentRestaurantId() == null) {
+            Toast.makeText(this, "Restaurant information missing. Please try again.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         PaymentMethod paymentMethod;
         if (binding.rbCashOnDelivery.isChecked()) {
             paymentMethod = PaymentMethod.CASH_ON_DELIVERY;
@@ -92,10 +103,17 @@ public class OrderConfirmationActivity extends AppCompatActivity {
         } else if (binding.rbBkash.isChecked()) {
             paymentMethod = PaymentMethod.BKASH;
             showMobilePaymentDialog(paymentMethod);
-        } else {
+        } else if (binding.rbNagad.isChecked()) {
             paymentMethod = PaymentMethod.NAGAD;
             showMobilePaymentDialog(paymentMethod);
+        } else {
+            Toast.makeText(this, "Please select a payment method", Toast.LENGTH_SHORT).show();
+            return;
         }
+
+        // Prevent double clicks
+        binding.btnPlaceOrder.setEnabled(false);
+        new android.os.Handler().postDelayed(() -> binding.btnPlaceOrder.setEnabled(true), 2000);
     }
 
     private void showMobilePaymentDialog(PaymentMethod paymentMethod) {
@@ -104,20 +122,32 @@ public class OrderConfirmationActivity extends AppCompatActivity {
         
         final android.widget.EditText input = new android.widget.EditText(this);
         input.setInputType(android.text.InputType.TYPE_CLASS_PHONE);
-        input.setHint("Enter mobile number");
+        input.setHint("01XXXXXXXXX");
         input.setGravity(android.view.Gravity.CENTER);
         builder.setView(input);
 
         builder.setPositiveButton("Confirm", (dialog, which) -> {
-            String phoneNumber = input.getText().toString().trim();
-            if (phoneNumber.length() == 11) {
-                showOtpDialog(paymentMethod, phoneNumber);
-            } else {
-                Toast.makeText(this, "Please enter valid 11 digit number", Toast.LENGTH_SHORT).show();
-            }
+            // Keep dialog open if validation fails - handled below
         });
         builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
-        builder.show();
+
+        android.app.AlertDialog dialog = builder.create();
+        dialog.show();
+
+        // Override Positive Button to prevent auto-close on error
+        dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            String phoneNumber = input.getText().toString().trim();
+            if (isValidPhoneNumber(phoneNumber)) {
+                dialog.dismiss();
+                showOtpDialog(paymentMethod, phoneNumber);
+            } else {
+                input.setError("Enter valid 11-digit mobile number starting with 01");
+            }
+        });
+    }
+
+    private boolean isValidPhoneNumber(String phone) {
+        return phone.matches("^01\\d{9}$");
     }
 
     private void showOtpDialog(PaymentMethod paymentMethod, String phoneNumber) {

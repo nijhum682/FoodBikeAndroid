@@ -68,6 +68,7 @@ public class MenuItemAdapter extends ListAdapter<MenuItem, MenuItemAdapter.MenuI
         private final TextView tvPrice;
         private final TextView tvCategory;
         private final TextView tvUnavailable;
+        private final Button btnAdd;
 
         MenuItemViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -77,6 +78,7 @@ public class MenuItemAdapter extends ListAdapter<MenuItem, MenuItemAdapter.MenuI
             tvPrice = itemView.findViewById(R.id.tvItemPrice);
             tvCategory = itemView.findViewById(R.id.tvItemCategory);
             tvUnavailable = itemView.findViewById(R.id.tvUnavailable);
+            btnAdd = itemView.findViewById(R.id.btnAdd);
         }
 
         void bind(MenuItem item) {
@@ -88,9 +90,16 @@ public class MenuItemAdapter extends ListAdapter<MenuItem, MenuItemAdapter.MenuI
             if (item.isAvailable()) {
                 tvUnavailable.setVisibility(View.GONE);
                 cardView.setAlpha(1.0f);
+                btnAdd.setVisibility(View.VISIBLE);
+                btnAdd.setOnClickListener(v -> {
+                    if (listener != null) {
+                        listener.onMenuItemClick(item);
+                    }
+                });
             } else {
                 tvUnavailable.setVisibility(View.VISIBLE);
                 cardView.setAlpha(0.6f);
+                btnAdd.setVisibility(View.GONE);
             }
         }
     }
