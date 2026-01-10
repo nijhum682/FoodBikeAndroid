@@ -27,6 +27,11 @@ public class MenuItem {
         this.price = price;
         this.category = category;
         this.available = true;
+        this.available = true;
+    }
+
+    // Required for Firebase
+    public MenuItem() {
     }
 
     public String getName() {

@@ -20,6 +20,7 @@ public class ReviewRepository {
     private static volatile ReviewRepository INSTANCE;
     private final ReviewDao reviewDao;
     private final RestaurantDao restaurantDao;
+    private final com.example.foodbikeandroid.data.remote.FirestoreHelper firestoreHelper;
     private final ExecutorService executorService;
     private final Handler mainHandler;
 
@@ -27,6 +28,7 @@ public class ReviewRepository {
         FoodBikeDatabase database = FoodBikeDatabase.getInstance(context);
         reviewDao = database.reviewDao();
         restaurantDao = database.restaurantDao();
+        firestoreHelper = com.example.foodbikeandroid.data.remote.FirestoreHelper.getInstance();
         executorService = Executors.newFixedThreadPool(2);
         mainHandler = new Handler(Looper.getMainLooper());
     }
@@ -43,29 +45,50 @@ public class ReviewRepository {
     }
 
     public void insert(Review review, ReviewInsertCallback callback) {
-        executorService.execute(() -> {
-            try {
-                reviewDao.insert(review);
-                
-                // Update restaurant average rating
-                Double avgRating = reviewDao.getAverageRating(review.getRestaurantId());
-                if (avgRating != null) {
-                    restaurantDao.updateRating(review.getRestaurantId(), avgRating);
-                }
-                
-                mainHandler.post(() -> {
-                    if (callback != null) {
-                        callback.onSuccess();
+        firestoreHelper.getReviewsCollection().document(review.getReviewId()).set(review)
+                .addOnSuccessListener(aVoid -> {
+                    executorService.execute(() -> {
+                        try {
+                            reviewDao.insert(review);
+                            
+                            // Update restaurant average rating logic locally
+                            Double avgRating = reviewDao.getAverageRating(review.getRestaurantId());
+                            if (avgRating != null) {
+                                restaurantDao.updateRating(review.getRestaurantId(), avgRating);
+                                // Ideally update Firestore Restaurant rating as well here
+                                firestoreHelper.getRestaurantsCollection().document(review.getRestaurantId())
+                                        .update("rating", avgRating);
+                            }
+                            
+                            mainHandler.post(() -> {
+                                if (callback != null) callback.onSuccess();
+                            });
+                        } catch (Exception e) {
+                            mainHandler.post(() -> {
+                                if (callback != null) callback.onError(e.getMessage());
+                            });
+                        }
+                    });
+                })
+                .addOnFailureListener(e -> {
+                     mainHandler.post(() -> {
+                        if (callback != null) callback.onError(e.getMessage());
+                     });
+                });
+    }
+
+    public void syncReviewsForRestaurant(String restaurantId) {
+        firestoreHelper.getReviewsCollection().whereEqualTo("restaurantId", restaurantId).get()
+                .addOnSuccessListener(snapshots -> {
+                    if (snapshots != null) {
+                        List<Review> reviews = snapshots.toObjects(Review.class);
+                        executorService.execute(() -> {
+                           for(Review r : reviews) {
+                               try { reviewDao.insert(r); } catch (Exception e) {}
+                           } 
+                        });
                     }
                 });
-            } catch (Exception e) {
-                mainHandler.post(() -> {
-                    if (callback != null) {
-                        callback.onError(e.getMessage());
-                    }
-                });
-            }
-        });
     }
 
     public LiveData<List<Review>> getByRestaurant(String restaurantId) {

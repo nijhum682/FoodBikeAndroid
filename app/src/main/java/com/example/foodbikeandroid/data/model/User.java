@@ -46,6 +46,10 @@ public class User {
         this.earnings = 0.0;
     }
 
+    // Required for Firebase
+    public User() {
+    }
+
     @NonNull
     public String getUsername() {
         return username;

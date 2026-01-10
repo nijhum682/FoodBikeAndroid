@@ -18,16 +18,20 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import com.example.foodbikeandroid.data.remote.FirestoreHelper;
+
 public class RestaurantRepository {
 
     private static volatile RestaurantRepository INSTANCE;
     private final RestaurantDao restaurantDao;
+    private final FirestoreHelper firestoreHelper;
     private final ExecutorService executorService;
     private final Handler mainHandler;
 
     private RestaurantRepository(Context context) {
         FoodBikeDatabase database = FoodBikeDatabase.getInstance(context);
         restaurantDao = database.restaurantDao();
+        firestoreHelper = FirestoreHelper.getInstance();
         executorService = Executors.newFixedThreadPool(4);
         mainHandler = new Handler(Looper.getMainLooper());
     }
@@ -44,13 +48,44 @@ public class RestaurantRepository {
     }
 
     public void initializeSampleData() {
-        executorService.execute(() -> {
-            int currentCount = restaurantDao.getRestaurantCount();
-            // Only initialize sample data if database is completely empty
-            if (currentCount == 0) {
-                restaurantDao.insertAll(createSampleRestaurants());
-            }
-        });
+        // ALWAYS check Firestore state first to ensure Cloud is seeded
+        firestoreHelper.getRestaurantsCollection().get()
+                .addOnSuccessListener(snapshots -> {
+                    if (snapshots == null || snapshots.isEmpty()) {
+                        // Firestore is empty, upload sample data
+                        List<Restaurant> sampleRestaurants = createSampleRestaurants();
+                        
+                        // Upload to Firestore
+                        for (Restaurant r : sampleRestaurants) {
+                            firestoreHelper.getRestaurantsCollection().document(r.getId()).set(r);
+                        }
+                        
+                        // Insert locally
+                        executorService.execute(() -> restaurantDao.insertAll(sampleRestaurants));
+                    } else {
+                        // Firestore has data, sync to local
+                        List<Restaurant> remoteRestaurants = snapshots.toObjects(Restaurant.class);
+                        executorService.execute(() -> restaurantDao.insertAll(remoteRestaurants));
+                    }
+                })
+                .addOnFailureListener(e -> {
+                     // If cloud fails (e.g. offline), check local
+                     executorService.execute(() -> {
+                         if (restaurantDao.getRestaurantCount() == 0) {
+                             // Fallback? Or just wait for connection.
+                         }
+                     });
+                });
+    }
+
+    public void refreshRestaurants() {
+        firestoreHelper.getRestaurantsCollection().get()
+                .addOnSuccessListener(snapshots -> {
+                    if (snapshots != null && !snapshots.isEmpty()) {
+                        List<Restaurant> restaurants = snapshots.toObjects(Restaurant.class);
+                        executorService.execute(() -> restaurantDao.insertAll(restaurants));
+                    }
+                });
     }
 
     public LiveData<List<Restaurant>> getAllRestaurants() {
@@ -116,48 +151,57 @@ public class RestaurantRepository {
     }
 
     public void insert(Restaurant restaurant) {
-        executorService.execute(() -> restaurantDao.insert(restaurant));
+        firestoreHelper.getRestaurantsCollection().document(restaurant.getId()).set(restaurant)
+                .addOnSuccessListener(aVoid -> executorService.execute(() -> restaurantDao.insert(restaurant)));
     }
 
     public void insert(Restaurant restaurant, OperationCallback callback) {
-        executorService.execute(() -> {
-            try {
-                restaurantDao.insert(restaurant);
-                if (callback != null) callback.onSuccess();
-            } catch (Exception e) {
-                if (callback != null) callback.onError(e.getMessage());
-            }
-        });
+        firestoreHelper.getRestaurantsCollection().document(restaurant.getId()).set(restaurant)
+                .addOnSuccessListener(aVoid -> {
+                    executorService.execute(() -> {
+                        restaurantDao.insert(restaurant);
+                        if (callback != null) mainHandler.post(callback::onSuccess);
+                    });
+                })
+                .addOnFailureListener(e -> {
+                    if (callback != null) mainHandler.post(() -> callback.onError(e.getMessage()));
+                });
     }
 
     public void update(Restaurant restaurant) {
-        executorService.execute(() -> restaurantDao.update(restaurant));
+        firestoreHelper.getRestaurantsCollection().document(restaurant.getId()).set(restaurant)
+                .addOnSuccessListener(aVoid -> executorService.execute(() -> restaurantDao.update(restaurant)));
     }
 
     public void update(Restaurant restaurant, OperationCallback callback) {
-        executorService.execute(() -> {
-            try {
-                restaurantDao.update(restaurant);
-                if (callback != null) callback.onSuccess();
-            } catch (Exception e) {
-                if (callback != null) callback.onError(e.getMessage());
-            }
-        });
+        firestoreHelper.getRestaurantsCollection().document(restaurant.getId()).set(restaurant)
+                .addOnSuccessListener(aVoid -> {
+                    executorService.execute(() -> {
+                        restaurantDao.update(restaurant);
+                        if (callback != null) mainHandler.post(callback::onSuccess);
+                    });
+                })
+                .addOnFailureListener(e -> {
+                    if (callback != null) mainHandler.post(() -> callback.onError(e.getMessage()));
+                });
     }
 
     public void delete(Restaurant restaurant) {
-        executorService.execute(() -> restaurantDao.delete(restaurant));
+        firestoreHelper.getRestaurantsCollection().document(restaurant.getId()).delete()
+                .addOnSuccessListener(aVoid -> executorService.execute(() -> restaurantDao.delete(restaurant)));
     }
 
     public void delete(Restaurant restaurant, OperationCallback callback) {
-        executorService.execute(() -> {
-            try {
-                restaurantDao.delete(restaurant);
-                if (callback != null) callback.onSuccess();
-            } catch (Exception e) {
-                if (callback != null) callback.onError(e.getMessage());
-            }
-        });
+        firestoreHelper.getRestaurantsCollection().document(restaurant.getId()).delete()
+                .addOnSuccessListener(aVoid -> {
+                    executorService.execute(() -> {
+                        restaurantDao.delete(restaurant);
+                        if (callback != null) mainHandler.post(callback::onSuccess);
+                    });
+                })
+                .addOnFailureListener(e -> {
+                    if (callback != null) mainHandler.post(() -> callback.onError(e.getMessage()));
+                });
     }
 
     private List<Restaurant> createSampleRestaurants() {

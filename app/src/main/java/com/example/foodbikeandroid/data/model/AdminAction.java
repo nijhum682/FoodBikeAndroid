@@ -41,6 +41,10 @@ public class AdminAction {
                 System.currentTimeMillis());
     }
 
+    // Required for Firebase
+    public AdminAction() {
+    }
+
     @NonNull
     public String getActionId() {
         return actionId;

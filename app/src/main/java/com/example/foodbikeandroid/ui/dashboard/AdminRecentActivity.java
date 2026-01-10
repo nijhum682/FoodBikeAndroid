@@ -17,7 +17,7 @@ import java.util.List;
 public class AdminRecentActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private AdminRecentActivityAdapter adapter;
-    private AdminActionDao adminActionDao;
+    private com.example.foodbikeandroid.data.repository.AdminActionRepository adminActionRepository;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -27,8 +27,11 @@ public class AdminRecentActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new AdminRecentActivityAdapter();
         recyclerView.setAdapter(adapter);
-        adminActionDao = FoodBikeDatabase.getInstance(this).adminActionDao();
-        adminActionDao.getAll().observe(this, actions -> {
+        
+        adminActionRepository = com.example.foodbikeandroid.data.repository.AdminActionRepository.getInstance(this);
+        adminActionRepository.syncAdminActions();
+        
+        adminActionRepository.getAllActions().observe(this, actions -> {
             adapter.setActions(actions);
         });
 

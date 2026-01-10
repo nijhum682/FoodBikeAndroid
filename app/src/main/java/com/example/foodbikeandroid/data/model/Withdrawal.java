@@ -6,8 +6,9 @@ import androidx.room.PrimaryKey;
 
 @Entity(tableName = "withdrawals")
 public class Withdrawal {
-    @PrimaryKey(autoGenerate = true)
-    private int id;
+    @PrimaryKey
+    @NonNull
+    private String id;
 
     @NonNull
     private String adminUsername;
@@ -23,6 +24,7 @@ public class Withdrawal {
     private long timestamp;
 
     public Withdrawal(@NonNull String adminUsername, double amount, @NonNull String method, @NonNull String accountNumber) {
+        this.id = "W_" + System.currentTimeMillis();
         this.adminUsername = adminUsername;
         this.amount = amount;
         this.method = method;
@@ -30,11 +32,16 @@ public class Withdrawal {
         this.timestamp = System.currentTimeMillis();
     }
 
-    public int getId() {
+    // Required for Firebase
+    public Withdrawal() {
+    }
+
+    @NonNull
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(@NonNull String id) {
         this.id = id;
     }
 

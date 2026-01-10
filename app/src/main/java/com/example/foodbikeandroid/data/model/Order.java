@@ -60,6 +60,11 @@ public class Order {
         this.status = OrderStatus.PENDING;
         this.createdAt = System.currentTimeMillis();
         this.paymentMethod = paymentMethod;
+        this.paymentMethod = paymentMethod;
+    }
+
+    // Required for Firebase
+    public Order() {
     }
 
     @NonNull

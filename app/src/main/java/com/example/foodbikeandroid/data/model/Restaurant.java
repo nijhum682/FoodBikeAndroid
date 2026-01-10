@@ -54,6 +54,11 @@ public class Restaurant {
         this.isOpen = true;
         this.openingHours = "9:00 AM - 10:00 PM";
         this.createdAt = System.currentTimeMillis();
+        this.createdAt = System.currentTimeMillis();
+    }
+
+    // Required for Firebase
+    public Restaurant() {
     }
 
     @NonNull

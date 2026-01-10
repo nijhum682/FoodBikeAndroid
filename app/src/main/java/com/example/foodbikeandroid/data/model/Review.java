@@ -50,6 +50,11 @@ public class Review {
         this.rating = rating;
         this.comment = comment;
         this.createdAt = System.currentTimeMillis();
+        this.createdAt = System.currentTimeMillis();
+    }
+
+    // Required for Firebase
+    public Review() {
     }
 
     // Getters and Setters

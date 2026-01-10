@@ -8,6 +8,11 @@ public class CartItem {
     public CartItem(MenuItem menuItem, int quantity) {
         this.menuItem = menuItem;
         this.quantity = quantity;
+        this.quantity = quantity;
+    }
+
+    // Required for Firebase
+    public CartItem() {
     }
 
     public MenuItem getMenuItem() {

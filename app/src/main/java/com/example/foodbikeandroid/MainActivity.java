@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.foodbikeandroid.data.model.UserType;
 import com.example.foodbikeandroid.data.repository.UserRepository;
+import com.example.foodbikeandroid.data.repository.RestaurantRepository;
 import com.example.foodbikeandroid.ui.auth.NavigationHelper;
 import com.example.foodbikeandroid.ui.auth.SignInActivity;
 import com.example.foodbikeandroid.work.WorkManagerInitializer;
@@ -23,6 +24,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         WorkManagerInitializer.initialize(this);
+        
+        // Seed database if needed (Cloud First)
+        RestaurantRepository.getInstance(this.getApplication()).initializeSampleData();
+        UserRepository.getInstance(this.getApplication()).createDefaultAdmin();
 
         new Handler(Looper.getMainLooper()).postDelayed(this::checkAuthAndNavigate, SPLASH_DELAY);
     }

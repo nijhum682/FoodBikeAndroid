@@ -64,6 +64,10 @@ public class RestaurantApplication {
         this.messageViewed = false;
     }
 
+    // Required for Firebase
+    public RestaurantApplication() {
+    }
+
     @NonNull
     public String getApplicationId() {
         return applicationId;

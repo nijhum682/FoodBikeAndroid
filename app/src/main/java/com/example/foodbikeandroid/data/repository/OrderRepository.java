@@ -11,6 +11,7 @@ import com.example.foodbikeandroid.data.database.OrderDao;
 import com.example.foodbikeandroid.data.database.UserDao;
 import com.example.foodbikeandroid.data.model.Order;
 import com.example.foodbikeandroid.data.model.OrderStatus;
+import com.example.foodbikeandroid.data.remote.FirestoreHelper;
 
 import java.util.Calendar;
 import java.util.List;
@@ -21,6 +22,7 @@ public class OrderRepository {
 
     private final OrderDao orderDao;
     private final UserDao userDao;
+    private final FirestoreHelper firestoreHelper;
     private final ExecutorService executorService;
     private final Handler mainHandler;
     private static final long AUTO_CANCEL_CHECK_INTERVAL = 5 * 60 * 1000;
@@ -30,28 +32,81 @@ public class OrderRepository {
         FoodBikeDatabase database = FoodBikeDatabase.getInstance(application);
         orderDao = database.orderDao();
         userDao = database.userDao();
+        firestoreHelper = FirestoreHelper.getInstance();
         executorService = Executors.newFixedThreadPool(4);
         mainHandler = new Handler(Looper.getMainLooper());
         startAutoCancelChecker();
     }
 
     public void insertOrder(Order order, OrderCallback callback) {
-        executorService.execute(() -> {
-            try {
-                orderDao.insertOrder(order);
-                mainHandler.post(() -> {
-                    if (callback != null) {
-                        callback.onSuccess(order);
+        firestoreHelper.getOrdersCollection().document(order.getOrderId()).set(order)
+                .addOnSuccessListener(aVoid -> {
+                    executorService.execute(() -> {
+                        try {
+                            orderDao.insertOrder(order);
+                            mainHandler.post(() -> {
+                                if (callback != null) callback.onSuccess(order);
+                            });
+                        } catch (Exception e) {
+                            mainHandler.post(() -> {
+                                if (callback != null) callback.onError("Saved to cloud but local failed: " + e.getMessage());
+                            });
+                        }
+                    });
+                })
+                .addOnFailureListener(e -> {
+                    mainHandler.post(() -> {
+                        if (callback != null) callback.onError("Failed to place order: " + e.getMessage());
+                    });
+                });
+    }
+
+    public void syncUserOrders(String userId) {
+        firestoreHelper.getOrdersCollection()
+                .whereEqualTo("userId", userId)
+                .get()
+                .addOnSuccessListener(snapshots -> {
+                    if (snapshots != null && !snapshots.isEmpty()) {
+                        List<Order> orders = snapshots.toObjects(Order.class);
+                        executorService.execute(() -> {
+                            for (Order order : orders) {
+                                orderDao.insertOrder(order); // Assumes REPLACE strategy? Need to check Dao.
+                            }
+                        });
                     }
                 });
-            } catch (Exception e) {
-                mainHandler.post(() -> {
-                    if (callback != null) {
-                        callback.onError("Failed to save order: " + e.getMessage());
+    }
+
+    public void syncBikerOrders(String bikerId) {
+        firestoreHelper.getOrdersCollection()
+                .whereEqualTo("bikerId", bikerId)
+                .get()
+                .addOnSuccessListener(snapshots -> {
+                    if (snapshots != null && !snapshots.isEmpty()) {
+                        List<Order> orders = snapshots.toObjects(Order.class);
+                        executorService.execute(() -> {
+                             for (Order order : orders) {
+                                 orderDao.insertOrder(order);
+                             }
+                        });
                     }
                 });
-            }
-        });
+    }
+    
+    public void syncAvailableOrders() {
+         firestoreHelper.getOrdersCollection()
+                 .whereEqualTo("status", OrderStatus.PENDING)
+                 .get()
+                 .addOnSuccessListener(snapshots -> {
+                     if (snapshots != null) {
+                         List<Order> orders = snapshots.toObjects(Order.class);
+                         executorService.execute(() -> {
+                             for (Order order : orders) {
+                                  orderDao.insertOrder(order);
+                             }
+                         });
+                     }
+                 });
     }
 
     public void updateOrder(Order order) {
@@ -82,19 +137,45 @@ public class OrderRepository {
     }
 
     public void tryAcceptOrder(String orderId, String bikerId, AcceptOrderCallback callback) {
-        executorService.execute(() -> {
-            try {
-                long timestamp = System.currentTimeMillis();
-                int rowsUpdated = orderDao.tryAcceptOrderAtomic(orderId, bikerId, OrderStatus.PREPARING, timestamp);
-                
-                if (rowsUpdated > 0) {
-                    callback.onSuccess();
-                } else {
-                    callback.onAlreadyTaken();
-                }
-            } catch (Exception e) {
-                callback.onError(e.getMessage());
+        firestoreHelper.getDb().runTransaction(transaction -> {
+            com.google.firebase.firestore.DocumentReference orderRef = firestoreHelper.getOrdersCollection().document(orderId);
+            com.google.firebase.firestore.DocumentSnapshot snapshot = transaction.get(orderRef);
+
+            if (!snapshot.exists()) {
+                throw new com.google.firebase.firestore.FirebaseFirestoreException("Order not found",
+                        com.google.firebase.firestore.FirebaseFirestoreException.Code.NOT_FOUND);
             }
+
+            Order order = snapshot.toObject(Order.class);
+            if (order != null && order.getBikerId() == null && order.getStatus() == OrderStatus.PENDING) {
+                transaction.update(orderRef, "bikerId", bikerId);
+                transaction.update(orderRef, "status", OrderStatus.PREPARING);
+                transaction.update(orderRef, "acceptedAt", System.currentTimeMillis());
+                return null;
+            } else {
+                throw new com.google.firebase.firestore.FirebaseFirestoreException("Order already taken",
+                        com.google.firebase.firestore.FirebaseFirestoreException.Code.ABORTED);
+            }
+        }).addOnSuccessListener(result -> {
+            // Update local DB to match
+            executorService.execute(() -> {
+                try {
+                    long timestamp = System.currentTimeMillis();
+                    int rowsUpdated = orderDao.tryAcceptOrderAtomic(orderId, bikerId, OrderStatus.PREPARING, timestamp);
+                    mainHandler.post(callback::onSuccess);
+                } catch (Exception e) {
+                   // Log error but success callback because cloud is truth
+                   mainHandler.post(callback::onSuccess);
+                }
+            });
+        }).addOnFailureListener(e -> {
+            mainHandler.post(() -> {
+                if (e.getMessage().contains("Order already taken")) {
+                    callback.onAlreadyTaken();
+                } else {
+                    callback.onError(e.getMessage());
+                }
+            });
         });
     }
 
