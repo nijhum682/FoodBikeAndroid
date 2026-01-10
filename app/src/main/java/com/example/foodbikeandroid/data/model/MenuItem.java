@@ -1,5 +1,7 @@
 package com.example.foodbikeandroid.data.model;
 
+import java.util.UUID;
+
 public class MenuItem {
 
     private String id;
@@ -19,7 +21,7 @@ public class MenuItem {
     }
 
     public MenuItem(String name, String description, double price, String category) {
-        this.id = "ITEM_" + System.currentTimeMillis();
+        this.id = UUID.randomUUID().toString();
         this.name = name;
         this.description = description;
         this.price = price;

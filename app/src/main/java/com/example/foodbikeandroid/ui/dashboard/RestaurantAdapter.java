@@ -109,20 +109,20 @@ public class RestaurantAdapter extends ListAdapter<Restaurant, RestaurantAdapter
         }
 
         private int getImageForCuisine(String cuisineType) {
-            if (cuisineType == null) return R.drawable.ic_restaurant;
+            if (cuisineType == null) return R.drawable.bg_restaurant_default;
             switch (cuisineType.toLowerCase()) {
                 case "pizza":
-                    return R.drawable.ic_restaurant;
+                    return R.drawable.bg_restaurant_default;
                 case "burger":
-                    return R.drawable.ic_restaurant;
+                    return R.drawable.bg_restaurant_default;
                 case "seafood":
-                    return R.drawable.ic_restaurant;
+                    return R.drawable.bg_restaurant_default;
                 case "cafe":
-                    return R.drawable.ic_restaurant;
+                    return R.drawable.bg_restaurant_default;
                 case "dessert":
-                    return R.drawable.ic_restaurant;
+                    return R.drawable.bg_restaurant_default;
                 default:
-                    return R.drawable.ic_restaurant;
+                    return R.drawable.bg_restaurant_default;
             }
         }
     }

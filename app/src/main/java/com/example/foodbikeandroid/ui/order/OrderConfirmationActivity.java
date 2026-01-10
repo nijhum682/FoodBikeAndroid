@@ -58,6 +58,7 @@ public class OrderConfirmationActivity extends AppCompatActivity {
         summaryAdapter = new OrderSummaryAdapter();
         binding.rvOrderItems.setLayoutManager(new LinearLayoutManager(this));
         binding.rvOrderItems.setAdapter(summaryAdapter);
+        binding.rvOrderItems.setNestedScrollingEnabled(false);
     }
 
     private void displayOrderDetails() {
@@ -65,7 +66,7 @@ public class OrderConfirmationActivity extends AppCompatActivity {
         binding.tvDeliveryLocation.setText(sessionManager.getUserDistrict());
 
         List<CartItem> items = cartManager.getCartItems();
-        summaryAdapter.submitList(items);
+        summaryAdapter.setItems(items);
 
         double subtotal = cartManager.getTotalPrice();
         double total = subtotal + DELIVERY_FEE;
@@ -151,28 +152,71 @@ public class OrderConfirmationActivity extends AppCompatActivity {
     }
 
     private void showOtpDialog(PaymentMethod paymentMethod, String phoneNumber) {
-        String dummyOtp = "1234";
+        // Generate random 4-digit OTP
+        int otpValue = (int) (Math.random() * 9000) + 1000;
+        String randomOtp = String.valueOf(otpValue);
         
         android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
-        builder.setTitle("OTP");
-        builder.setMessage("OTP sent to " + phoneNumber + "\nOTP: " + dummyOtp);
+        builder.setTitle("OTP Verification");
+        builder.setMessage("Enter the OTP sent to " + phoneNumber + "\n\nYour OTP is: " + randomOtp);
         
         final android.widget.EditText input = new android.widget.EditText(this);
         input.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
-        input.setHint("Enter OTP");
+        input.setHint("Enter 4-digit OTP");
         input.setGravity(android.view.Gravity.CENTER);
         builder.setView(input);
 
-        builder.setPositiveButton("Submit", (dialog, which) -> {
-            String enteredOtp = input.getText().toString().trim();
-            if (enteredOtp.equals(dummyOtp)) {
-                processOrder(paymentMethod);
-            } else {
-                Toast.makeText(this, "Invalid OTP", Toast.LENGTH_SHORT).show();
-            }
+        builder.setPositiveButton("Verify", (dialog, which) -> {
+            // Keep open if fails - handled below
         });
         builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
-        builder.show();
+
+        android.app.AlertDialog dialog = builder.create();
+        dialog.show();
+        
+        // Override Positive Button
+        dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            String enteredOtp = input.getText().toString().trim();
+            if (enteredOtp.equals(randomOtp)) {
+                dialog.dismiss();
+                showPinDialog(paymentMethod);
+            } else {
+                input.setError("Invalid OTP");
+                Toast.makeText(this, "Incorrect OTP. Please try again.", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void showPinDialog(PaymentMethod paymentMethod) {
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
+        builder.setTitle("Enter PIN");
+        builder.setMessage("Enter your " + (paymentMethod == PaymentMethod.BKASH ? "Bkash" : "Nagad") + " PIN to confirm payment");
+        
+        final android.widget.EditText input = new android.widget.EditText(this);
+        input.setInputType(android.text.InputType.TYPE_CLASS_NUMBER | android.text.InputType.TYPE_NUMBER_VARIATION_PASSWORD);
+        input.setHint("Enter PIN");
+        input.setGravity(android.view.Gravity.CENTER);
+        builder.setView(input);
+
+        builder.setPositiveButton("Confirm Payment", (dialog, which) -> {
+            // Keep open if fails - handled below
+        });
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
+
+        android.app.AlertDialog dialog = builder.create();
+        dialog.show();
+
+        // Override Positive Button
+        dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            String pin = input.getText().toString().trim();
+            if (pin.length() >= 4) {
+                dialog.dismiss();
+                processOrder(paymentMethod);
+            } else {
+                input.setError("Invalid PIN");
+                Toast.makeText(this, "Please enter a valid PIN", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void processOrder(PaymentMethod paymentMethod) {
@@ -182,10 +226,20 @@ public class OrderConfirmationActivity extends AppCompatActivity {
         String userId = sessionManager.getUsername();
         String restaurantId = cartManager.getCurrentRestaurantId();
         String district = sessionManager.getUserDistrict();
+        
+        String deliveryAddress = binding.etDeliveryAddress.getText().toString().trim();
+        if (deliveryAddress.isEmpty()) {
+            binding.etDeliveryAddress.setError("Address required");
+            binding.etDeliveryAddress.requestFocus();
+            binding.progressBar.setVisibility(View.GONE);
+            binding.btnPlaceOrder.setEnabled(true);
+            return;
+        }
+
         List<CartItem> items = cartManager.getCartItems();
         double totalPrice = cartManager.getTotalPrice() + DELIVERY_FEE;
 
-        Order order = new Order(userId, restaurantId, district, items, totalPrice, paymentMethod);
+        Order order = new Order(userId, restaurantId, district, deliveryAddress, items, totalPrice, paymentMethod);
 
         orderRepository.insertOrder(order, new OrderRepository.OrderCallback() {
             @Override

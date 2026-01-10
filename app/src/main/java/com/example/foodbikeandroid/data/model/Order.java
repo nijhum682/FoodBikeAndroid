@@ -26,6 +26,8 @@ public class Order {
     @NonNull
     private String district;
 
+    private String deliveryAddress;
+
     private List<CartItem> items;
 
     private double totalPrice;
@@ -46,12 +48,13 @@ public class Order {
     @NonNull
     private PaymentMethod paymentMethod;
 
-    public Order(@NonNull String userId, @NonNull String restaurantId, @NonNull String district,
+    public Order(@NonNull String userId, @NonNull String restaurantId, @NonNull String district, String deliveryAddress,
                  List<CartItem> items, double totalPrice, @NonNull PaymentMethod paymentMethod) {
         this.orderId = "ORD_" + System.currentTimeMillis();
         this.userId = userId;
         this.restaurantId = restaurantId;
         this.district = district;
+        this.deliveryAddress = deliveryAddress;
         this.items = items;
         this.totalPrice = totalPrice;
         this.status = OrderStatus.PENDING;
@@ -93,6 +96,14 @@ public class Order {
 
     public void setDistrict(@NonNull String district) {
         this.district = district;
+    }
+
+    public String getDeliveryAddress() {
+        return deliveryAddress;
+    }
+
+    public void setDeliveryAddress(String deliveryAddress) {
+        this.deliveryAddress = deliveryAddress;
     }
 
     public List<CartItem> getItems() {

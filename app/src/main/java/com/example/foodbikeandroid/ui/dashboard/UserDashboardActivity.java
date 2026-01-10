@@ -167,7 +167,8 @@ public class UserDashboardActivity extends AppCompatActivity {
                 startActivity(ordersIntent);
                 return true;
             } else if (itemId == R.id.nav_profile) {
-                Toast.makeText(this, "Profile - Coming Soon", Toast.LENGTH_SHORT).show();
+                Intent profileIntent = new Intent(this, com.example.foodbikeandroid.ui.profile.UserProfileActivity.class);
+                startActivity(profileIntent);
                 return true;
             }
             return false;

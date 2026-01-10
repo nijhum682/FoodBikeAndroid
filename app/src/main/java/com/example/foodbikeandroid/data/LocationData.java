@@ -63,23 +63,23 @@ public class LocationData {
 
     public static List<String> getAllDivisions() {
         return new ArrayList<>(Arrays.asList(
-                "All Divisions", "Dhaka", "Chittagong", "Sylhet", "Rajshahi",
+                "Filter by Division", "Dhaka", "Chittagong", "Sylhet", "Rajshahi",
                 "Khulna", "Barisal", "Rangpur", "Mymensingh"
         ));
     }
 
     public static List<String> getDistrictsForDivision(String division) {
-        if (division == null || division.equals("All Divisions")) {
-            return Arrays.asList("All Districts");
+        if (division == null || division.equals("Filter by Division")) {
+            return Arrays.asList("Filter by District");
         }
         Division div = divisions.get(division);
         if (div != null) {
             List<String> districts = new ArrayList<>();
-            districts.add("All Districts");
+            districts.add("Filter by District");
             districts.addAll(div.getDistricts());
             return districts;
         }
-        return Arrays.asList("All Districts");
+        return Arrays.asList("Filter by District");
     }
 
     public static String getDivisionPrefix(String division) {

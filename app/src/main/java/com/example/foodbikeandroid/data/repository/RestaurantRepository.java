@@ -77,17 +77,17 @@ public class RestaurantRepository {
     }
 
     public LiveData<List<Restaurant>> getRestaurantsByDivision(String division) {
-        if (division == null || division.equals("All Divisions")) {
+        if (division == null || division.equals("Filter by Division")) {
             return restaurantDao.getAllRestaurants();
         }
         return restaurantDao.getRestaurantsByDivision(division);
     }
 
     public LiveData<List<Restaurant>> getRestaurantsByLocation(String division, String district) {
-        if (division == null || division.equals("All Divisions")) {
+        if (division == null || division.equals("Filter by Division")) {
             return restaurantDao.getAllRestaurants();
         }
-        if (district == null || district.equals("All Districts")) {
+        if (district == null || district.equals("Filter by District")) {
             return restaurantDao.getRestaurantsByDivision(division);
         }
         return restaurantDao.getRestaurantsByLocation(division, district);
@@ -97,10 +97,10 @@ public class RestaurantRepository {
         if (query == null || query.isEmpty()) {
             return getRestaurantsByLocation(division, district);
         }
-        if (division == null || division.equals("All Divisions")) {
+        if (division == null || division.equals("Filter by Division")) {
             return restaurantDao.searchRestaurants(query);
         }
-        if (district == null || district.equals("All Districts")) {
+        if (district == null || district.equals("Filter by District")) {
             return restaurantDao.searchRestaurantsInDivision(query, division);
         }
         return restaurantDao.searchRestaurantsInLocation(query, division, district);
@@ -255,27 +255,34 @@ public class RestaurantRepository {
             String.format("%s%03d", prefix, startId),
             district + " Kitchen",
             division, district, district + " Sadar",
-            4.5, "Bangladeshi", createBangladeshiMenu()));
+            getRandomRating(), "Bangladeshi", createBangladeshiMenu()));
         
         restaurants.add(createRestaurant(
             String.format("%s%03d", prefix, startId + 1),
             district + " Pizza House",
             division, district, district + " Center",
-            4.3, "Pizza", createPizzaMenu()));
+            getRandomRating(), "Pizza", createPizzaMenu()));
         
         restaurants.add(createRestaurant(
             String.format("%s%03d", prefix, startId + 2),
             district + " Cafe",
             division, district, district + " Plaza",
-            4.4, "Cafe", createCafeMenu()));
+            getRandomRating(), "Cafe", createCafeMenu()));
         
         restaurants.add(createRestaurant(
             String.format("%s%03d", prefix, startId + 3),
             district + " Grill & BBQ",
             division, district, district + " Road",
-            4.6, "Grilled", createGrilledMenu()));
+            getRandomRating(), "Grilled", createGrilledMenu()));
         
         return restaurants;
+    }
+
+    private double getRandomRating() {
+        // Generate random rating between 1.0 and 5.0
+        double rating = 1.0 + (Math.random() * 4.0);
+        // Round to 1 decimal place
+        return Math.round(rating * 10.0) / 10.0;
     }
 
     private Restaurant createRestaurant(String id, String name, String division, String district,

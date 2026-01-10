@@ -102,7 +102,13 @@ public class BikerOrderDetailActivity extends AppCompatActivity {
         binding.tvPaymentMethod.setText(getPaymentMethodText(order.getPaymentMethod()));
         binding.tvTotalPrice.setText(String.format(Locale.getDefault(), "৳%.2f", order.getTotalPrice()));
         
-        binding.tvDeliveryDistrict.setText(order.getDistrict());
+        String fullAddress = order.getDeliveryAddress();
+        if (fullAddress == null || fullAddress.isEmpty()) {
+            fullAddress = order.getDistrict();
+        } else {
+            fullAddress = fullAddress + ", " + order.getDistrict();
+        }
+        binding.tvDeliveryDistrict.setText(fullAddress);
         
         boolean canAccept = order.getStatus() == OrderStatus.READY && order.getBikerId() == null;
         binding.btnAcceptDelivery.setVisibility(canAccept ? View.VISIBLE : View.GONE);

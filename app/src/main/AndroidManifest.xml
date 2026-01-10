@@ -141,6 +141,11 @@
         <activity android:name=".ui.dashboard.BikerProfileActivity"
             android:exported="false"
             android:parentActivityName=".ui.dashboard.BikerDashboardActivity" />
+
+        <!-- User Profile Activity -->
+        <activity android:name=".ui.profile.UserProfileActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.dashboard.UserDashboardActivity" />
         
         <!-- File Provider for export -->
         <provider

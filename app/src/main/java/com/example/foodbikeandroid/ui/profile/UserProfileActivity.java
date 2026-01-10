@@ -1,18 +1,23 @@
 package com.example.foodbikeandroid.ui.profile;
 
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
-import com.example.foodbikeandroid.R;
+import androidx.lifecycle.ViewModelProvider;
+
 import com.example.foodbikeandroid.data.model.User;
-import com.example.foodbikeandroid.data.repository.UserRepository;
-import com.example.foodbikeandroid.data.session.SessionManager;
 import com.example.foodbikeandroid.databinding.ActivityUserProfileBinding;
 
 public class UserProfileActivity extends AppCompatActivity {
+
     private ActivityUserProfileBinding binding;
-    private SessionManager sessionManager;
-    private UserRepository userRepository;
+    private ProfileViewModel viewModel;
     private User currentUser;
 
     @Override
@@ -21,54 +26,62 @@ public class UserProfileActivity extends AppCompatActivity {
         binding = ActivityUserProfileBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        sessionManager = SessionManager.getInstance(this);
-        userRepository = UserRepository.getInstance(this);
+        viewModel = new ViewModelProvider(this).get(ProfileViewModel.class);
 
+        setupToolbar();
+        observeUser();
+        setupSaveButton();
+    }
+
+    private void setupToolbar() {
         binding.toolbar.setNavigationOnClickListener(v -> finish());
+    }
 
-        // Load user info
-        String username = sessionManager.getUsername();
-        if (username != null) {
-            userRepository.getUserByUsername(username, new UserRepository.AuthCallback() {
-                @Override
-                public void onSuccess(User user) {
-                    runOnUiThread(() -> {
-                        currentUser = user;
-                        binding.etName.setText(currentUser.getUsername());
-                        binding.etEmail.setText(currentUser.getEmail());
-                        binding.etPhone.setText(currentUser.getPhoneNumber());
-                        binding.etAddress.setText(currentUser.getAddress());
-                        binding.etPassword.setText(currentUser.getPassword());
-                    });
-                }
-                @Override
-                public void onError(String errorMessage) {
-                    runOnUiThread(() -> Toast.makeText(UserProfileActivity.this, errorMessage, Toast.LENGTH_SHORT).show());
-                }
-            });
-        }
-
-        binding.btnUpdate.setOnClickListener(v -> {
-            if (currentUser != null) {
-                currentUser.setUsername(binding.etName.getText().toString().trim());
-                currentUser.setEmail(binding.etEmail.getText().toString().trim());
-                currentUser.setPhoneNumber(binding.etPhone.getText().toString().trim());
-                currentUser.setAddress(binding.etAddress.getText().toString().trim());
-                currentUser.setPassword(binding.etPassword.getText().toString().trim());
-                userRepository.updateUser(currentUser, new UserRepository.SimpleCallback() {
-                    @Override
-                    public void onSuccess() {
-                        runOnUiThread(() -> {
-                            Toast.makeText(UserProfileActivity.this,"t", Toast.LENGTH_SHORT).show();
-                            finish();
-                        });
-                    }
-                    @Override
-                    public void onError(String message) {
-                        runOnUiThread(() -> Toast.makeText(UserProfileActivity.this, message, Toast.LENGTH_SHORT).show());
-                    }
-                });
+    private void observeUser() {
+        viewModel.getCurrentUser().observe(this, user -> {
+            if (user != null) {
+                currentUser = user;
+                populateUserData(user);
             }
         });
+
+        viewModel.getUpdateMessage().observe(this, message -> {
+            if (message != null) {
+                Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+                viewModel.clearMessage();
+            }
+        });
+
+        viewModel.getIsUpdateSuccess().observe(this, isSuccess -> {
+            if (isSuccess) {
+                finish(); // Go back to dashboard on successful update
+            }
+        });
+    }
+
+    private void populateUserData(User user) {
+        binding.tvHeaderUsername.setText(user.getUsername());
+        binding.etUsername.setText(user.getUsername());
+        binding.etEmail.setText(user.getEmail());
+        binding.etPhone.setText(user.getPhoneNumber());
+        binding.etAddress.setText(user.getAddress());
+        binding.etPassword.setText(user.getPassword());
+    }
+
+    private void setupSaveButton() {
+        binding.btnSave.setOnClickListener(v -> {
+            if (currentUser == null) return;
+
+            String email = getText(binding.etEmail);
+            String phone = getText(binding.etPhone);
+            String address = getText(binding.etAddress);
+            String password = getText(binding.etPassword);
+
+            viewModel.updateUser(currentUser, email, phone, address, password);
+        });
+    }
+
+    private String getText(EditText editText) {
+        return editText.getText().toString().trim();
     }
 }

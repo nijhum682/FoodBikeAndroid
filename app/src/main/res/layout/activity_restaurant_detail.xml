@@ -40,7 +40,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/ic_restaurant"
+                    android:src="@drawable/bg_restaurant_default"
                     android:background="@color/light_gray"
                     android:contentDescription="@string/restaurant_image" />
 

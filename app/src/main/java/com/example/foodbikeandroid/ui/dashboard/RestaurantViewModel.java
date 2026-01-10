@@ -17,8 +17,8 @@ import java.util.List;
 public class RestaurantViewModel extends AndroidViewModel {
 
     private final RestaurantRepository repository;
-    private final MutableLiveData<String> selectedDivision = new MutableLiveData<>("All Divisions");
-    private final MutableLiveData<String> selectedDistrict = new MutableLiveData<>("All Districts");
+    private final MutableLiveData<String> selectedDivision = new MutableLiveData<>("Filter by Division");
+    private final MutableLiveData<String> selectedDistrict = new MutableLiveData<>("Filter by District");
     private final MutableLiveData<String> searchQuery = new MutableLiveData<>("");
     private final MediatorLiveData<List<Restaurant>> restaurants = new MediatorLiveData<>();
     private LiveData<List<Restaurant>> currentSource;
@@ -44,7 +44,7 @@ public class RestaurantViewModel extends AndroidViewModel {
 
     public void setSelectedDivision(String division) {
         selectedDivision.setValue(division);
-        selectedDistrict.setValue("All Districts");
+        selectedDistrict.setValue("Filter by District");
         updateRestaurants();
     }
 

@@ -14,7 +14,7 @@ import com.example.foodbikeandroid.data.model.User;
 import com.example.foodbikeandroid.data.model.AdminAction;
 import com.example.foodbikeandroid.data.model.Review;
 
-@Database(entities = {User.class, Restaurant.class, Order.class, RestaurantApplication.class, AdminAction.class, Review.class}, version = 9, exportSchema = false)
+@Database(entities = {User.class, Restaurant.class, Order.class, RestaurantApplication.class, AdminAction.class, Review.class}, version = 12, exportSchema = false)
 @TypeConverters(Converters.class)
 public abstract class FoodBikeDatabase extends RoomDatabase {
 

@@ -13,24 +13,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.foodbikeandroid.R;
 import com.example.foodbikeandroid.data.model.CartItem;
 
-public class OrderSummaryAdapter extends ListAdapter<CartItem, OrderSummaryAdapter.OrderSummaryViewHolder> {
+public class OrderSummaryAdapter extends RecyclerView.Adapter<OrderSummaryAdapter.OrderSummaryViewHolder> {
 
-    public OrderSummaryAdapter() {
-        super(DIFF_CALLBACK);
+    private java.util.List<CartItem> items = new java.util.ArrayList<>();
+
+    public void setItems(java.util.List<CartItem> items) {
+        this.items = items;
+        notifyDataSetChanged();
     }
-
-    private static final DiffUtil.ItemCallback<CartItem> DIFF_CALLBACK = new DiffUtil.ItemCallback<CartItem>() {
-        @Override
-        public boolean areItemsTheSame(@NonNull CartItem oldItem, @NonNull CartItem newItem) {
-            return oldItem.getMenuItem().getId().equals(newItem.getMenuItem().getId());
-        }
-
-        @Override
-        public boolean areContentsTheSame(@NonNull CartItem oldItem, @NonNull CartItem newItem) {
-            return oldItem.getMenuItem().getId().equals(newItem.getMenuItem().getId()) &&
-                    oldItem.getQuantity() == newItem.getQuantity();
-        }
-    };
 
     @NonNull
     @Override
@@ -42,8 +32,13 @@ public class OrderSummaryAdapter extends ListAdapter<CartItem, OrderSummaryAdapt
 
     @Override
     public void onBindViewHolder(@NonNull OrderSummaryViewHolder holder, int position) {
-        CartItem item = getItem(position);
+        CartItem item = items.get(position);
         holder.bind(item);
+    }
+
+    @Override
+    public int getItemCount() {
+        return items.size();
     }
 
     static class OrderSummaryViewHolder extends RecyclerView.ViewHolder {

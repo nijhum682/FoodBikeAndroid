@@ -61,7 +61,66 @@ public class AdminDashboardActivity extends AppCompatActivity {
         displayUserInfo();
         setupClickListeners();
         loadStatistics();
-        observeRecentActions();
+        observeRecentActions();seedDummyDataIfEmpty();
+    }
+
+    private void seedDummyDataIfEmpty() {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            try {
+                int count = restaurantDao.getRestaurantCount();
+                
+                // Force restore if data is missing or incomplete (e.g. only 1 restaurant)
+                if (count < 100) {
+                    runOnUiThread(() -> Toast.makeText(this, "Resetting Data to 136 Restaurants...", Toast.LENGTH_SHORT).show());
+                    
+                    // Clear existing partial data
+                    restaurantDao.deleteAll();
+                    
+                    java.util.List<com.example.foodbikeandroid.data.model.Restaurant> dummyRestaurants = new java.util.ArrayList<>();
+                    java.util.List<String> divisions = com.example.foodbikeandroid.data.LocationData.getAllDivisions();
+                    
+                    int totalGenerated = 0;
+
+                    for (String division : divisions) {
+                        if ("All Divisions".equals(division)) continue;
+                        
+                        java.util.List<String> districts = com.example.foodbikeandroid.data.LocationData.getDistrictsForDivision(division);
+                        if (districts == null) continue;
+
+                        for (String district : districts) {
+                            if ("All Districts".equals(district)) continue;
+                            
+                            int numRestos = "Dhaka".equals(district) ? 10 : 2;
+                            
+                            for (int k = 1; k <= numRestos; k++) {
+                                totalGenerated++;
+                                com.example.foodbikeandroid.data.model.Restaurant r = new com.example.foodbikeandroid.data.model.Restaurant(
+                                    "dummy_rest_" + totalGenerated,
+                                    district + " Restaurant " + k,
+                                    division,
+                                    district,
+                                    "Road " + (int)(Math.random()*20) + ", " + district
+                                );
+                                r.setRating(2.5 + Math.random() * 2.5); 
+                                r.setMenuItems(new java.util.ArrayList<>());
+                                dummyRestaurants.add(r);
+                            }
+                        }
+                    }
+                    
+                    restaurantDao.insertAll(dummyRestaurants);
+                    
+                    int finalTotal = totalGenerated;
+                    runOnUiThread(() -> {
+                        Toast.makeText(this, "Success! Reset & Restored " + finalTotal + " Restaurants.", Toast.LENGTH_LONG).show();
+                        loadStatistics(); 
+                    });
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                runOnUiThread(() -> Toast.makeText(this, "Restoration Failed: " + e.getMessage(), Toast.LENGTH_LONG).show());
+            }
+        });
     }
 
     private void setupToolbar() {
@@ -109,12 +168,9 @@ public class AdminDashboardActivity extends AppCompatActivity {
         });
 
         binding.cardEarnings.setOnClickListener(v -> {
-            Toast.makeText(this, "Earnings - Coming Soon", Toast.LENGTH_SHORT).show();
+            startActivity(new android.content.Intent(this, AdminEarningsActivity.class));
         });
 
-        binding.tvSeeAllActivity.setOnClickListener(v -> {
-            Toast.makeText(this, "All Activity - Coming Soon", Toast.LENGTH_SHORT).show();
-        });
     }
 
     private void loadStatistics() {
