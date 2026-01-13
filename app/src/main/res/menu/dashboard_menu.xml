@@ -13,5 +13,11 @@
         android:icon="@drawable/ic_logout"
         android:title="@string/logout"
         app:showAsAction="never" />
+    
+    <item
+        android:id="@+id/action_refund_history"
+        android:icon="@drawable/ic_receipt"
+        android:title="Refund History"
+        app:showAsAction="never" />
 
 </menu>

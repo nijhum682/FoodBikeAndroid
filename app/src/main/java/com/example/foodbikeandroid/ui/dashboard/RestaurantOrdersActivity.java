@@ -229,7 +229,7 @@ public class RestaurantOrdersActivity extends AppCompatActivity {
                 .setTitle(R.string.reject)
                 .setMessage(getString(R.string.confirm_reject_order, order.getOrderId()))
                 .setPositiveButton(R.string.reject, (dialog, which) -> {
-                    orderRepository.updateOrderStatus(order.getOrderId(), OrderStatus.CANCELLED,
+                    orderRepository.rejectOrder(order.getOrderId(),
                         new OrderRepository.StatusUpdateCallback() {
                             @Override
                             public void onSuccess() {

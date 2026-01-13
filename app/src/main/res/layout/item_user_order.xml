@@ -147,6 +147,36 @@
 
             </LinearLayout>
 
+            <!-- Refund Message (visible for cancelled orders with refund) -->
+            <LinearLayout
+                android:id="@+id/layoutRefundMessage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp"
+                android:padding="8dp"
+                android:background="@color/status_delivered"
+                android:visibility="gone">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_info"
+                    app:tint="@color/success"
+                    android:contentDescription="Refund processed" />
+
+                <TextView
+                    android:id="@+id/tvRefundMessage"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:textSize="12sp"
+                    android:textColor="@color/success"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
         </LinearLayout>
 
         <!-- Divider -->

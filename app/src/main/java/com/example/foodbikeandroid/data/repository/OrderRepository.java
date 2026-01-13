@@ -12,6 +12,7 @@ import com.example.foodbikeandroid.data.database.RestaurantDao;
 import com.example.foodbikeandroid.data.database.UserDao;
 import com.example.foodbikeandroid.data.model.Order;
 import com.example.foodbikeandroid.data.model.OrderStatus;
+import com.example.foodbikeandroid.data.model.PaymentMethod;
 import com.example.foodbikeandroid.data.remote.FirestoreHelper;
 
 import java.util.Calendar;
@@ -137,6 +138,42 @@ public class OrderRepository {
         });
     }
 
+    // Reject order with refund logic for digital payments
+    public void rejectOrder(String orderId, StatusUpdateCallback callback) {
+        executorService.execute(() -> {
+            Order order = orderDao.getOrderByIdSync(orderId);
+            if (order == null) {
+                mainHandler.post(() -> {
+                    if (callback != null) callback.onError("Order not found");
+                });
+                return;
+            }
+
+            // Mark as refunded if paid digitally
+            boolean shouldRefund = (order.getPaymentMethod() == PaymentMethod.BKASH || 
+                                   order.getPaymentMethod() == PaymentMethod.NAGAD) &&
+                                   order.getPaymentSourceAccount() != null;
+            
+            if (shouldRefund) {
+                orderDao.updateRefundStatus(orderId, true);
+                order.setRefunded(true);
+            }
+
+            // Update status to CANCELLED
+            orderDao.updateOrderStatus(orderId, OrderStatus.CANCELLED);
+            order.setStatus(OrderStatus.CANCELLED);
+
+            // Update in Firestore
+            firestoreHelper.getOrdersCollection().document(orderId).set(order)
+                    .addOnSuccessListener(aVoid -> mainHandler.post(() -> {
+                        if (callback != null) callback.onSuccess();
+                    }))
+                    .addOnFailureListener(e -> mainHandler.post(() -> {
+                        if (callback != null) callback.onError(e.getMessage());
+                    }));
+        });
+    }
+
     public void assignBiker(String orderId, String bikerId) {
         executorService.execute(() -> orderDao.assignBiker(orderId, bikerId));
     }
@@ -205,6 +242,10 @@ public class OrderRepository {
 
     public LiveData<List<Order>> getOrdersByUserId(String userId) {
         return orderDao.getOrdersByUserId(userId);
+    }
+
+    public LiveData<List<Order>> getRefundedOrdersByUserId(String userId) {
+        return orderDao.getRefundedOrdersByUserId(userId);
     }
 
     public LiveData<List<Order>> getOrdersByRestaurantId(String restaurantId) {

@@ -48,8 +48,12 @@ public class Order {
     @NonNull
     private PaymentMethod paymentMethod;
 
+    private String paymentSourceAccount;  // Phone number for Bkash/Nagad
+
+    private boolean isRefunded;  // True if order was cancelled and refunded
+
     public Order(@NonNull String userId, @NonNull String restaurantId, @NonNull String district, String deliveryAddress,
-                 List<CartItem> items, double totalPrice, @NonNull PaymentMethod paymentMethod) {
+                 List<CartItem> items, double totalPrice, @NonNull PaymentMethod paymentMethod, String paymentSourceAccount) {
         this.orderId = "ORD_" + System.currentTimeMillis();
         this.userId = userId;
         this.restaurantId = restaurantId;
@@ -60,7 +64,8 @@ public class Order {
         this.status = OrderStatus.PENDING;
         this.createdAt = System.currentTimeMillis();
         this.paymentMethod = paymentMethod;
-        this.paymentMethod = paymentMethod;
+        this.paymentSourceAccount = paymentSourceAccount;
+        this.isRefunded = false;
     }
 
     // Required for Firebase
@@ -183,6 +188,22 @@ public class Order {
 
     public void setPaymentMethod(@NonNull PaymentMethod paymentMethod) {
         this.paymentMethod = paymentMethod;
+    }
+
+    public String getPaymentSourceAccount() {
+        return paymentSourceAccount;
+    }
+
+    public void setPaymentSourceAccount(String paymentSourceAccount) {
+        this.paymentSourceAccount = paymentSourceAccount;
+    }
+
+    public boolean isRefunded() {
+        return isRefunded;
+    }
+
+    public void setRefunded(boolean refunded) {
+        isRefunded = refunded;
     }
 
     public boolean isPending() {

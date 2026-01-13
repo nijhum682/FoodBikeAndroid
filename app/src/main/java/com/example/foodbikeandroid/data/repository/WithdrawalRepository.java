@@ -27,6 +27,22 @@ public class WithdrawalRepository {
         mainHandler = new android.os.Handler(android.os.Looper.getMainLooper());
     }
 
+    public interface WithdrawalCallback {
+        void onSuccess();
+        void onError(String error);
+    }
+
+    public void createWithdrawal(Withdrawal withdrawal, WithdrawalCallback callback) {
+        insert(withdrawal, 
+            () -> {
+                if (callback != null) callback.onSuccess();
+            },
+            () -> {
+                if (callback != null) callback.onError("Failed to create withdrawal");
+            }
+        );
+    }
+
     public LiveData<List<Withdrawal>> getAllWithdrawals() {
         return withdrawalDao.getAllWithdrawals();
     }

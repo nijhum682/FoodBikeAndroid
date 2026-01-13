@@ -62,8 +62,8 @@ public class AdminEarningsActivity extends AppCompatActivity {
             updateBalanceDisplay();
         });
 
-        // Observe Total Withdrawn
-        withdrawalRepository.getTotalWithdrawnAmount().observe(this, amount -> {
+        // Observe Total Withdrawn (ADMIN only)
+        withdrawalRepository.getTotalWithdrawnByUser("admin", "ADMIN").observe(this, amount -> {
             currentTotalWithdrawn = amount != null ? amount : 0;
             updateBalanceDisplay();
         });

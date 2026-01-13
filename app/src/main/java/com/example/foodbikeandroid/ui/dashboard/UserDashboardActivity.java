@@ -59,6 +59,10 @@ public class UserDashboardActivity extends AppCompatActivity {
         } else if (item.getItemId() == R.id.action_notifications) {
             Toast.makeText(this, "Notifications - Coming Soon", Toast.LENGTH_SHORT).show();
             return true;
+        } else if (item.getItemId() == R.id.action_refund_history) {
+            Intent intent = new Intent(this, RefundHistoryActivity.class);
+            startActivity(intent);
+            return true;
         }
         return false;
     }
@@ -157,7 +161,9 @@ public class UserDashboardActivity extends AppCompatActivity {
         
         binding.bottomNav.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
-            if (itemId == R.id.nav_home) {
+            if (itemId == R.id.nav_refund_history) {
+                Intent refundIntent = new Intent(this, RefundHistoryActivity.class);
+                startActivity(refundIntent);
                 return true;
             } else if (itemId == R.id.nav_search) {
                 binding.etSearch.requestFocus();

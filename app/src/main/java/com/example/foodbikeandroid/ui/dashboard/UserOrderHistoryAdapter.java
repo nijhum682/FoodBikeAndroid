@@ -176,6 +176,22 @@ public class UserOrderHistoryAdapter extends ListAdapter<Order, UserOrderHistory
             if (isExpanded) {
                 populateDetails(context, order);
             }
+
+            // Show refund message for cancelled orders with digital payments
+            boolean isCancelled = order.getStatus() == OrderStatus.CANCELLED || order.getStatus() == OrderStatus.AUTO_CANCELLED;
+            if (isCancelled && order.isRefunded() && order.getPaymentSourceAccount() != null) {
+                String paymentMethodName = order.getPaymentMethod() == PaymentMethod.BKASH ? "Bkash" : "Nagad";
+                String refundMessage = String.format(Locale.getDefault(),
+                        "Refund of ৳%.2f processed to your %s account (%s)",
+                        order.getTotalPrice(),
+                        paymentMethodName,
+                        order.getPaymentSourceAccount());
+                
+                binding.tvRefundMessage.setText(refundMessage);
+                binding.layoutRefundMessage.setVisibility(View.VISIBLE);
+            } else {
+                binding.layoutRefundMessage.setVisibility(View.GONE);
+            }
         }
 
         private void setupStatusBadge(Context context, OrderStatus status) {

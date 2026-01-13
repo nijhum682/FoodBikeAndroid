@@ -127,6 +127,11 @@
             android:exported="false"
             android:parentActivityName=".ui.dashboard.UserDashboardActivity" />
         
+        <!-- Refund History -->
+        <activity android:name=".ui.dashboard.RefundHistoryActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.dashboard.UserDashboardActivity" />
+        
         <!-- User Order Detail -->
         <activity android:name=".ui.order.OrderDetailActivity"
             android:exported="false"

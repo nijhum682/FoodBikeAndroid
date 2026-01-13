@@ -2,9 +2,9 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/nav_home"
-        android:icon="@drawable/ic_home"
-        android:title="@string/home" />
+        android:id="@+id/nav_refund_history"
+        android:icon="@drawable/ic_receipt"
+        android:title="Refund History" />
 
     <item
         android:id="@+id/nav_search"

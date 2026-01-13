@@ -24,6 +24,12 @@ import com.example.foodbikeandroid.databinding.ActivityEntrepreneurDashboardBind
 import com.example.foodbikeandroid.ui.auth.AuthViewModel;
 import com.example.foodbikeandroid.ui.auth.SignInActivity;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.example.foodbikeandroid.data.repository.UserRepository;
+import com.example.foodbikeandroid.data.repository.WithdrawalRepository;
+import com.example.foodbikeandroid.data.model.Withdrawal;
+import android.widget.EditText;
+import android.text.InputType;
+import android.view.Gravity;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -41,6 +47,9 @@ public class EntrepreneurDashboardActivity extends AppCompatActivity {
     private List<RestaurantApplication> approvedApplications = new ArrayList<>();
     private List<RestaurantApplication> pendingApplications = new ArrayList<>();
     private Restaurant currentRestaurant;
+    private UserRepository userRepository;
+    private WithdrawalRepository withdrawalRepository;
+    private double currentBalance = 0.0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +61,8 @@ public class EntrepreneurDashboardActivity extends AppCompatActivity {
         applicationRepository = RestaurantApplicationRepository.getInstance(this);
         restaurantRepository = RestaurantRepository.getInstance(getApplication());
         orderRepository = new OrderRepository(getApplication());
+        userRepository = UserRepository.getInstance(this);
+        withdrawalRepository = new WithdrawalRepository(getApplication());
 
         setupToolbar();
         displayUserInfo();
@@ -249,6 +260,10 @@ public class EntrepreneurDashboardActivity extends AppCompatActivity {
                                     binding.tvRestaurantStatus.setText("Closed");
                                     binding.tvRestaurantStatus.setTextColor(getColor(R.color.error));
                                 }
+                                
+                                // Display opening hours
+                                String hours = restaurant.getOpeningHours();
+                                binding.tvOpeningHours.setText(hours != null ? hours : "9:00 AM - 10:00 PM");
                                 break;
                             }
                         }
@@ -571,6 +586,20 @@ public class EntrepreneurDashboardActivity extends AppCompatActivity {
             Intent intent = new Intent(this, RestaurantApplicationActivity.class);
             startActivity(intent);
         });
+
+        binding.cardWithdrawBalance.setOnClickListener(v -> {
+            startWithdrawalFlow();
+        });
+
+        binding.cardWithdrawalHistory.setOnClickListener(v -> {
+            openWithdrawalHistory();
+        });
+
+        binding.btnEditHours.setOnClickListener(v -> {
+            if (currentRestaurant != null) {
+                showOpeningHoursDialog(currentRestaurant);
+            }
+        });
     }
 
     private void showRestaurantSelectionForOrders() {
@@ -594,5 +623,232 @@ public class EntrepreneurDashboardActivity extends AppCompatActivity {
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
+    }
+
+    private void startWithdrawalFlow() {
+        // Extract current balance from tvTotalRevenue
+        String revenueText = binding.tvTotalRevenue.getText().toString();
+        try {
+            // Remove ৳ symbol and parse
+            currentBalance = Double.parseDouble(revenueText.replace("৳", "").trim());
+            if (currentBalance <= 0) {
+                Toast.makeText(this, R.string.no_balance_to_withdraw, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            showWithdrawalMethodDialog();
+        } catch (NumberFormatException e) {
+            Toast.makeText(this, "Unable to read balance", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void showWithdrawalMethodDialog() {
+        String[] methods = {"Bank Account", "Bkash", "Nagad"};
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.select_withdrawal_method)
+                .setItems(methods, (dialog, which) -> {
+                    String selectedMethod = methods[which];
+                    showAccountNumberDialog(selectedMethod);
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .show();
+    }
+
+    private void showAccountNumberDialog(String method) {
+        EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        input.setHint(getString(R.string.account_number_hint));
+        input.setGravity(Gravity.CENTER);
+
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(getString(R.string.enter_account_number, method))
+                .setView(input)
+                .setPositiveButton(R.string.next, (dialog, which) -> {
+                    String accountNumber = input.getText().toString().trim();
+                    if (accountNumber.isEmpty()) {
+                        Toast.makeText(this, R.string.account_number_required, Toast.LENGTH_SHORT).show();
+                        showAccountNumberDialog(method);
+                    } else {
+                        showAmountDialog(method, accountNumber);
+                    }
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .show();
+    }
+
+    private void showAmountDialog(String method, String accountNumber) {
+        EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        input.setHint(getString(R.string.withdrawal_amount_hint, String.format("৳%.2f", currentBalance)));
+        input.setGravity(Gravity.CENTER);
+
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.enter_withdrawal_amount)
+                .setView(input)
+                .setPositiveButton(R.string.next, (dialog, which) -> {
+                    String amountStr = input.getText().toString().trim();
+                    if (amountStr.isEmpty()) {
+                        Toast.makeText(this, R.string.amount_required, Toast.LENGTH_SHORT).show();
+                        showAmountDialog(method, accountNumber);
+                        return;
+                    }
+
+                    try {
+                        double amount = Double.parseDouble(amountStr);
+                        if (amount <= 0) {
+                            Toast.makeText(this, R.string.amount_must_be_positive, Toast.LENGTH_SHORT).show();
+                            showAmountDialog(method, accountNumber);
+                        } else if (amount > currentBalance) {
+                            Toast.makeText(this, getString(R.string.insufficient_balance, String.format("৳%.2f", currentBalance)), Toast.LENGTH_SHORT).show();
+                            showAmountDialog(method, accountNumber);
+                        } else {
+                            showOTPDialog(method, accountNumber, amount);
+                        }
+                    } catch (NumberFormatException e) {
+                        Toast.makeText(this, R.string.invalid_amount, Toast.LENGTH_SHORT).show();
+                        showAmountDialog(method, accountNumber);
+                    }
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .show();
+    }
+
+    private void showOTPDialog(String method, String accountNumber, double amount) {
+        int otpValue = (int) (Math.random() * 9000) + 1000;
+        String randomOtp = String.valueOf(otpValue);
+
+        EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_NUMBER);
+        input.setHint(R.string.otp_hint);
+        input.setGravity(Gravity.CENTER);
+
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.enter_otp)
+                .setMessage(getString(R.string.otp_sent_with_code, randomOtp))
+                .setView(input)
+                .setPositiveButton(R.string.verify, (dialog, which) -> {
+                    String enteredOtp = input.getText().toString().trim();
+                    if (enteredOtp.equals(randomOtp)) {
+                        showPINDialog(method, accountNumber, amount);
+                    } else {
+                        Toast.makeText(this, R.string.invalid_otp, Toast.LENGTH_SHORT).show();
+                        showOTPDialog(method, accountNumber, amount);
+                    }
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .show();
+    }
+
+    private void showPINDialog(String method, String accountNumber, double amount) {
+        int pinValue = (int) (Math.random() * 9000) + 1000;
+        String randomPin = String.valueOf(pinValue);
+
+        EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
+        input.setHint(R.string.pin_hint);
+        input.setGravity(Gravity.CENTER);
+
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.enter_pin)
+                .setMessage(getString(R.string.pin_sent_with_code, randomPin))
+                .setView(input)
+                .setPositiveButton(R.string.verify, (dialog, which) -> {
+                    String enteredPin = input.getText().toString().trim();
+                    if (enteredPin.equals(randomPin)) {
+                        processWithdrawal(method, accountNumber, amount);
+                    } else {
+                        Toast.makeText(this, R.string.invalid_pin, Toast.LENGTH_SHORT).show();
+                        showPINDialog(method, accountNumber, amount);
+                    }
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .show();
+    }
+
+    private void processWithdrawal(String method, String accountNumber, double amount) {
+        String username = authViewModel.getCurrentUsername();
+        if (username == null) return;
+
+        Withdrawal withdrawal = new Withdrawal(
+                username,
+                "ENTREPRENEUR",
+                amount,
+                method,
+                accountNumber
+        );
+
+        withdrawalRepository.createWithdrawal(withdrawal, new WithdrawalRepository.WithdrawalCallback() {
+            @Override
+            public void onSuccess() {
+                // Deduct from entrepreneur earnings (stored in User entity)
+                userRepository.deductEarnings(username, amount);
+                
+                runOnUiThread(() -> {
+                    currentBalance -= amount;
+                    binding.tvTotalRevenue.setText("৳" + (int) currentBalance);
+                    showSuccessDialog(method, accountNumber, amount);
+                });
+            }
+
+            @Override
+            public void onError(String error) {
+                runOnUiThread(() -> {
+                    Toast.makeText(EntrepreneurDashboardActivity.this, "Withdrawal failed: " + error, Toast.LENGTH_SHORT).show();
+                });
+            }
+        });
+    }
+
+    private void showSuccessDialog(String method, String accountNumber, double amount) {
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.withdrawal_successful)
+                .setMessage(getString(R.string.withdrawal_success_message, 
+                        String.format("৳%.2f", amount), method, accountNumber) + 
+                        "\n\nRemaining Balance: ৳" + (int) currentBalance)
+                .setPositiveButton(R.string.ok, null)
+                .show();
+    }
+
+    private void showOpeningHoursDialog(Restaurant restaurant) {
+        EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        input.setHint("e.g., 9:00 AM - 10:00 PM");
+        input.setText(restaurant.getOpeningHours());
+        input.setGravity(Gravity.CENTER);
+
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("Update Opening Hours")
+                .setView(input)
+                .setPositiveButton("Update", (dialog, which) -> {
+                    String newHours = input.getText().toString().trim();
+                    if (newHours.isEmpty()) {
+                        Toast.makeText(this, "Opening hours cannot be empty", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    restaurant.setOpeningHours(newHours);
+                    restaurantRepository.update(restaurant, new RestaurantRepository.OperationCallback() {
+                        @Override
+                        public void onSuccess() {
+                            runOnUiThread(() -> {
+                                binding.tvOpeningHours.setText(newHours);
+                                Toast.makeText(EntrepreneurDashboardActivity.this, "Opening hours updated", Toast.LENGTH_SHORT).show();
+                            });
+                        }
+
+                        @Override
+                        public void onError(String message) {
+                            runOnUiThread(() -> {
+                                Toast.makeText(EntrepreneurDashboardActivity.this, "Error: " + message, Toast.LENGTH_SHORT).show();
+                            });
+                        }
+                    });
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void openWithdrawalHistory() {
+        Intent intent = new Intent(this, WithdrawalHistoryActivity.class);
+        startActivity(intent);
     }
 }

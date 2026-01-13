@@ -100,7 +100,7 @@ public class OrderConfirmationActivity extends AppCompatActivity {
         PaymentMethod paymentMethod;
         if (binding.rbCashOnDelivery.isChecked()) {
             paymentMethod = PaymentMethod.CASH_ON_DELIVERY;
-            processOrder(paymentMethod);
+            processOrder(paymentMethod, null);
         } else if (binding.rbBkash.isChecked()) {
             paymentMethod = PaymentMethod.BKASH;
             showMobilePaymentDialog(paymentMethod);
@@ -175,7 +175,7 @@ public class OrderConfirmationActivity extends AppCompatActivity {
             String enteredOtp = input.getText().toString().trim();
             if (enteredOtp.equals(randomOtp)) {
                 dialog.dismiss();
-                showPinDialog(paymentMethod);
+                showPinDialog(paymentMethod, phoneNumber);
             } else {
                 input.setError("Invalid OTP");
                 Toast.makeText(this, "Incorrect OTP. Please try again.", Toast.LENGTH_SHORT).show();
@@ -183,7 +183,7 @@ public class OrderConfirmationActivity extends AppCompatActivity {
         });
     }
 
-    private void showPinDialog(PaymentMethod paymentMethod) {
+    private void showPinDialog(PaymentMethod paymentMethod, String phoneNumber) {
         android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
         builder.setTitle("Enter PIN");
         builder.setMessage("Enter your " + (paymentMethod == PaymentMethod.BKASH ? "Bkash" : "Nagad") + " PIN to confirm payment");
@@ -207,7 +207,7 @@ public class OrderConfirmationActivity extends AppCompatActivity {
             String pin = input.getText().toString().trim();
             if (pin.length() >= 4) {
                 dialog.dismiss();
-                processOrder(paymentMethod);
+                processOrder(paymentMethod, phoneNumber);
             } else {
                 input.setError("Invalid PIN");
                 Toast.makeText(this, "Please enter a valid PIN", Toast.LENGTH_SHORT).show();
@@ -215,7 +215,7 @@ public class OrderConfirmationActivity extends AppCompatActivity {
         });
     }
 
-    private void processOrder(PaymentMethod paymentMethod) {
+    private void processOrder(PaymentMethod paymentMethod, String paymentSourceAccount) {
         binding.progressBar.setVisibility(View.VISIBLE);
         binding.btnPlaceOrder.setEnabled(false);
 
@@ -235,7 +235,7 @@ public class OrderConfirmationActivity extends AppCompatActivity {
         List<CartItem> items = cartManager.getCartItems();
         double totalPrice = cartManager.getTotalPrice() + DELIVERY_FEE;
 
-        Order order = new Order(userId, restaurantId, district, deliveryAddress, items, totalPrice, paymentMethod);
+        Order order = new Order(userId, restaurantId, district, deliveryAddress, items, totalPrice, paymentMethod, paymentSourceAccount);
 
         orderRepository.insertOrder(order, new OrderRepository.OrderCallback() {
             @Override

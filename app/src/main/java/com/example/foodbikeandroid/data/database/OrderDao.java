@@ -111,4 +111,10 @@ public interface OrderDao {
     
     @Query("UPDATE orders SET bikerId = :bikerId, status = :status, acceptedAt = :timestamp WHERE orderId = :orderId")
     int tryAcceptOrderAtomic(String orderId, String bikerId, OrderStatus status, long timestamp);
+
+    @Query("SELECT * FROM orders WHERE userId = :userId AND isRefunded = 1 ORDER BY createdAt DESC")
+    LiveData<List<Order>> getRefundedOrdersByUserId(String userId);
+
+    @Query("UPDATE orders SET isRefunded = :isRefunded WHERE orderId = :orderId")
+    void updateRefundStatus(String orderId, boolean isRefunded);
 }

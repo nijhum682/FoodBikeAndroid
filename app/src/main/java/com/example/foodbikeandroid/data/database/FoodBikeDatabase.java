@@ -16,7 +16,7 @@ import com.example.foodbikeandroid.data.model.Review;
 
 import com.example.foodbikeandroid.data.model.Withdrawal;
 
-@Database(entities = {User.class, Restaurant.class, Order.class, RestaurantApplication.class, AdminAction.class, Review.class, Withdrawal.class}, version = 16, exportSchema = false)
+@Database(entities = {User.class, Restaurant.class, Order.class, RestaurantApplication.class, AdminAction.class, Review.class, Withdrawal.class}, version = 17, exportSchema = false)
 @TypeConverters(Converters.class)
 public abstract class FoodBikeDatabase extends RoomDatabase {
 
@@ -43,7 +43,7 @@ public abstract class FoodBikeDatabase extends RoomDatabase {
                             FoodBikeDatabase.class,
                             DATABASE_NAME
                     )
-                    .addMigrations(MIGRATION_8_9, MIGRATION_12_13, MIGRATION_14_15, MIGRATION_15_16)
+                    .addMigrations(MIGRATION_8_9, MIGRATION_12_13, MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17)
                     .fallbackToDestructiveMigration()
                     .build();
                 }
@@ -84,6 +84,15 @@ public abstract class FoodBikeDatabase extends RoomDatabase {
             database.execSQL("DROP TABLE withdrawals");
             // Rename new table
             database.execSQL("ALTER TABLE withdrawals_new RENAME TO withdrawals");
+        }
+    };
+
+    public static final androidx.room.migration.Migration MIGRATION_16_17 = new androidx.room.migration.Migration(16, 17) {
+        @Override
+        public void migrate(androidx.sqlite.db.SupportSQLiteDatabase database) {
+            // Add paymentSourceAccount and isRefunded columns to orders table
+            database.execSQL("ALTER TABLE orders ADD COLUMN paymentSourceAccount TEXT");
+            database.execSQL("ALTER TABLE orders ADD COLUMN isRefunded INTEGER NOT NULL DEFAULT 0");
         }
     };
 }
