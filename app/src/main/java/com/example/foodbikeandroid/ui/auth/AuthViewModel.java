@@ -209,6 +209,18 @@ public class AuthViewModel extends AndroidViewModel {
     }
 
     /**
+     * Load current user details.
+     */
+    public void loadCurrentUser(UserRepository.AuthCallback callback) {
+        String username = getCurrentUsername();
+        if (username != null) {
+            userRepository.getUserByUsername(username, callback);
+        } else {
+            callback.onError("No user logged in");
+        }
+    }
+
+    /**
      * Validate email format.
      */
     private boolean isValidEmail(String email) {

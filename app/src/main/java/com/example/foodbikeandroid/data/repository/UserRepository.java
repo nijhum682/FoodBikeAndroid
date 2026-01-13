@@ -98,7 +98,21 @@ public class UserRepository {
                             // Sync to local Room DB
                             executorService.execute(() -> {
                                 if (userDao.isUsernameExists(username)) {
+                                    // Preserve local earnings before updating
+                                    User localUser = userDao.getUserByUsername(username);
+                                    double localEarnings = localUser != null ? localUser.getEarnings() : 0.0;
+                                    
+                                    // If local earnings are higher, keep them; otherwise use Firestore value
+                                    if (localEarnings > user.getEarnings()) {
+                                        user.setEarnings(localEarnings);
+                                    }
+                                    
                                     userDao.updateUser(user);
+                                    
+                                    // Sync back to Firestore if local was higher
+                                    if (localEarnings > 0) {
+                                        firestoreHelper.getUsersCollection().document(username).set(user);
+                                    }
                                 } else {
                                     userDao.insertUser(user);
                                 }
@@ -213,6 +227,50 @@ public class UserRepository {
     }
     public SessionManager getSessionManager() {
         return sessionManager;
+    }
+
+    public void deductEarnings(String username, double amount) {
+        // Update local database and sync to Firestore
+        executorService.execute(() -> {
+            // First, deduct from local database
+            userDao.deductEarnings(username, amount);
+            
+            // Then get the updated user data
+            User updatedUser = userDao.getUserByUsername(username);
+            if (updatedUser != null) {
+                // Sync updated user to Firestore
+                firestoreHelper.getUsersCollection().document(username)
+                        .set(updatedUser)
+                        .addOnSuccessListener(aVoid -> {
+                            android.util.Log.d("UserRepository", "Earnings updated in Firestore: " + updatedUser.getEarnings());
+                        })
+                        .addOnFailureListener(e -> {
+                            android.util.Log.e("UserRepository", "Failed to update earnings in Firestore", e);
+                        });
+            }
+        });
+    }
+
+    public void addEarnings(String username, double amount) {
+        // Update local database and sync to Firestore
+        executorService.execute(() -> {
+            // First, add to local database
+            userDao.addEarnings(username, amount);
+            
+            // Then get the updated user data
+            User updatedUser = userDao.getUserByUsername(username);
+            if (updatedUser != null) {
+                // Sync updated user to Firestore
+                firestoreHelper.getUsersCollection().document(username)
+                        .set(updatedUser)
+                        .addOnSuccessListener(aVoid -> {
+                            android.util.Log.d("UserRepository", "Earnings added in Firestore: " + updatedUser.getEarnings());
+                        })
+                        .addOnFailureListener(e -> {
+                            android.util.Log.e("UserRepository", "Failed to add earnings in Firestore", e);
+                        });
+            }
+        });
     }
 
     public void createDefaultAdmin() {

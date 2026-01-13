@@ -72,6 +72,9 @@ public interface RestaurantDao {
     @Query("UPDATE restaurants SET rating = :rating WHERE id = :restaurantId")
     void updateRating(String restaurantId, double rating);
 
+    @Query("UPDATE restaurants SET earnings = earnings + :amount WHERE id = :restaurantId")
+    void addEarnings(String restaurantId, double amount);
+
     @Query("DELETE FROM restaurants")
     void deleteAll();
 }

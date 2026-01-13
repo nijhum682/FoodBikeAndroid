@@ -182,7 +182,7 @@ public class AdminEarningsActivity extends AppCompatActivity {
     private void processWithdrawal(String method, String account, double amount) {
         // In a real app, verify PIN here
         
-        Withdrawal withdrawal = new Withdrawal("admin", amount, method, account); // using "admin" as static username for now
+        Withdrawal withdrawal = new Withdrawal("admin", "ADMIN", amount, method, account);
         
         withdrawalRepository.insert(withdrawal, 
             () -> runOnUiThread(() -> {

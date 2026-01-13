@@ -103,10 +103,14 @@ public class BikerOrderDetailActivity extends AppCompatActivity {
         binding.tvTotalPrice.setText(String.format(Locale.getDefault(), "৳%.2f", order.getTotalPrice()));
         
         String fullAddress = order.getDeliveryAddress();
+        String district = order.getDistrict();
+        
         if (fullAddress == null || fullAddress.isEmpty()) {
-            fullAddress = order.getDistrict();
+            fullAddress = (district != null && !district.equals("Unknown")) ? district : "";
         } else {
-            fullAddress = fullAddress + ", " + order.getDistrict();
+            if (district != null && !district.isEmpty() && !district.equals("Unknown")) {
+                fullAddress = fullAddress + ", " + district;
+            }
         }
         binding.tvDeliveryDistrict.setText(fullAddress);
         
@@ -130,6 +134,24 @@ public class BikerOrderDetailActivity extends AppCompatActivity {
         userRepository.getUserByUsername(userId).observe(this, user -> {
             if (user != null) {
                 binding.tvCustomerName.setText(user.getUsername());
+                
+                // Update delivery address with user's address
+                String userAddress = user.getAddress();
+                String district = currentOrder != null ? currentOrder.getDistrict() : null;
+                
+                String fullAddress = "";
+                if (userAddress != null && !userAddress.isEmpty()) {
+                    fullAddress = userAddress;
+                    if (district != null && !district.isEmpty() && !district.equals("Unknown")) {
+                        fullAddress = fullAddress + ", " + district;
+                    }
+                } else if (district != null && !district.isEmpty() && !district.equals("Unknown")) {
+                    fullAddress = district;
+                }
+                
+                if (!fullAddress.isEmpty()) {
+                    binding.tvDeliveryDistrict.setText(fullAddress);
+                }
             } else {
                 binding.tvCustomerName.setText(userId);
             }

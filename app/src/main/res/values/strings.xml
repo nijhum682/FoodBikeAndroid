@@ -392,7 +392,7 @@
     <string name="this_month">This Month</string>
     <string name="all_time">All Time</string>
     <string name="avg_time">Avg Time</string>
-    <string name="total_earnings">Total Earnings</string>
+    <string name="total_earnings">Remaining Balance</string>
     <string name="filter_by_date">Filter by Date</string>
     <string name="period_earnings">Period Earnings</string>
     <string name="no_deliveries_found">No Deliveries Found</string>
@@ -544,4 +544,48 @@
     <!-- Common Actions (New) -->
     <string name="yes">Yes</string>
     <string name="no">No</string>
+
+    <!-- Cash on Delivery Confirmation -->
+    <string name="cod_confirmation_title">Cash Payment Confirmation</string>
+    <string name="cod_confirmation_message">Did you receive %s from the customer?</string>
+    <string name="cod_yes_received">Yes, Received</string>
+    <string name="cod_no_not_received">No, Not Received</string>
+    <string name="cod_payment_not_received">Please collect the payment before marking as delivered</string>
+
+    <!-- Biker Withdrawal System -->
+    <string name="withdraw_money">Withdraw Money</string>
+    <string name="select_withdrawal_method">Select Withdrawal Method</string>
+    <string name="bank_account">Bank Account</string>
+    <string name="bkash">Bkash</string>
+    <string name="nagad">Nagad</string>
+    <string name="enter_account_number">Enter %s Account Number</string>
+    <string name="account_number_hint">Account Number</string>
+    <string name="account_number_required">Account number is required</string>
+    <string name="enter_withdrawal_amount">Enter Withdrawal Amount</string>
+    <string name="enter_amount">Enter Amount</string>
+    <string name="withdrawal_amount_hint">Amount (Max: %s)</string>
+    <string name="amount_required">Amount is required</string>
+    <string name="amount_must_be_positive">Amount must be greater than 0</string>
+    <string name="invalid_amount">Invalid amount</string>
+    <string name="insufficient_balance">Insufficient balance. Available: %s</string>
+    <string name="no_balance_to_withdraw">No balance available to withdraw</string>
+    <string name="next">Next</string>
+    <string name="enter_otp">Enter OTP</string>
+    <string name="otp_sent_message">An OTP has been sent for verification</string>
+    <string name="otp_sent_with_code">Your OTP is: %s\n\nPlease enter it below to verify.</string>
+    <string name="otp_is">Your OTP is: %s</string>
+    <string name="otp_hint">OTP</string>
+    <string name="otp_required">OTP is required</string>
+    <string name="invalid_otp">Invalid OTP. Please try again.</string>
+    <string name="verify">Verify</string>
+    <string name="enter_pin">Enter PIN</string>
+    <string name="pin_verification_message">Enter your PIN to confirm withdrawal</string>
+    <string name="pin_sent_with_code">Your PIN is: %s\n\nPlease enter it below to confirm.</string>
+    <string name="pin_is">Your PIN is: %s</string>
+    <string name="pin_hint">PIN</string>
+    <string name="pin_required">PIN is required</string>
+    <string name="invalid_pin">Invalid PIN. Please try again.</string>
+    <string name="withdrawal_successful">Withdrawal Successful!</string>
+    <string name="withdrawal_success_message">Your withdrawal of %1$s has been processed successfully.\n\nMethod: %2$s\nAccount: %3$s\n\nThe amount will be transferred shortly.</string>
+    <string name="withdrawal_history">Withdrawal History</string>
 </resources>

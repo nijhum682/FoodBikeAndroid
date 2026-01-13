@@ -35,6 +35,14 @@ public class WithdrawalRepository {
         return withdrawalDao.getTotalWithdrawnAmount();
     }
 
+    public LiveData<List<Withdrawal>> getWithdrawalsByUser(String username, String userType) {
+        return withdrawalDao.getWithdrawalsByUser(username, userType);
+    }
+
+    public LiveData<Double> getTotalWithdrawnByUser(String username, String userType) {
+        return withdrawalDao.getTotalWithdrawnByUser(username, userType);
+    }
+
     public void insert(Withdrawal withdrawal, Runnable onSuccess, Runnable onError) {
         firestoreHelper.getWithdrawalsCollection().document(withdrawal.getId()).set(withdrawal)
                 .addOnSuccessListener(aVoid -> {

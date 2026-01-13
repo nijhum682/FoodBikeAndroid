@@ -82,14 +82,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/logout"
-                            android:textColor="@color/accent"
+                            android:textColor="@color/text_primary"
                             app:backgroundTint="@color/white"
                             app:cornerRadius="20dp"
                             android:textSize="12sp"
                             android:paddingHorizontal="16dp"
                             android:paddingVertical="8dp"
                             app:icon="@drawable/ic_logout"
-                            app:iconTint="@color/accent"
+                            app:iconTint="@color/text_primary"
                             app:iconSize="16dp" />
 
                     </LinearLayout>
@@ -253,7 +253,7 @@
                             android:id="@+id/tvEarningsToday"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="$0"
+                            android:text="৳0"
                             android:textSize="32sp"
                             android:textStyle="bold"
                             android:textColor="@color/success" />

@@ -43,6 +43,8 @@ public class Restaurant {
 
     private long createdAt;
 
+    private double earnings;
+
     public Restaurant(@NonNull String id, @NonNull String name, @NonNull String division,
                       @NonNull String district, @NonNull String address) {
         this.id = id;
@@ -55,6 +57,7 @@ public class Restaurant {
         this.openingHours = "9:00 AM - 10:00 PM";
         this.createdAt = System.currentTimeMillis();
         this.createdAt = System.currentTimeMillis();
+        this.earnings = 0.0;
     }
 
     // Required for Firebase
@@ -160,6 +163,14 @@ public class Restaurant {
 
     public void setCreatedAt(long createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public double getEarnings() {
+        return earnings;
+    }
+
+    public void setEarnings(double earnings) {
+        this.earnings = earnings;
     }
 
     public String getFullLocation() {

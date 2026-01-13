@@ -5,8 +5,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 import androidx.lifecycle.LiveData;
@@ -17,9 +19,11 @@ import com.example.foodbikeandroid.R;
 import com.example.foodbikeandroid.data.model.Order;
 import com.example.foodbikeandroid.data.model.Restaurant;
 import com.example.foodbikeandroid.data.model.User;
+import com.example.foodbikeandroid.data.model.Withdrawal;
 import com.example.foodbikeandroid.data.repository.OrderRepository;
 import com.example.foodbikeandroid.data.repository.RestaurantRepository;
 import com.example.foodbikeandroid.data.repository.UserRepository;
+import com.example.foodbikeandroid.data.repository.WithdrawalRepository;
 import com.example.foodbikeandroid.databinding.ActivityBikerHistoryBinding;
 import com.example.foodbikeandroid.ui.auth.AuthViewModel;
 
@@ -44,6 +48,7 @@ public class BikerHistoryActivity extends AppCompatActivity {
     private OrderRepository orderRepository;
     private RestaurantRepository restaurantRepository;
     private UserRepository userRepository;
+    private WithdrawalRepository withdrawalRepository;
     private AuthViewModel authViewModel;
 
     private Map<String, String> restaurantNames = new HashMap<>();
@@ -66,6 +71,7 @@ public class BikerHistoryActivity extends AppCompatActivity {
         orderRepository = new OrderRepository(getApplication());
         restaurantRepository = RestaurantRepository.getInstance(this);
         userRepository = UserRepository.getInstance(this);
+        withdrawalRepository = new WithdrawalRepository(getApplication());
         authViewModel = new ViewModelProvider(this).get(AuthViewModel.class);
 
         bikerId = authViewModel.getCurrentUsername();
@@ -78,7 +84,8 @@ public class BikerHistoryActivity extends AppCompatActivity {
         setupToolbar();
         setupRecyclerView();
         setupFilterChips();
-        setupExportButton();
+        setupWithdrawButton();
+        setupWithdrawalHistoryButton();
         setupSwipeRefresh();
         loadRestaurantNames();
         loadCustomerNames();
@@ -129,8 +136,18 @@ public class BikerHistoryActivity extends AppCompatActivity {
         });
     }
 
-    private void setupExportButton() {
-        binding.btnExport.setOnClickListener(v -> exportHistory());
+    private void setupWithdrawButton() {
+        binding.btnExport.setText(R.string.withdraw_money);
+        binding.btnExport.setOnClickListener(v -> showWithdrawalDialog());
+    }
+
+    private void setupWithdrawalHistoryButton() {
+        binding.btnWithdrawalHistory.setOnClickListener(v -> {
+            Intent intent = new Intent(this, WithdrawalHistoryActivity.class);
+            intent.putExtra("username", bikerId);
+            intent.putExtra("userType", "BIKER");
+            startActivity(intent);
+        });
     }
 
     private void setupSwipeRefresh() {
@@ -190,15 +207,22 @@ public class BikerHistoryActivity extends AppCompatActivity {
             }
         });
 
-        orderRepository.getTotalDeliveryValue(bikerId).observe(this, totalValue -> {
-            if (totalValue != null) {
-                orderRepository.getTotalDeliveryCount(bikerId).observe(this, count -> {
-                    if (count != null && count > 0) {
-                        double totalEarnings = (count * BASE_DELIVERY_FEE) + (totalValue * PERCENTAGE_BONUS);
-                        binding.tvTotalEarnings.setText(String.format(Locale.getDefault(), "৳%.2f", totalEarnings));
-                    } else {
-                        binding.tvTotalEarnings.setText("৳0.00");
-                    }
+        // Calculate Remaining Balance as total earnings from all orders minus total withdrawals
+        orderRepository.getCompletedOrdersByBiker(bikerId).observe(this, allOrders -> {
+            if (allOrders != null) {
+                // Calculate total earnings from all completed orders
+                double totalEarnings = 0;
+                for (Order order : allOrders) {
+                    double orderEarnings = BASE_DELIVERY_FEE + (order.getTotalPrice() * PERCENTAGE_BONUS);
+                    totalEarnings += orderEarnings;
+                }
+                
+                // Get total withdrawn amount
+                final double finalTotalEarnings = totalEarnings;
+                withdrawalRepository.getTotalWithdrawnByUser(bikerId, "BIKER").observe(this, totalWithdrawn -> {
+                    double withdrawn = totalWithdrawn != null ? totalWithdrawn : 0.0;
+                    double remainingBalance = finalTotalEarnings - withdrawn;
+                    binding.tvTotalEarnings.setText(String.format(Locale.getDefault(), "৳%.2f", remainingBalance));
                 });
             } else {
                 binding.tvTotalEarnings.setText("৳0.00");
@@ -232,10 +256,24 @@ public class BikerHistoryActivity extends AppCompatActivity {
                 binding.tvHistoryCount.setText(getResources().getQuantityString(
                         R.plurals.delivery_count, orders.size(), orders.size()));
 
-                double periodEarnings = calculatePeriodEarnings(orders);
+                // Calculate total earnings from filtered orders (Period Earnings)
+                double periodEarnings = 0;
+                for (Order order : orders) {
+                    double orderEarnings = BASE_DELIVERY_FEE + (order.getTotalPrice() * PERCENTAGE_BONUS);
+                    periodEarnings += orderEarnings;
+                }
+                
                 binding.tvPeriodEarnings.setText(String.format(Locale.getDefault(), "৳%.2f", periodEarnings));
                 binding.tvPeriodEarnings.setVisibility(View.VISIBLE);
                 binding.tvPeriodEarningsLabel.setVisibility(View.VISIBLE);
+                
+                // Calculate Remaining Balance as Period Earnings - Total Withdrawals
+                final double finalPeriodEarnings = periodEarnings;
+                withdrawalRepository.getTotalWithdrawnByUser(bikerId, "BIKER").observe(this, totalWithdrawn -> {
+                    double withdrawn = totalWithdrawn != null ? totalWithdrawn : 0.0;
+                    double remainingBalance = finalPeriodEarnings - withdrawn;
+                    binding.tvTotalEarnings.setText(String.format(Locale.getDefault(), "৳%.2f", remainingBalance));
+                });
             } else {
                 adapter.setOrders(null);
                 binding.rvHistory.setVisibility(View.GONE);
@@ -368,5 +406,241 @@ public class BikerHistoryActivity extends AppCompatActivity {
         } catch (IOException e) {
             Toast.makeText(this, getString(R.string.export_failed, e.getMessage()), Toast.LENGTH_SHORT).show();
         }
+    }
+
+    // Withdrawal methods
+    // Withdrawal methods
+    private void showWithdrawalDialog() {
+        // Calculate available balance from all completed orders minus withdrawals
+        LiveData<List<Order>> ordersLiveData = orderRepository.getCompletedOrdersByBiker(bikerId);
+        ordersLiveData.observe(this, new androidx.lifecycle.Observer<List<Order>>() {
+            @Override
+            public void onChanged(List<Order> orders) {
+                // Remove observer using the same LiveData instance
+                ordersLiveData.removeObserver(this);
+                
+                if (orders != null) {
+                    // Calculate total earnings from all orders
+                    double totalEarnings = 0;
+                    for (Order order : orders) {
+                        double orderEarnings = BASE_DELIVERY_FEE + (order.getTotalPrice() * PERCENTAGE_BONUS);
+                        totalEarnings += orderEarnings;
+                    }
+                    
+                    final double finalTotalEarnings = totalEarnings;
+                    
+                    // Get total withdrawn amount
+                    LiveData<Double> withdrawnLiveData = withdrawalRepository.getTotalWithdrawnByUser(bikerId, "BIKER");
+                    withdrawnLiveData.observe(BikerHistoryActivity.this, new androidx.lifecycle.Observer<Double>() {
+                        @Override
+                        public void onChanged(Double totalWithdrawn) {
+                            // Remove observer using the same LiveData instance
+                            withdrawnLiveData.removeObserver(this);
+                            
+                            double withdrawn = totalWithdrawn != null ? totalWithdrawn : 0.0;
+                            double availableBalance = finalTotalEarnings - withdrawn;
+                            
+                            if (availableBalance <= 0) {
+                                Toast.makeText(BikerHistoryActivity.this, R.string.no_balance_to_withdraw, Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+
+                            String[] methods = {getString(R.string.bank_account), getString(R.string.bkash), getString(R.string.nagad)};
+                            
+                            AlertDialog methodDialog = new AlertDialog.Builder(BikerHistoryActivity.this)
+                                    .setTitle(R.string.select_withdrawal_method)
+                                    .setItems(methods, (dialog, which) -> {
+                                        dialog.dismiss();
+                                        String method = which == 0 ? "Bank" : (which == 1 ? "Bkash" : "Nagad");
+                                        showAccountNumberDialog(method, availableBalance);
+                                    })
+                                    .setNegativeButton(R.string.cancel, null)
+                                    .setCancelable(false)
+                                    .create();
+                            
+                            methodDialog.show();
+                        }
+                    });
+                } else {
+                    Toast.makeText(BikerHistoryActivity.this, R.string.no_balance_to_withdraw, Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    private void showAccountNumberDialog(String method, double maxAmount) {
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_input, null);
+        EditText etInput = dialogView.findViewById(R.id.etInput);
+        etInput.setHint(R.string.account_number_hint);
+        // Make account number visible (not password)
+        etInput.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.enter_account_number, method))
+                .setView(dialogView)
+                .setPositiveButton(R.string.next, null)
+                .setNegativeButton(R.string.cancel, null)
+                .setCancelable(false)
+                .create();
+        
+        dialog.setOnShowListener(dialogInterface -> {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+                String accountNumber = etInput.getText().toString().trim();
+                if (accountNumber.isEmpty()) {
+                    Toast.makeText(this, R.string.account_number_required, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                dialog.dismiss();
+                showAmountDialog(method, accountNumber, maxAmount);
+            });
+        });
+        
+        dialog.show();
+    }
+
+    private void showAmountDialog(String method, String accountNumber, double maxAmount) {
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_input, null);
+        EditText etInput = dialogView.findViewById(R.id.etInput);
+        etInput.setHint(R.string.enter_amount);
+        etInput.setInputType(android.text.InputType.TYPE_CLASS_NUMBER | android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL);
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(R.string.enter_withdrawal_amount)
+                .setView(dialogView)
+                .setPositiveButton(R.string.next, null)
+                .setNegativeButton(R.string.cancel, null)
+                .setCancelable(false)
+                .create();
+        
+        dialog.setOnShowListener(dialogInterface -> {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+                String amountStr = etInput.getText().toString().trim();
+                if (amountStr.isEmpty()) {
+                    Toast.makeText(this, R.string.amount_required, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                try {
+                    double amount = Double.parseDouble(amountStr);
+                    if (amount <= 0) {
+                        Toast.makeText(this, R.string.amount_must_be_positive, Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    if (amount > maxAmount) {
+                        Toast.makeText(this, getString(R.string.insufficient_balance, String.format(Locale.getDefault(), "৳%.2f", maxAmount)), Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    dialog.dismiss();
+                    showOtpDialog(method, accountNumber, amount);
+                } catch (NumberFormatException e) {
+                    Toast.makeText(this, R.string.invalid_amount, Toast.LENGTH_SHORT).show();
+                }
+            });
+        });
+        
+        dialog.show();
+    }
+
+    private void showOtpDialog(String method, String accountNumber, double amount) {
+        // Generate random 6-digit OTP
+        String generatedOtp = String.format(Locale.getDefault(), "%06d", new java.util.Random().nextInt(1000000));
+        
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_input, null);
+        EditText etInput = dialogView.findViewById(R.id.etInput);
+        etInput.setHint(R.string.otp_hint);
+        etInput.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(R.string.enter_otp)
+                .setMessage(getString(R.string.otp_sent_with_code, generatedOtp))
+                .setView(dialogView)
+                .setPositiveButton(R.string.verify, null)
+                .setNegativeButton(R.string.cancel, null)
+                .setCancelable(false)
+                .create();
+        
+        dialog.setOnShowListener(dialogInterface -> {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+                String otp = etInput.getText().toString().trim();
+                if (otp.isEmpty()) {
+                    Toast.makeText(this, R.string.otp_required, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (!otp.equals(generatedOtp)) {
+                    Toast.makeText(this, R.string.invalid_otp, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                dialog.dismiss();
+                showPinDialog(method, accountNumber, amount);
+            });
+        });
+        
+        dialog.show();
+    }
+
+    private void showPinDialog(String method, String accountNumber, double amount) {
+        // Generate random 4-digit PIN
+        String generatedPin = String.format(Locale.getDefault(), "%04d", new java.util.Random().nextInt(10000));
+        
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_input, null);
+        EditText etInput = dialogView.findViewById(R.id.etInput);
+        etInput.setHint(R.string.pin_hint);
+        etInput.setInputType(android.text.InputType.TYPE_CLASS_NUMBER | android.text.InputType.TYPE_NUMBER_VARIATION_PASSWORD);
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(R.string.enter_pin)
+                .setMessage(getString(R.string.pin_sent_with_code, generatedPin))
+                .setView(dialogView)
+                .setPositiveButton(R.string.confirm, null)
+                .setNegativeButton(R.string.cancel, null)
+                .setCancelable(false)
+                .create();
+        
+        dialog.setOnShowListener(dialogInterface -> {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+                String pin = etInput.getText().toString().trim();
+                if (pin.isEmpty()) {
+                    Toast.makeText(this, R.string.pin_required, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (!pin.equals(generatedPin)) {
+                    Toast.makeText(this, R.string.invalid_pin, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                dialog.dismiss();
+                processWithdrawal(method, accountNumber, amount);
+            });
+        });
+        
+        dialog.show();
+    }
+
+    private void processWithdrawal(String method, String accountNumber, double amount) {
+        // Create withdrawal record
+        Withdrawal withdrawal = new Withdrawal(bikerId, "BIKER", amount, method, accountNumber);
+        withdrawalRepository.insert(withdrawal, 
+            () -> {
+                // Deduct amount from user earnings
+                userRepository.deductEarnings(bikerId, amount);
+
+                runOnUiThread(() -> {
+                    new AlertDialog.Builder(this)
+                            .setTitle(R.string.withdrawal_successful)
+                            .setMessage(getString(R.string.withdrawal_success_message, 
+                                    String.format(Locale.getDefault(), "৳%.2f", amount), method, accountNumber))
+                            .setPositiveButton(R.string.ok, (dialog, which) -> {
+                                // Reload stats to show updated balance
+                                loadStats();
+                            })
+                            .setCancelable(false)
+                            .show();
+                });
+            },
+            () -> {
+                // Error callback
+                runOnUiThread(() -> {
+                    Toast.makeText(this, R.string.error_occurred, Toast.LENGTH_SHORT).show();
+                });
+            }
+        );
     }
 }

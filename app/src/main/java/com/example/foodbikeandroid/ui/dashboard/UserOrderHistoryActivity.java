@@ -72,6 +72,14 @@ public class UserOrderHistoryActivity extends AppCompatActivity {
         setupFilterChips();
         setupSearch();
         setupSwipeRefresh();
+        
+        // Check for specific order to track
+        String orderIdFilter = getIntent().getStringExtra("ORDER_ID_FILTER");
+        if (orderIdFilter != null && !orderIdFilter.isEmpty()) {
+            searchQuery = orderIdFilter.toLowerCase(Locale.getDefault());
+            binding.etSearch.setText(orderIdFilter);
+        }
+        
         loadRestaurantNames();
         loadOrders();
         showLoading();

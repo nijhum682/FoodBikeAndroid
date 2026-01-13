@@ -8,6 +8,7 @@ import androidx.lifecycle.LiveData;
 
 import com.example.foodbikeandroid.data.database.FoodBikeDatabase;
 import com.example.foodbikeandroid.data.database.OrderDao;
+import com.example.foodbikeandroid.data.database.RestaurantDao;
 import com.example.foodbikeandroid.data.database.UserDao;
 import com.example.foodbikeandroid.data.model.Order;
 import com.example.foodbikeandroid.data.model.OrderStatus;
@@ -22,6 +23,8 @@ public class OrderRepository {
 
     private final OrderDao orderDao;
     private final UserDao userDao;
+    private final RestaurantDao restaurantDao;
+    private final UserRepository userRepository;
     private final FirestoreHelper firestoreHelper;
     private final ExecutorService executorService;
     private final Handler mainHandler;
@@ -32,6 +35,8 @@ public class OrderRepository {
         FoodBikeDatabase database = FoodBikeDatabase.getInstance(application);
         orderDao = database.orderDao();
         userDao = database.userDao();
+        restaurantDao = database.restaurantDao();
+        userRepository = UserRepository.getInstance(application);
         firestoreHelper = FirestoreHelper.getInstance();
         executorService = Executors.newFixedThreadPool(4);
         mainHandler = new Handler(Looper.getMainLooper());
@@ -241,8 +246,18 @@ public class OrderRepository {
                 Order order = orderDao.getOrderByIdSync(orderId);
                 orderDao.updateOrderStatusToDelivered(orderId, OrderStatus.DELIVERED, System.currentTimeMillis());
                 
-                if (order != null && order.getBikerId() != null) {
-                    userDao.addEarnings(order.getBikerId(), 50.0);
+                if (order != null) {
+                    // Add earnings to biker: Base fee (50.0) + 2% of order total
+                    if (order.getBikerId() != null) {
+                        double bikerEarnings = 50.0 + (order.getTotalPrice() * 0.02);
+                        userRepository.addEarnings(order.getBikerId(), bikerEarnings);
+                    }
+                    
+                    // Add earnings to restaurant owner: 90% of order total (10% platform fee)
+                    if (order.getRestaurantId() != null) {
+                        double restaurantEarnings = order.getTotalPrice() * 0.90;
+                        restaurantDao.addEarnings(order.getRestaurantId(), restaurantEarnings);
+                    }
                 }
                 
                 mainHandler.post(callback::onSuccess);

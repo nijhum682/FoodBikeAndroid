@@ -97,7 +97,18 @@ public class RestaurantOrderAdapter extends RecyclerView.Adapter<RestaurantOrder
             
             String customerName = listener != null ? listener.getCustomerName(order.getUserId()) : order.getUserId();
             binding.tvCustomerName.setText(customerName);
-            binding.tvDeliveryLocation.setText(order.getDistrict());
+            
+            String fullAddress = order.getDeliveryAddress();
+            String district = order.getDistrict();
+            
+            if (fullAddress == null || fullAddress.isEmpty()) {
+                fullAddress = (district != null && !district.equals("Unknown")) ? district : "";
+            } else {
+                if (district != null && !district.isEmpty() && !district.equals("Unknown")) {
+                    fullAddress = fullAddress + ", " + district;
+                }
+            }
+            binding.tvDeliveryLocation.setText(fullAddress);
             
             StringBuilder itemsBuilder = new StringBuilder();
             List<CartItem> items = order.getItems();

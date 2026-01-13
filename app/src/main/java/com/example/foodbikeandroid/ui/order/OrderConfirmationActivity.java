@@ -86,10 +86,10 @@ public class OrderConfirmationActivity extends AppCompatActivity {
             return;
         }
 
-        // Validate Session and Cart Data
+
         if (sessionManager.getUsername() == null) {
             Toast.makeText(this, "Session expired. Please login again.", Toast.LENGTH_LONG).show();
-            // Optional: Redirect to login
+
             return;
         }
         if (cartManager.getCurrentRestaurantId() == null) {
@@ -112,7 +112,6 @@ public class OrderConfirmationActivity extends AppCompatActivity {
             return;
         }
 
-        // Prevent double clicks
         binding.btnPlaceOrder.setEnabled(false);
         new android.os.Handler().postDelayed(() -> binding.btnPlaceOrder.setEnabled(true), 2000);
     }
@@ -128,14 +127,14 @@ public class OrderConfirmationActivity extends AppCompatActivity {
         builder.setView(input);
 
         builder.setPositiveButton("Confirm", (dialog, which) -> {
-            // Keep dialog open if validation fails - handled below
+
         });
         builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
 
         android.app.AlertDialog dialog = builder.create();
         dialog.show();
 
-        // Override Positive Button to prevent auto-close on error
+
         dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
             String phoneNumber = input.getText().toString().trim();
             if (isValidPhoneNumber(phoneNumber)) {
@@ -152,8 +151,7 @@ public class OrderConfirmationActivity extends AppCompatActivity {
     }
 
     private void showOtpDialog(PaymentMethod paymentMethod, String phoneNumber) {
-        // Generate random 4-digit OTP
-        int otpValue = (int) (Math.random() * 9000) + 1000;
+        int otpValue = (int) (Math.random() * 8000) + 1000;
         String randomOtp = String.valueOf(otpValue);
         
         android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
@@ -167,14 +165,12 @@ public class OrderConfirmationActivity extends AppCompatActivity {
         builder.setView(input);
 
         builder.setPositiveButton("Verify", (dialog, which) -> {
-            // Keep open if fails - handled below
         });
         builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
 
         android.app.AlertDialog dialog = builder.create();
         dialog.show();
-        
-        // Override Positive Button
+
         dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
             String enteredOtp = input.getText().toString().trim();
             if (enteredOtp.equals(randomOtp)) {

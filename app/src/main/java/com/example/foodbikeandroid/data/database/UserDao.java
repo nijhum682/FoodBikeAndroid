@@ -51,6 +51,9 @@ public interface UserDao {
     @Query("UPDATE users SET earnings = earnings + :amount WHERE username = :username")
     void addEarnings(String username, double amount);
 
+    @Query("UPDATE users SET earnings = earnings - :amount WHERE username = :username")
+    void deductEarnings(String username, double amount);
+
     @Query("DELETE FROM users")
     void deleteAllUsers();
 }

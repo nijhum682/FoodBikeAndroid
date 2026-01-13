@@ -384,7 +384,7 @@
 
                 </LinearLayout>
 
-                <!-- Export Button -->
+                <!-- Withdraw Money Button -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnExport"
                     style="@style/Widget.Material3.Button.OutlinedButton"
@@ -393,6 +393,18 @@
                     android:text="@string/export_history"
                     android:layout_marginTop="16dp"
                     app:icon="@drawable/ic_save"
+                    app:iconGravity="textStart"
+                    app:cornerRadius="8dp" />
+
+                <!-- Withdrawal History Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnWithdrawalHistory"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/withdrawal_history"
+                    android:layout_marginTop="8dp"
+                    app:icon="@drawable/ic_history"
                     app:iconGravity="textStart"
                     app:cornerRadius="8dp" />
 

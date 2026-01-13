@@ -106,7 +106,17 @@ public class AvailableOrderAdapter extends RecyclerView.Adapter<AvailableOrderAd
                     : order.getRestaurantId();
             binding.tvRestaurantName.setText(restaurantName != null ? restaurantName : "Unknown Restaurant");
             
-            binding.tvDistrict.setText(order.getDistrict());
+            String fullAddress = order.getDeliveryAddress();
+            String district = order.getDistrict();
+            
+            if (fullAddress == null || fullAddress.isEmpty()) {
+                fullAddress = (district != null && !district.equals("Unknown")) ? district : "";
+            } else {
+                if (district != null && !district.isEmpty() && !district.equals("Unknown")) {
+                    fullAddress = fullAddress + ", " + district;
+                }
+            }
+            binding.tvDistrict.setText(fullAddress);
             
             int itemCount = order.getItems() != null ? order.getItems().size() : 0;
             binding.tvItemCount.setText(itemView.getContext().getResources()

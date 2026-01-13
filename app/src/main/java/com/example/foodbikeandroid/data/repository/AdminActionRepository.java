@@ -57,7 +57,7 @@ public class AdminActionRepository {
                                 try {
                                     adminActionDao.insert(a);
                                 } catch (Exception e) {
-                                    // Ignore
+
                                 }
                             }
                         });

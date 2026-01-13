@@ -34,9 +34,10 @@ public class OrderSuccessActivity extends AppCompatActivity {
         });
 
         binding.btnTrackOrder.setOnClickListener(v -> {
-            // TODO: Navigate to order tracking screen
-            Intent intent = new Intent(this, UserDashboardActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            Intent intent = new Intent(this, com.example.foodbikeandroid.ui.dashboard.UserOrderHistoryActivity.class);
+            if (orderId != null) {
+                intent.putExtra("ORDER_ID_FILTER", orderId);
+            }
             startActivity(intent);
             finish();
         });

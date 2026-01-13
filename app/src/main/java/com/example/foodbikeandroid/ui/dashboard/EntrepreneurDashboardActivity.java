@@ -214,6 +214,8 @@ public class EntrepreneurDashboardActivity extends AppCompatActivity {
         }
     }
 
+    private androidx.lifecycle.LiveData<List<Restaurant>> currentRestaurantsLiveData;
+
     private void updateRestaurantsList() {
         if (approvedApplications.isEmpty()) {
             binding.cardRestaurantStatus.setVisibility(View.GONE);
@@ -229,7 +231,12 @@ public class EntrepreneurDashboardActivity extends AppCompatActivity {
             
             String restaurantName = approvedApplications.get(0).getRestaurantName();
             if (restaurantName != null) {
-                restaurantRepository.getAllRestaurants().observe(this, allRestaurants -> {
+                if (currentRestaurantsLiveData != null) {
+                    currentRestaurantsLiveData.removeObservers(this);
+                }
+                
+                currentRestaurantsLiveData = restaurantRepository.getAllRestaurants();
+                currentRestaurantsLiveData.observe(this, allRestaurants -> {
                     if (allRestaurants != null) {
                         for (Restaurant restaurant : allRestaurants) {
                             if (restaurant.getName().equals(restaurantName)) {
@@ -261,26 +268,31 @@ public class EntrepreneurDashboardActivity extends AppCompatActivity {
     }
 
     private void openRestaurantOrders(RestaurantApplication restaurant) {
-        restaurantRepository.getAllRestaurants().observe(this, allRestaurants -> {
-            if (allRestaurants == null) return;
-            
-            String restaurantId = null;
-            for (Restaurant r : allRestaurants) {
-                if (r.getName().equals(restaurant.getRestaurantName())) {
-                    restaurantId = r.getId();
-                    break;
+        androidx.lifecycle.LiveData<List<Restaurant>> restaurantsLiveData = restaurantRepository.getAllRestaurants();
+        restaurantsLiveData.observe(this, new androidx.lifecycle.Observer<List<Restaurant>>() {
+            @Override
+            public void onChanged(List<Restaurant> allRestaurants) {
+                restaurantsLiveData.removeObserver(this);
+                if (allRestaurants == null) return;
+                
+                String restaurantId = null;
+                for (Restaurant r : allRestaurants) {
+                    if (r.getName().equals(restaurant.getRestaurantName())) {
+                        restaurantId = r.getId();
+                        break;
+                    }
                 }
-            }
-            
-            if (restaurantId != null) {
-                Intent intent = new Intent(this, RestaurantOrdersActivity.class);
-                intent.putExtra(RestaurantOrdersActivity.EXTRA_RESTAURANT_ID, restaurantId);
-                intent.putExtra(RestaurantOrdersActivity.EXTRA_RESTAURANT_NAME, restaurant.getRestaurantName());
-                intent.putExtra(RestaurantOrdersActivity.EXTRA_RESTAURANT_LOCATION, 
-                        restaurant.getDistrict() + ", " + restaurant.getDivision());
-                startActivity(intent);
-            } else {
-                Toast.makeText(this, "Restaurant not found", Toast.LENGTH_SHORT).show();
+                
+                if (restaurantId != null) {
+                    Intent intent = new Intent(EntrepreneurDashboardActivity.this, RestaurantOrdersActivity.class);
+                    intent.putExtra(RestaurantOrdersActivity.EXTRA_RESTAURANT_ID, restaurantId);
+                    intent.putExtra(RestaurantOrdersActivity.EXTRA_RESTAURANT_NAME, restaurant.getRestaurantName());
+                    intent.putExtra(RestaurantOrdersActivity.EXTRA_RESTAURANT_LOCATION, 
+                            restaurant.getDistrict() + ", " + restaurant.getDivision());
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(EntrepreneurDashboardActivity.this, "Restaurant not found", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
@@ -292,29 +304,35 @@ public class EntrepreneurDashboardActivity extends AppCompatActivity {
             return;
         }
 
-        applicationRepository.getByEntrepreneur(username).observe(this, applications -> {
-            if (applications == null || applications.isEmpty()) {
-                Toast.makeText(this, R.string.no_restaurants_to_manage, Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            List<RestaurantApplication> manageableApps = new ArrayList<>();
-            for (RestaurantApplication app : applications) {
-                if (app.getStatus() == ApplicationStatus.APPROVED || 
-                    app.getStatus() == ApplicationStatus.PENDING) {
-                    manageableApps.add(app);
+        androidx.lifecycle.LiveData<List<RestaurantApplication>> applicationsLiveData = applicationRepository.getByEntrepreneur(username);
+        applicationsLiveData.observe(this, new androidx.lifecycle.Observer<List<RestaurantApplication>>() {
+            @Override
+            public void onChanged(List<RestaurantApplication> applications) {
+                applicationsLiveData.removeObserver(this);
+                
+                if (applications == null || applications.isEmpty()) {
+                    Toast.makeText(EntrepreneurDashboardActivity.this, R.string.no_restaurants_to_manage, Toast.LENGTH_SHORT).show();
+                    return;
                 }
-            }
 
-            if (manageableApps.isEmpty()) {
-                Toast.makeText(this, R.string.no_restaurants_to_manage, Toast.LENGTH_SHORT).show();
-                return;
-            }
+                List<RestaurantApplication> manageableApps = new ArrayList<>();
+                for (RestaurantApplication app : applications) {
+                    if (app.getStatus() == ApplicationStatus.APPROVED || 
+                        app.getStatus() == ApplicationStatus.PENDING) {
+                        manageableApps.add(app);
+                    }
+                }
 
-            if (manageableApps.size() == 1) {
-                openMenuForApplication(manageableApps.get(0));
-            } else {
-                showRestaurantSelectionDialog(manageableApps);
+                if (manageableApps.isEmpty()) {
+                    Toast.makeText(EntrepreneurDashboardActivity.this, R.string.no_restaurants_to_manage, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if (manageableApps.size() == 1) {
+                    openMenuForApplication(manageableApps.get(0));
+                } else {
+                    showRestaurantSelectionDialog(manageableApps);
+                }
             }
         });
     }
@@ -351,10 +369,11 @@ public class EntrepreneurDashboardActivity extends AppCompatActivity {
     }
 
     private void openRatingsForRestaurant(RestaurantApplication application) {
-        restaurantRepository.getAllRestaurants().observe(this, new androidx.lifecycle.Observer<List<Restaurant>>() {
+        androidx.lifecycle.LiveData<List<Restaurant>> restaurantsLiveData = restaurantRepository.getAllRestaurants();
+        restaurantsLiveData.observe(this, new androidx.lifecycle.Observer<List<Restaurant>>() {
             @Override
             public void onChanged(List<Restaurant> allRestaurants) {
-                restaurantRepository.getAllRestaurants().removeObserver(this);
+                restaurantsLiveData.removeObserver(this);
                 
                 if (allRestaurants != null) {
                     for (Restaurant restaurant : allRestaurants) {
@@ -392,22 +411,29 @@ public class EntrepreneurDashboardActivity extends AppCompatActivity {
 
     private void openMenuForApplication(RestaurantApplication application) {
         if (application.getStatus() == ApplicationStatus.APPROVED) {
-            restaurantRepository.getAllRestaurants().observe(this, allRestaurants -> {
-                if (allRestaurants != null) {
-                    for (Restaurant r : allRestaurants) {
-                        if (r.getName().equals(application.getRestaurantName())) {
-                            Intent intent = new Intent(this, ManageMenuActivity.class);
-                            intent.putExtra(ManageMenuActivity.EXTRA_APPLICATION_ID, application.getApplicationId());
-                            intent.putExtra(ManageMenuActivity.EXTRA_RESTAURANT_ID, r.getId());
-                            startActivity(intent);
-                            return;
+            androidx.lifecycle.LiveData<List<Restaurant>> restaurantsLiveData = restaurantRepository.getAllRestaurants();
+            restaurantsLiveData.observe(this, new androidx.lifecycle.Observer<List<Restaurant>>() {
+                @Override
+                public void onChanged(List<Restaurant> allRestaurants) {
+                    restaurantsLiveData.removeObserver(this);
+                    
+                    if (allRestaurants != null) {
+                        for (Restaurant r : allRestaurants) {
+                            if (r.getName().equals(application.getRestaurantName())) {
+                                Intent intent = new Intent(EntrepreneurDashboardActivity.this, ManageMenuActivity.class);
+                                intent.putExtra(ManageMenuActivity.EXTRA_APPLICATION_ID, application.getApplicationId());
+                                intent.putExtra(ManageMenuActivity.EXTRA_RESTAURANT_ID, r.getId());
+                                startActivity(intent);
+                                return;
+                            }
                         }
                     }
+                    // Fallback if not found (shouldn't happen if approved)
+                    Toast.makeText(EntrepreneurDashboardActivity.this, "Error: Restaurant data not found", Toast.LENGTH_SHORT).show();
                 }
-                // Fallback if not found (shouldn't happen if approved)
-                Toast.makeText(this, "Error: Restaurant data not found", Toast.LENGTH_SHORT).show();
             });
-        } else {
+        }
+ else {
             Intent intent = new Intent(this, ManageMenuActivity.class);
             intent.putExtra(ManageMenuActivity.EXTRA_APPLICATION_ID, application.getApplicationId());
             startActivity(intent);

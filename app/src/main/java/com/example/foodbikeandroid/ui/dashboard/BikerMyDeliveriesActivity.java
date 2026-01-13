@@ -151,6 +151,34 @@ public class BikerMyDeliveriesActivity extends AppCompatActivity {
         // Removed confirmation dialog for instant delivery confirmation
 
     private void markOrderDelivered(Order order) {
+        // Check if this is a Cash on Delivery order
+        if (order.getPaymentMethod() == com.example.foodbikeandroid.data.model.PaymentMethod.CASH_ON_DELIVERY) {
+            // Show confirmation dialog for COD orders
+            showCodConfirmationDialog(order);
+        } else {
+            // For non-COD orders, proceed directly with delivery confirmation
+            confirmDelivery(order);
+        }
+    }
+
+    private void showCodConfirmationDialog(Order order) {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.cod_confirmation_title)
+                .setMessage(getString(R.string.cod_confirmation_message, 
+                        String.format(Locale.getDefault(), "৳%.2f", order.getTotalPrice())))
+                .setPositiveButton(R.string.cod_yes_received, (dialog, which) -> {
+                    // User confirmed receiving payment
+                    confirmDelivery(order);
+                })
+                .setNegativeButton(R.string.cod_no_not_received, (dialog, which) -> {
+                    // User did not receive payment
+                    Toast.makeText(this, R.string.cod_payment_not_received, Toast.LENGTH_LONG).show();
+                })
+                .setCancelable(false)
+                .show();
+    }
+
+    private void confirmDelivery(Order order) {
         orderRepository.updateOrderStatusToDelivered(order.getOrderId(), new OrderRepository.StatusUpdateCallback() {
             @Override
             public void onSuccess() {

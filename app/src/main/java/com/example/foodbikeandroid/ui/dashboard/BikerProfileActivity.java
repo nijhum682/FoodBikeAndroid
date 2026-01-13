@@ -21,16 +21,42 @@ public class BikerProfileActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         authViewModel = new ViewModelProvider(this).get(AuthViewModel.class);
-        String username = authViewModel.getCurrentUsername();
-        binding.tvProfileUsername.setText("Username: " + (username != null ? username : ""));
-        binding.tvProfileEmail.setText("Email: demo@email.com");
-        binding.tvProfilePhone.setText("Phone: 0123456789");
-        binding.tvProfileUserType.setText("User Type: Biker");
-        binding.tvProfileSignupDate.setText("Signup Date: 2026-01-10");
-        binding.etProfileAddress.setText("Demo Address");
+
+        // Back button
+        binding.ibBack.setOnClickListener(v -> finish());
+
+        // Load User Data
+        authViewModel.loadCurrentUser(new com.example.foodbikeandroid.data.repository.UserRepository.AuthCallback() {
+            @Override
+            public void onSuccess(com.example.foodbikeandroid.data.model.User user) {
+                runOnUiThread(() -> {
+                    // Start of UI update
+                    binding.tvProfileUsername.setText(user.getUsername());
+                    binding.tvProfileEmail.setText(user.getEmail());
+                    binding.tvProfilePhone.setText(user.getPhoneNumber());
+                    binding.tvProfileUserType.setText(user.getUserType().toString());
+
+                    java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault());
+                    binding.tvProfileSignupDate.setText(sdf.format(new java.util.Date(user.getCreatedAt())));
+
+                    binding.etProfileAddress.setText(user.getAddress());
+                });
+            }
+
+            @Override
+            public void onError(String message) {
+                runOnUiThread(() -> {
+                    Toast.makeText(BikerProfileActivity.this, "Error loading profile: " + message, Toast.LENGTH_SHORT).show();
+                });
+            }
+        });
+
         binding.btnProfileSaveAddress.setOnClickListener(v -> {
             String newAddress = binding.etProfileAddress.getText().toString().trim();
-            Toast.makeText(this, "Address updated!", Toast.LENGTH_SHORT).show();
+            if(!newAddress.isEmpty()){
+                // Ideally update user here, but providing feedback for now
+                Toast.makeText(this, "Address updated (Implementation Pending)", Toast.LENGTH_SHORT).show();
+            }
         });
     }
 }

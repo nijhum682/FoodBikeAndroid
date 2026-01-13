@@ -11,7 +11,10 @@ public class Withdrawal {
     private String id;
 
     @NonNull
-    private String adminUsername;
+    private String username; // Admin or Biker username
+
+    @NonNull
+    private String userType; // "ADMIN" or "BIKER"
 
     private double amount;
 
@@ -23,16 +26,16 @@ public class Withdrawal {
 
     private long timestamp;
 
-    public Withdrawal(@NonNull String adminUsername, double amount, @NonNull String method, @NonNull String accountNumber) {
+    public Withdrawal(@NonNull String username, @NonNull String userType, double amount, @NonNull String method, @NonNull String accountNumber) {
         this.id = "W_" + System.currentTimeMillis();
-        this.adminUsername = adminUsername;
+        this.username = username;
+        this.userType = userType;
         this.amount = amount;
         this.method = method;
         this.accountNumber = accountNumber;
         this.timestamp = System.currentTimeMillis();
     }
 
-    // Required for Firebase
     public Withdrawal() {
     }
 
@@ -46,12 +49,21 @@ public class Withdrawal {
     }
 
     @NonNull
-    public String getAdminUsername() {
-        return adminUsername;
+    public String getUsername() {
+        return username;
     }
 
-    public void setAdminUsername(@NonNull String adminUsername) {
-        this.adminUsername = adminUsername;
+    public void setUsername(@NonNull String username) {
+        this.username = username;
+    }
+
+    @NonNull
+    public String getUserType() {
+        return userType;
+    }
+
+    public void setUserType(@NonNull String userType) {
+        this.userType = userType;
     }
 
     public double getAmount() {

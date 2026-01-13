@@ -33,13 +33,31 @@ public class WithdrawalHistoryActivity extends AppCompatActivity {
         rvWithdrawals.setAdapter(adapter);
 
         WithdrawalRepository repository = new WithdrawalRepository(getApplication());
-        repository.getAllWithdrawals().observe(this, withdrawals -> {
-            if (withdrawals != null && !withdrawals.isEmpty()) {
-                adapter.setWithdrawals(withdrawals);
-                tvEmpty.setVisibility(View.GONE);
-            } else {
-                tvEmpty.setVisibility(View.VISIBLE);
-            }
-        });
+        
+        // Check if filtering by specific user
+        String username = getIntent().getStringExtra("username");
+        String userType = getIntent().getStringExtra("userType");
+        
+        if (username != null && userType != null) {
+            // Filter by specific user (e.g., biker)
+            repository.getWithdrawalsByUser(username, userType).observe(this, withdrawals -> {
+                if (withdrawals != null && !withdrawals.isEmpty()) {
+                    adapter.setWithdrawals(withdrawals);
+                    tvEmpty.setVisibility(View.GONE);
+                } else {
+                    tvEmpty.setVisibility(View.VISIBLE);
+                }
+            });
+        } else {
+            // Show all withdrawals (admin view)
+            repository.getAllWithdrawals().observe(this, withdrawals -> {
+                if (withdrawals != null && !withdrawals.isEmpty()) {
+                    adapter.setWithdrawals(withdrawals);
+                    tvEmpty.setVisibility(View.GONE);
+                } else {
+                    tvEmpty.setVisibility(View.VISIBLE);
+                }
+            });
+        }
     }
 }

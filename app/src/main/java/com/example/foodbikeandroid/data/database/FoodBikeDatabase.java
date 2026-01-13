@@ -16,7 +16,7 @@ import com.example.foodbikeandroid.data.model.Review;
 
 import com.example.foodbikeandroid.data.model.Withdrawal;
 
-@Database(entities = {User.class, Restaurant.class, Order.class, RestaurantApplication.class, AdminAction.class, Review.class, Withdrawal.class}, version = 14, exportSchema = false)
+@Database(entities = {User.class, Restaurant.class, Order.class, RestaurantApplication.class, AdminAction.class, Review.class, Withdrawal.class}, version = 16, exportSchema = false)
 @TypeConverters(Converters.class)
 public abstract class FoodBikeDatabase extends RoomDatabase {
 
@@ -43,7 +43,7 @@ public abstract class FoodBikeDatabase extends RoomDatabase {
                             FoodBikeDatabase.class,
                             DATABASE_NAME
                     )
-                    .addMigrations(MIGRATION_8_9, MIGRATION_12_13)
+                    .addMigrations(MIGRATION_8_9, MIGRATION_12_13, MIGRATION_14_15, MIGRATION_15_16)
                     .fallbackToDestructiveMigration()
                     .build();
                 }
@@ -63,6 +63,27 @@ public abstract class FoodBikeDatabase extends RoomDatabase {
         @Override
         public void migrate(androidx.sqlite.db.SupportSQLiteDatabase database) {
             database.execSQL("CREATE TABLE IF NOT EXISTS `withdrawals` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `adminUsername` TEXT NOT NULL, `amount` REAL NOT NULL, `method` TEXT NOT NULL, `accountNumber` TEXT NOT NULL, `timestamp` INTEGER NOT NULL)");
+        }
+    };
+    
+    public static final androidx.room.migration.Migration MIGRATION_14_15 = new androidx.room.migration.Migration(14, 15) {
+        @Override
+        public void migrate(androidx.sqlite.db.SupportSQLiteDatabase database) {
+            database.execSQL("ALTER TABLE restaurants ADD COLUMN earnings REAL NOT NULL DEFAULT 0.0");
+        }
+    };
+    
+    public static final androidx.room.migration.Migration MIGRATION_15_16 = new androidx.room.migration.Migration(15, 16) {
+        @Override
+        public void migrate(androidx.sqlite.db.SupportSQLiteDatabase database) {
+            // Create new withdrawals table with updated schema
+            database.execSQL("CREATE TABLE IF NOT EXISTS `withdrawals_new` (`id` TEXT PRIMARY KEY NOT NULL, `username` TEXT NOT NULL, `userType` TEXT NOT NULL, `amount` REAL NOT NULL, `method` TEXT NOT NULL, `accountNumber` TEXT NOT NULL, `timestamp` INTEGER NOT NULL)");
+            // Copy data from old table (if exists) - map adminUsername to username and set userType to ADMIN
+            database.execSQL("INSERT INTO withdrawals_new (id, username, userType, amount, method, accountNumber, timestamp) SELECT id, adminUsername, 'ADMIN', amount, method, accountNumber, timestamp FROM withdrawals");
+            // Drop old table
+            database.execSQL("DROP TABLE withdrawals");
+            // Rename new table
+            database.execSQL("ALTER TABLE withdrawals_new RENAME TO withdrawals");
         }
     };
 }
